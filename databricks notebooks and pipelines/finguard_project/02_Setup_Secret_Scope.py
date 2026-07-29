@@ -1,6 +1,6 @@
 # Databricks notebook source
 # =====================================================
-# 1️⃣ Define Connection Variables (EDIT THESE)
+# 1. Define Connection Variables (EDIT THESE)
 # =====================================================
 
 # Secret scope name (will be created if not exists)
@@ -126,7 +126,7 @@ else:
 # COMMAND ----------
 
 # =====================================================
-# 5️⃣ Verify Secret Retrieval
+# 5. Verify Secret Retrieval
 # =====================================================
 
 try:

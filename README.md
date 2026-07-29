@@ -55,41 +55,41 @@ flowchart TD
 
 ```text
 .
-├── kafka_producer/                      # Real-time transaction producer & generator
-│   ├── config.py                        # Environment configuration and validation
-│   ├── producer_normal.py              # Normal transaction simulator
-│   ├── producer_fraud_card.py          # Fraudulent card pattern simulator
-│   ├── producer_fraud_transaction.py   # High-risk transaction simulator
-│   ├── customer_generator.py           # Customer dataset generation
-│   ├── merchant_generator.py           # Merchant dataset generation
-│   ├── transaction_generator.py        # Core transaction generation logic
-│   ├── fraud_engine.py                 # Fraud scoring & rule evaluation engine
-│   ├── .env.example                     # Environment template
-│   └── requirements.txt                 # Python dependencies
-│
-├── databricks notebooks and pipelines/  # Databricks PySpark Delta Lake processing
-│   └── finguard_project/
-│       ├── 01_kafka_streaming_test.py    # Kafka connector test & verification
-│       ├── 02_Setup_Secret_Scope.py     # Secret scope and API credential setup
-│       ├── 03_Send_Email.py             # Email notification testing harness
-│       ├── 04_Autoloader_test.py        # Auto Loader streaming ingestion test
-│       ├── finguard_streaming/          # Structured Streaming Medallion Pipelines
-│       │   ├── bronze/                  # Raw streaming ingestion notebooks
-│       │   ├── silver/                  # Cleansing & deduplication notebooks
-│       │   ├── gold/                    # Analytical & alert aggregation notebooks
-│       │   └── alert/                   # Real-time email notification sinks
-│       ├── finguard_customers_silver_ingestion/ # Customer master sync
-│       └── fraud_watchlist_file_generator/      # Watchlist test data generator
-│
-├── postgres sql/                        # Relational database schemas & seed data
-│   ├── customers_historic.sql          # Initial historic customer dataset (250K+ records)
-│   └── customers_incremental.sql       # Incremental update scripts
-│
-├── dashboard/                           # Monitoring dashboard definitions
-│   └── FinGuard Fraud Detection Monitoring.lvdash.json # Databricks Lakeview dashboard export
-│
-├── .gitignore                           # Git ignore definitions
-└── README.md                            # Main project documentation
++-- kafka_producer/                      # Real-time transaction producer & generator
+|   +-- config.py                        # Environment configuration and validation
+|   +-- producer_normal.py              # Normal transaction simulator
+|   +-- producer_fraud_card.py          # Fraudulent card pattern simulator
+|   +-- producer_fraud_transaction.py   # High-risk transaction simulator
+|   +-- customer_generator.py           # Customer dataset generation
+|   +-- merchant_generator.py           # Merchant dataset generation
+|   +-- transaction_generator.py        # Core transaction generation logic
+|   +-- fraud_engine.py                 # Fraud scoring & rule evaluation engine
+|   +-- .env.example                     # Environment template
+|   \-- requirements.txt                 # Python dependencies
+|
++-- databricks notebooks and pipelines/  # Databricks PySpark Delta Lake processing
+|   \-- finguard_project/
+|       +-- 01_kafka_streaming_test.py    # Kafka connector test & verification
+|       +-- 02_Setup_Secret_Scope.py     # Secret scope and API credential setup
+|       +-- 03_Send_Email.py             # Email notification testing harness
+|       +-- 04_Autoloader_test.py        # Auto Loader streaming ingestion test
+|       +-- finguard_streaming/          # Structured Streaming Medallion Pipelines
+|       |   +-- bronze/                  # Raw streaming ingestion notebooks
+|       |   +-- silver/                  # Cleansing & deduplication notebooks
+|       |   +-- gold/                    # Analytical & alert aggregation notebooks
+|       |   \-- alert/                   # Real-time email notification sinks
+|       +-- finguard_customers_silver_ingestion/ # Customer master sync
+|       \-- fraud_watchlist_file_generator/      # Watchlist test data generator
+|
++-- postgres sql/                        # Relational database schemas & seed data
+|   +-- customers_historic.sql          # Initial historic customer dataset (250K+ records)
+|   \-- customers_incremental.sql       # Incremental update scripts
+|
++-- dashboard/                           # Monitoring dashboard definitions
+|   \-- FinGuard Fraud Detection Monitoring.lvdash.json # Databricks Lakeview dashboard export
+|
++-- .gitignore                           # Git ignore definitions
+\-- README.md                            # Main project documentation
 ```
 
 ---

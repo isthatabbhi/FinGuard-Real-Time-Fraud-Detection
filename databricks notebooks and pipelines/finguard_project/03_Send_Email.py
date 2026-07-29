@@ -64,7 +64,7 @@ try:
         server.login(EMAIL, APP_PASSWORD)
         server.send_message(msg)
 
-    print("✅ Email sent successfully!")
+    print("Email sent successfully!")
 
 except Exception as e:
-    print("❌ Error sending email:", e)
+    print("Error sending email:", e)

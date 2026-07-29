@@ -22,11 +22,11 @@ def send_email(to_email, subject, body, from_email, app_password):
 def create_fraud_alert_email_body(alert_data):
     """Creates the HTML email body for a fraud card alert."""
     return f"""<html><body style="font-family: Arial, sans-serif;">
-<h2 style="color: #dc3545;">🚨 FRAUD ALERT - Suspicious Activity Detected</h2>
+<h2 style="color: #dc3545;">FRAUD ALERT - Suspicious Activity Detected</h2>
 <p>Dear {alert_data['customer_name']},</p>
 <p><strong style="color: #dc3545;">URGENT:</strong> We detected suspicious activity on your card that matches our fraud watchlist:</p>
 <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0;">
-<h3 style="margin-top: 0; color: #dc3545;">⚠️ Fraud Details</h3>
+<h3 style="margin-top: 0; color: #dc3545;">Fraud Details</h3>
 <ul style="list-style-type: none; padding-left: 0;">
 <li><strong>Alert Type:</strong> {alert_data['alert_type']}</li>
 <li><strong>Risk Level:</strong> <span style="color: #dc3545; font-weight: bold;">{alert_data['risk_level']}</span></li>
@@ -49,7 +49,7 @@ def create_fraud_alert_email_body(alert_data):
 <li><strong>Status:</strong> {alert_data['transaction_status']}</li>
 </ul></div>
 <div style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #dc3545; margin: 20px 0;">
-<h3 style="margin-top: 0; color: #721c24;">🔒 IMMEDIATE ACTION REQUIRED</h3>
+<h3 style="margin-top: 0; color: #721c24;">IMMEDIATE ACTION REQUIRED</h3>
 <ol style="color: #721c24;">
 <li><strong>If you DID NOT authorize this transaction:</strong>
 <ul>
@@ -92,7 +92,7 @@ EMAIL_FROM = "databeli13@gmail.com"
 try:
     APP_PASSWORD = dbutils().secrets().get("finguard-scope", "gmail_api_key")
 except Exception as e:
-    print(f"❌ Failed to retrieve Gmail API key from secrets: {e}")
+    print(f"Failed to retrieve Gmail API key from secrets: {e}")
     APP_PASSWORD = None
 
 
@@ -101,11 +101,11 @@ def send_fraud_alert_emails(df, batch_id):
     """ForEachBatch sink that sends email alerts for fraud card transactions."""
     
     if APP_PASSWORD is None:
-        print(f"❌ Batch {batch_id}: Gmail API key not available, skipping email notifications")
+        print(f"Batch {batch_id}: Gmail API key not available, skipping email notifications")
         return
     
     rows = df.collect()
-    print(f"🚨 Batch {batch_id}: Processing {len(rows)} fraud alert(s)...")
+    print(f"Batch {batch_id}: Processing {len(rows)} fraud alert(s)...")
     
     success_count = 0
     failure_count = 0
@@ -145,19 +145,19 @@ def send_fraud_alert_emails(df, batch_id):
                 'watchlist_effective_from': str(row.watchlist_effective_from)
             }
             
-            subject = f"🚨 FRAUD ALERT - {alert_data['risk_level']} Risk - {alert_data['alert_id']}"
+            subject = f"FRAUD ALERT - {alert_data['risk_level']} Risk - {alert_data['alert_id']}"
             body = create_fraud_alert_email_body(alert_data)
             
             send_email(row.customer_email, subject, body, EMAIL_FROM, APP_PASSWORD)
             
             success_count += 1
-            print(f"  ✅ Fraud alert email sent to {row.customer_email} for transaction {row.transaction_id}")
+            print(f"  Fraud alert email sent to {row.customer_email} for transaction {row.transaction_id}")
             
         except Exception as e:
             failure_count += 1
-            print(f"  ❌ Error processing fraud alert {row.alert_id}: {e}")
+            print(f"  Error processing fraud alert {row.alert_id}: {e}")
     
-    print(f"📊 Batch {batch_id} complete: {success_count} succeeded, {failure_count} failed")
+    print(f"Batch {batch_id} complete: {success_count} succeeded, {failure_count} failed")
 
 
 @dp.append_flow(target="fraud_email_notifier_sink")
