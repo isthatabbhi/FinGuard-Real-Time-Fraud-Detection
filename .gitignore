@@ -1,0 +1,31 @@
+# Environment & Secrets
+.env
+*.env
+*.pem
+*.key
+*.cert
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Output & Logs
+*.log
+data/*.csv
+!kafka_producer/data/.gitkeep
+
+# Databricks / Notebook exports
+.databricks/
