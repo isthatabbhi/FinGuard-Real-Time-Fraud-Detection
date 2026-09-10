@@ -55,6 +55,12 @@ flowchart TD
 
 ```text
 .
++-- dashboard/                           # Interactive UI & Lakeview definitions
+|   +-- app.py                           # Live Streamlit demo dashboard for interview panels
+|   +-- deploy_streamlit.md              # Free-tier deployment guide for Streamlit Community Cloud
+|   +-- requirements.txt                 # Dashboard Python dependencies
+|   \-- FinGuard Fraud Detection Monitoring.lvdash.json # Databricks Lakeview dashboard export
+|
 +-- kafka_producer/                      # Real-time transaction producer & generator
 |   +-- config.py                        # Environment configuration and validation
 |   +-- producer_normal.py              # Normal transaction simulator
@@ -64,7 +70,7 @@ flowchart TD
 |   +-- merchant_generator.py           # Merchant dataset generation
 |   +-- transaction_generator.py        # Core transaction generation logic
 |   +-- fraud_engine.py                 # Fraud scoring & rule evaluation engine
-|   +-- .env.example                     # Environment template
+|   +-- .env.example                     # Environment template (Upstash / Confluent / Neon)
 |   \-- requirements.txt                 # Python dependencies
 |
 +-- databricks notebooks and pipelines/  # Databricks PySpark Delta Lake processing
@@ -82,12 +88,11 @@ flowchart TD
 |       \-- fraud_watchlist_file_generator/      # Watchlist test data generator
 |
 +-- postgres sql/                        # Relational database schemas & seed data
-|   +-- customers_historic.sql          # Initial historic customer dataset (250K+ records)
+|   +-- setup_neon_postgres.py           # Automated 1-click migration script for Neon.tech
+|   +-- customers_historic.sql          # Initial historic customer dataset
 |   \-- customers_incremental.sql       # Incremental update scripts
 |
-+-- dashboard/                           # Monitoring dashboard definitions
-|   \-- FinGuard Fraud Detection Monitoring.lvdash.json # Databricks Lakeview dashboard export
-|
++-- deploy_to_databricks.py              # Automated Databricks REST deployment & secret setup
 +-- .gitignore                           # Git ignore definitions
 \-- README.md                            # Main project documentation
 ```
@@ -134,8 +139,37 @@ flowchart TD
    python producer_normal.py
    ```
 
-### 2. Databricks Pipeline Configuration
+### 2. Live Interactive Demo Dashboard (Interview Presentation)
 
+Run the real-time operational dashboard locally or deploy it to Streamlit Community Cloud (free forever, public URL, no credit card required):
+
+```bash
+# Install dashboard requirements
+pip install -r dashboard/requirements.txt
+
+# Run the live dashboard locally
+streamlit run dashboard/app.py
+```
+- **One-Click Fraud Injection**: Click `🚨 High-Value Fraud` or `🛑 Watchlist Fraud` in the sidebar to simulate streaming fraud events and watch the Medallion pipeline detect them in real-time.
+- **Streamlit Cloud Deployment**: See [dashboard/deploy_streamlit.md](dashboard/deploy_streamlit.md) for 3-minute deployment instructions.
+
+### 3. Neon PostgreSQL Setup (Customer Master Data)
+
+Initialize and populate customer master data in your free [Neon.tech](https://neon.tech) PostgreSQL instance:
+
+```bash
+python "postgres sql/setup_neon_postgres.py" --connection-string "<your_neon_connection_string>"
+```
+
+### 4. Databricks Pipeline Configuration & Automation
+
+You can configure your Databricks workspace automatically via the REST deployment script:
+
+```bash
+python deploy_to_databricks.py --host "https://<your-workspace-url>" --token "<your-access-token>"
+```
+
+Or manually:
 1. Import the notebooks from `databricks notebooks and pipelines/finguard_project` into your Databricks workspace.
 2. Run `02_Setup_Secret_Scope.py` to create the `finguard-scope` secret scope and store your Kafka & Email API credentials securely.
 3. Attach and execute the streaming notebooks in `finguard_streaming/` to start the Bronze, Silver, and Gold Delta Lake pipelines.
