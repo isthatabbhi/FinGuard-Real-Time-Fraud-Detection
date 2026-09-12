@@ -1,6 +1,6 @@
 # FinGuard: Real-Time Credit Card Fraud Detection System
 
-[![Live Demo](https://img.shields.io/badge/Live_Demo-https%3A%2F%2Ffinguard.isthatabbhi.tech-10B981?style=for-the-badge&logo=streamlit&logoColor=white)](https://finguard.isthatabbhi.tech)
+[![Live Demo](https://img.shields.io/badge/Live_Demo-https%3A%2F%2Ffinguard.isthatabbhi.tech-10B981?style=for-the-badge&logo=databricks&logoColor=white)](https://finguard.isthatabbhi.tech)
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-Confluent_Cloud-231F20?style=flat&logo=apachekafka&logoColor=white)](https://confluent.io/)
