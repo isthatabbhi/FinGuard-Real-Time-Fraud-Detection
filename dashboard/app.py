@@ -25,7 +25,7 @@ import streamlit as st
 # Set page configuration
 st.set_page_config(
     page_title="FinGuard | Real-Time Fraud Detection Platform",
-    page_icon="🛡️",
+    page_icon="https://img.icons8.com/color/96/shield.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -234,7 +234,7 @@ def generate_transaction_event(cust, is_fraud_high=False, is_fraud_card=False):
             "limit": kafka_event["customer_limit"],
             "merchant_name": merchant["name"],
             "location": f"{merchant['city']}, {merchant['country']}",
-            "reason": f"Amount ₹{amount:,.2f} exceeded customer threshold limit of ₹{kafka_event['customer_limit']:,.2f}"
+            "reason": f"Amount Rs.{amount:,.2f} exceeded customer threshold limit of Rs.{kafka_event['customer_limit']:,.2f}"
         }
         st.session_state.alerts.insert(0, alert)
         
@@ -282,28 +282,28 @@ with st.sidebar:
     st.caption("Platform: Databricks Lakeflow & Delta Lake")
     
     st.markdown("---")
-    st.subheader("⚡ Live Interview Simulation")
+    st.subheader("Live Interview Simulation")
     
     col_sim1, col_sim2 = st.columns(2)
     with col_sim1:
-        if st.button("🚨 High-Value Fraud", use_container_width=True, help="Triggers amount > limit fraud alert"):
+        if st.button("High-Value Fraud", use_container_width=True, help="Triggers amount > limit fraud alert"):
             target_cust = customers_df[customers_df["customer_segment"] == "Regular"].iloc[0].to_dict()
             evt = generate_transaction_event(target_cust, is_fraud_high=True)
-            st.toast(f"🚨 Injected High-Value Fraud: {evt['transaction_id']} (₹{evt['amount']:,.2f})", icon="⚠️")
+            st.toast(f"Injected High-Value Fraud: {evt['transaction_id']} (Rs.{evt['amount']:,.2f})", )
     with col_sim2:
-        if st.button("🛑 Watchlist Fraud", use_container_width=True, help="Triggers fraud watchlist match alert"):
+        if st.button("Watchlist Fraud", use_container_width=True, help="Triggers fraud watchlist match alert"):
             target_cust = customers_df.sample(1).iloc[0].to_dict()
             evt = generate_transaction_event(target_cust, is_fraud_card=True)
-            st.toast(f"🛑 Injected Watchlist Hit: Card 5008514036965665", icon="🛑")
+            st.toast(f"Injected Watchlist Hit: Card 5008514036965665", )
             
-    if st.button("⚡ Inject 5 Normal Txns", use_container_width=True):
+    if st.button("Inject 5 Normal Txns", use_container_width=True):
         for _ in range(5):
             c = customers_df.sample(1).iloc[0].to_dict()
             generate_transaction_event(c)
         st.toast("Produced 5 transactions into stream")
         
     st.markdown("---")
-    st.subheader("🔐 Cloud & Auth Credentials")
+    st.subheader("Cloud & Auth Credentials")
     with st.expander("Configure Free Tiers", expanded=False):
         neon_url = st.text_input("Neon Postgres URL", value=os.getenv("DATABASE_URL", ""), type="password", placeholder="postgresql://user:pass@ep-xyz.neon.tech/finguard")
         kafka_url = st.text_input("Kafka Bootstrap", value=os.getenv("BOOTSTRAP_SERVERS", ""), placeholder="confluent.cloud:9092")
@@ -311,7 +311,7 @@ with st.sidebar:
         gmail_pass = st.text_input("Gmail App Password", value=os.getenv("GMAIL_APP_PASSWORD", ""), type="password", help="16-character Google App Password")
         if st.button("Test Email Dispatch"):
             if gmail_pass:
-                ok, msg = send_real_alert_email(gmail_user, "🛡️ FinGuard Test Alert", "<h3>FinGuard Alert System Active</h3><p>Real-time SMTP connection verified.</p>", gmail_user, gmail_pass)
+                ok, msg = send_real_alert_email(gmail_user, "FinGuard Test Alert", "<h3>FinGuard Alert System Active</h3><p>Real-time SMTP connection verified.</p>", gmail_user, gmail_pass)
                 if ok:
                     st.success(msg)
                 else:
@@ -320,12 +320,12 @@ with st.sidebar:
                 st.info("Simulated email dispatch: SMTP App Password not set (Demo mode active).")
                 
     st.markdown("---")
-    st.markdown("💡 **Tip for Panels**: Show the live event ticker, inject fraud, and switch to the Medallion / Architecture tab to explain watermarks!")
+    st.markdown("**Tip for Panels**: Show the live event ticker, inject fraud, and switch to the Medallion / Architecture tab to explain watermarks!")
 
 # ------------------------------------------------------------------------------
 # Main Dashboard Body
 # ------------------------------------------------------------------------------
-st.markdown('<div class="main-header">🛡️ FinGuard Fraud Monitoring & Detection Platform</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">FinGuard Fraud Monitoring & Detection Platform</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Real-Time Streaming Engine on Databricks Lakeflow, Apache Spark, Kafka & Delta Lake</div>', unsafe_allow_html=True)
 
 # Top KPI Metric Counters
@@ -344,9 +344,9 @@ with kpi1:
 with kpi2:
     st.metric("Total Fraud Alerts", f"{total_alerts:,}", delta="Immediate Flag", delta_color="inverse")
 with kpi3:
-    st.metric("Average Transaction", f"₹{avg_amount:,.2f}")
+    st.metric("Average Transaction", f"Rs.{avg_amount:,.2f}")
 with kpi4:
-    st.metric("Processed Volume", f"₹{total_amount:,.2f}")
+    st.metric("Processed Volume", f"Rs.{total_amount:,.2f}")
 with kpi5:
     st.metric("High-Risk Customers", f"{high_risk_custs:,}", help="Customers with Risk Score > 70 in Master DB")
 
@@ -354,10 +354,10 @@ st.markdown("---")
 
 # Navigation Tabs
 tab_live, tab_medallion, tab_charts, tab_architecture = st.tabs([
-    "🔴 Real-Time Stream & Alerts",
-    "🏅 Medallion Tables (Bronze/Silver/Gold)",
-    "📊 Operational Analytics & KPIs",
-    "🏛️ Architecture & Interview Q&A"
+    "Real-Time Stream & Alerts",
+    "Medallion Tables (Bronze/Silver/Gold)",
+    "Operational Analytics & KPIs",
+    "Architecture & Interview Q&A"
 ])
 
 # ------------------------------------------------------------------------------
@@ -367,14 +367,14 @@ with tab_live:
     col_alerts, col_stream = st.columns([1.1, 1.4])
     
     with col_alerts:
-        st.subheader("🚨 Real-Time Fraud Alert Feed (Gold Sink)")
+        st.subheader("Real-Time Fraud Alert Feed (Gold Sink)")
         if alerts_df.empty:
-            st.info("No fraud alerts triggered yet. Click '🚨 High-Value Fraud' or '🛑 Watchlist Fraud' in the sidebar to simulate!")
+            st.info("No fraud alerts triggered yet. Click ' High-Value Fraud' or ' Watchlist Fraud' in the sidebar to simulate!")
         else:
             for _, alert in alerts_df.head(10).iterrows():
                 is_high = alert["alert_type"] == "HIGH_VALUE_TRANSACTION"
                 box_class = "alert-box-high" if is_high else "alert-box-card"
-                badge = "🔴 LIMIT BREACH" if is_high else "🛑 WATCHLIST HIT"
+                badge = "LIMIT BREACH" if is_high else "WATCHLIST HIT"
                 st.markdown(f"""
                 <div class="{box_class}">
                     <div style="display:flex; justify-content:space-between;">
@@ -383,7 +383,7 @@ with tab_live:
                     </div>
                     <div style="margin-top:5px; font-size:0.95rem;">
                         <strong>Customer:</strong> {alert['customer_name']} ({alert['customer_id']})<br>
-                        <strong>Amount:</strong> ₹{alert['amount']:,.2f} | <strong>Threshold:</strong> ₹{alert['limit']:,.2f}<br>
+                        <strong>Amount:</strong> Rs.{alert['amount']:,.2f} | <strong>Threshold:</strong> Rs.{alert['limit']:,.2f}<br>
                         <strong>Merchant:</strong> {alert['merchant_name']} ({alert['location']})<br>
                         <span style="color:#B91C1C; font-size:0.85rem;"><strong>Rule Reason:</strong> {alert['reason']}</span>
                     </div>
@@ -391,7 +391,7 @@ with tab_live:
                 """, unsafe_allow_html=True)
                 
     with col_stream:
-        st.subheader("📡 Live Ingestion Stream (Kafka $\\rightarrow$ Spark)")
+        st.subheader("Live Ingestion Stream (Kafka to Spark)")
         if not txns_df.empty:
             display_cols = ["transaction_id", "amount", "merchant_name", "merchant_category", "payment_channel", "city", "status", "transaction_timestamp"]
             st.dataframe(
@@ -406,7 +406,7 @@ with tab_live:
 # TAB 2: Medallion Architecture Inspection
 # ------------------------------------------------------------------------------
 with tab_medallion:
-    st.markdown("### 🏅 Medallion Data Inspection (Unity Catalog: `finguard.*`)")
+    st.markdown("### Medallion Data Inspection (Unity Catalog: `finguard.*`)")
     
     med_choice = st.radio("Select Medallion Layer:", ["Bronze (Raw Ingestion)", "Silver (Cleaned & Standardized)", "Gold (Business & Alerts)"], horizontal=True)
     
@@ -422,7 +422,7 @@ with tab_medallion:
         silver_view = txns_df[["transaction_id", "customer_id", "card_number", "amount", "merchant_name", "merchant_category", "payment_channel", "city", "country", "is_international", "status"]].head(10)
         st.dataframe(silver_view, use_container_width=True)
         
-        st.markdown("#### ✅ Applied Declarative Data Quality Expectations:")
+        st.markdown("#### Applied Declarative Data Quality Expectations:")
         st.code("""
 @dp.expect_or_drop("valid_transaction_id", "transaction_id IS NOT NULL")
 @dp.expect_or_drop("valid_customer_id", "customer_id IS NOT NULL")
@@ -453,7 +453,7 @@ with tab_medallion:
 # TAB 3: Operational Analytics & KPIs (Replicating Databricks Lakeview Dashboard)
 # ------------------------------------------------------------------------------
 with tab_charts:
-    st.markdown("### 📊 Operational Lakeview Visualizations (1-Minute Refresh)")
+    st.markdown("### Operational Lakeview Visualizations (1-Minute Refresh)")
     
     c1, c2 = st.columns(2)
     with c1:
@@ -493,7 +493,7 @@ with tab_charts:
 # TAB 4: Architecture & Interview Q&A
 # ------------------------------------------------------------------------------
 with tab_architecture:
-    st.markdown("### 🏛️ Complete FinGuard Architecture & Technical Interview Talking Points")
+    st.markdown("### Complete FinGuard Architecture & Technical Interview Talking Points")
     
     st.markdown("""
     ```mermaid
@@ -539,7 +539,7 @@ with tab_architecture:
     """)
     
     st.markdown("---")
-    st.subheader("💡 Key Interview Questions & Defenses for Candidates")
+    st.subheader("Key Interview Questions & Defenses for Candidates")
     
     with st.expander("Q1: Why Spark Structured Streaming over legacy Spark Streaming (DStreams)?"):
         st.markdown("""
