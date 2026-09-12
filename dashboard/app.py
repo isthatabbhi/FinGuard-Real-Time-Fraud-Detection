@@ -69,6 +69,9 @@ st.markdown("""
         margin-bottom: 10px;
         border-radius: 4px;
     }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden !important;}
+    header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
