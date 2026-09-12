@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinGuard | Real-Time Credit Card Fraud Detection Platform</title>
+  <link rel="icon" href="https://img.icons8.com/color/96/shield.png">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            darkbg: '#0B0F17',
+            darkcard: '#111827',
+            darkcard2: '#161F30',
+            darkborder: '#1F2937'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0B0F17;
+      color: #E2E8F0;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2D3748;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4A5568;
+    }
+    .pulse-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.15); }
+    }
+    .tab-btn.active {
+      border-bottom: 2px solid #3B82F6;
+      color: #60A5FA;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navbar -->
+  <header class="border-b border-darkborder bg-darkcard/80 backdrop-blur-md sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <img src="https://img.icons8.com/color/96/shield.png" alt="FinGuard" class="w-8 h-8">
+      <div>
+        <div class="flex items-center space-x-2">
+          <span class="font-bold text-lg text-white tracking-wide">FinGuard</span>
+          <span class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-mono font-medium">STREAMING ENGINE</span>
+        </div>
+        <p class="text-xs text-slate-400">Real-Time Fraud Detection on Databricks Lakeflow, Apache Spark & Delta Lake</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-2 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+        <span class="text-slate-300 font-mono">Stream Ingestion Active</span>
+      </div>
+      <div class="hidden md:flex items-center space-x-1.5 text-xs text-slate-400 font-mono border-l border-slate-700 pl-4">
+        <span>Offset:</span>
+        <span id="nav-offset" class="text-blue-400 font-bold">#1015</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 max-w-[1680px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Sidebar: Controls & Credentials -->
+    <aside class="lg:col-span-3 space-y-5">
+      
+      <!-- Simulation Controls Card -->
+      <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Live Interview Simulation</h2>
+          <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">1-CLICK TRIGGER</span>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Inject simulated traffic into the Kafka ingestion topic to demonstrate stream joins & real-time alerting.</p>
+        
+        <div class="space-y-3">
+          <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-rose-600/15 hover:bg-rose-600/25 border border-rose-500/40 text-rose-300 hover:text-rose-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
+            <span class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              <span>High-Value Fraud</span>
+            </span>
+            <span class="text-[10px] font-mono text-rose-400 opacity-80 group-hover:opacity-100">&gt; Limit Rule</span>
+          </button>
+          
+          <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-amber-600/15 hover:bg-amber-600/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
+            <span class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              <span>Watchlist Fraud</span>
+            </span>
+            <span class="text-[10px] font-mono text-amber-400 opacity-80 group-hover:opacity-100">Card Match</span>
+          </button>
+          
+          <button onclick="injectNormal()" id="btn-normal" class="w-full bg-blue-600/15 hover:bg-blue-600/25 border border-blue-500/40 text-blue-300 hover:text-blue-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
+            <span class="flex items-center space-x-2">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span>Inject 5 Normal Txns</span>
+            </span>
+            <span class="text-[10px] font-mono text-blue-400 opacity-80 group-hover:opacity-100">+5 Events</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cloud Credentials Drawer -->
+      <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow-lg">
+        <details class="group">
+          <summary class="flex items-center justify-between cursor-pointer list-none text-sm font-semibold uppercase tracking-wider text-slate-300">
+            <span>Cloud & Auth Credentials</span>
+            <span class="text-xs text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
+          </summary>
+          <div class="mt-4 space-y-3 pt-3 border-t border-darkborder/70 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1">Neon Postgres URL</label>
+              <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-400 font-mono text-[11px] focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Kafka Bootstrap Broker</label>
+              <input type="text" value="pkc-finguard.ap-south-1.aws.confluent.cloud:9092" readonly class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-400 font-mono text-[11px] focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Gmail SMTP User</label>
+              <input type="text" id="gmail-user" value="databeli14@gmail.com" class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-300 font-mono text-[11px] focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-slate-400 mb-1">Gmail App Password</label>
+              <input type="password" id="gmail-pass" placeholder="16-character App Password" class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-300 font-mono text-[11px] focus:outline-none">
+            </div>
+            <button onclick="testEmail()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded py-1.5 text-xs font-medium transition-colors">
+              Test Email Dispatch
+            </button>
+            <p id="email-result" class="text-[11px] text-slate-400 mt-1"></p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Interview Talking Point Tip -->
+      <div class="bg-gradient-to-br from-blue-950/30 to-indigo-950/20 border border-blue-900/40 rounded-xl p-4 text-xs text-slate-300 leading-relaxed">
+        <p class="font-semibold text-blue-400 mb-1 flex items-center space-x-1.5">
+          <span>Tip for Panelists:</span>
+        </p>
+        <p class="text-slate-400">Trigger a simulated fraud event with the buttons above to demonstrate real-time Delta Lake state updates, then switch to the <strong class="text-slate-200">Architecture & Q&A</strong> tab to defend the 5-minute watermarking policy.</p>
+      </div>
+
+    </aside>
+
+    <!-- Main Workspace (Right 9 columns) -->
+    <main class="lg:col-span-9 space-y-6">
+
+      <!-- Top KPI Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
+          <p class="text-xs font-medium text-slate-400">Total Stream Events</p>
+          <p id="kpi-txns" class="text-2xl font-bold text-white mt-1 font-mono">15</p>
+          <span class="inline-block mt-1 text-[11px] text-emerald-400 font-medium font-mono">+ Live Ingestion</span>
+        </div>
+        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
+          <p class="text-xs font-medium text-slate-400">Total Fraud Alerts</p>
+          <p id="kpi-alerts" class="text-2xl font-bold text-rose-400 mt-1 font-mono">0</p>
+          <span class="inline-block mt-1 text-[11px] text-rose-400 font-medium font-mono">Immediate Flag</span>
+        </div>
+        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
+          <p class="text-xs font-medium text-slate-400">Average Transaction</p>
+          <p id="kpi-avg" class="text-2xl font-bold text-white mt-1 font-mono">Rs. 0.00</p>
+          <span class="inline-block mt-1 text-[11px] text-slate-500 font-mono">Mean Batch</span>
+        </div>
+        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
+          <p class="text-xs font-medium text-slate-400">Processed Volume</p>
+          <p id="kpi-total" class="text-2xl font-bold text-white mt-1 font-mono">Rs. 0.00</p>
+          <span class="inline-block mt-1 text-[11px] text-slate-500 font-mono">Gross Total</span>
+        </div>
+        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow col-span-2 sm:col-span-1">
+          <p class="text-xs font-medium text-slate-400">High-Risk Customers</p>
+          <p id="kpi-risky" class="text-2xl font-bold text-amber-400 mt-1 font-mono">19</p>
+          <span class="inline-block mt-1 text-[11px] text-amber-500/80 font-mono">Risk Score &gt; 70</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Header -->
+      <div class="border-b border-darkborder flex items-center space-x-6 overflow-x-auto text-sm font-medium">
+        <button onclick="switchTab('stream')" id="tab-btn-stream" class="tab-btn active pb-3 px-1 text-slate-300 hover:text-white transition-colors whitespace-nowrap">
+          Real-Time Stream & Alerts
+        </button>
+        <button onclick="switchTab('medallion')" id="tab-btn-medallion" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
+          Medallion Tables (Bronze / Silver / Gold)
+        </button>
+        <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
+          Operational Analytics & KPIs
+        </button>
+        <button onclick="switchTab('arch')" id="tab-btn-arch" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
+          Architecture & Interview Q&A
+        </button>
+      </div>
+
+      <!-- TAB 1: Real-Time Stream & Alerts -->
+      <section id="tab-content-stream" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        <!-- Left 5 cols: Live Alert Feed (Gold Sink) -->
+        <div class="xl:col-span-5 bg-darkcard border border-darkborder rounded-xl p-5 shadow flex flex-col h-[600px]">
+          <div class="flex items-center justify-between pb-3 border-b border-darkborder mb-4">
+            <div>
+              <h3 class="font-semibold text-white text-sm">Real-Time Fraud Alert Feed</h3>
+              <p class="text-[11px] text-slate-400 font-mono">Gold Layer Sink (Stream-Stream & Stream-Static)</p>
+            </div>
+            <span id="alert-count-badge" class="bg-rose-500/15 text-rose-400 border border-rose-500/30 text-xs px-2 py-0.5 rounded font-mono">0 Alerts</span>
+          </div>
+          
+          <div id="alerts-container" class="space-y-3 overflow-y-auto flex-1 pr-1">
+            <!-- Dynamic Alert Cards rendered via JS -->
+            <div class="text-center py-16 text-slate-500 text-xs">
+              No fraud alerts in current buffer.<br>Click "High-Value Fraud" or "Watchlist Fraud" to trigger.
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 7 cols: Live Ingestion Stream (Kafka -> Spark) -->
+        <div class="xl:col-span-7 bg-darkcard border border-darkborder rounded-xl p-5 shadow flex flex-col h-[600px]">
+          <div class="flex items-center justify-between pb-3 border-b border-darkborder mb-4">
+            <div>
+              <h3 class="font-semibold text-white text-sm">Live Ingestion Stream</h3>
+              <p class="text-[11px] text-slate-400 font-mono">Kafka topic: credit_card_transactions (6 partitions)</p>
+            </div>
+            <button onclick="refreshData()" class="text-xs text-blue-400 hover:text-blue-300 font-mono">Refresh</button>
+          </div>
+
+          <div class="overflow-x-auto flex-1">
+            <table class="w-full text-left text-xs text-slate-300 font-mono">
+              <thead class="text-[11px] uppercase bg-slate-900/60 text-slate-400 sticky top-0">
+                <tr>
+                  <th class="py-2.5 px-3">Txn ID</th>
+                  <th class="py-2.5 px-3">Amount</th>
+                  <th class="py-2.5 px-3">Merchant</th>
+                  <th class="py-2.5 px-3">Category</th>
+                  <th class="py-2.5 px-3">Channel</th>
+                  <th class="py-2.5 px-3">Status</th>
+                </tr>
+              </thead>
+              <tbody id="txns-tbody" class="divide-y divide-darkborder/50">
+                <!-- Dynamic Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- TAB 2: Medallion Tables -->
+      <section id="tab-content-medallion" class="hidden space-y-5">
+        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
+          <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-darkborder">
+            <div>
+              <h3 class="font-semibold text-white text-sm">Medallion Data Inspection</h3>
+              <p class="text-xs text-slate-400 font-mono">Unity Catalog: finguard.*</p>
+            </div>
+            <div class="inline-flex rounded-lg bg-darkbg p-1 border border-darkborder text-xs font-medium">
+              <button onclick="switchMedallion('bronze')" id="med-btn-bronze" class="px-3 py-1.5 rounded-md bg-amber-700/30 text-amber-300 border border-amber-600/40">Bronze (Raw)</button>
+              <button onclick="switchMedallion('silver')" id="med-btn-silver" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">Silver (Cleaned)</button>
+              <button onclick="switchMedallion('gold')" id="med-btn-gold" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">Gold (Alerts)</button>
+            </div>
+          </div>
+
+          <!-- Bronze Content -->
+          <div id="med-content-bronze" class="space-y-4">
+            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-xs text-slate-400">
+              <span class="bg-amber-600/20 text-amber-400 px-2 py-0.5 rounded font-mono font-semibold">BRONZE LAYER</span>
+              <span class="font-mono text-slate-300 ml-2">finguard.bronze.transactions</span>
+              <p class="mt-1 text-[11px]">Captures raw Kafka message payloads, partition offsets, and cluster arrival timestamps without schema alteration.</p>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300 font-mono">
+                <thead class="text-[11px] uppercase bg-slate-900/80 text-slate-400">
+                  <tr>
+                    <th class="py-2.5 px-3">Key</th>
+                    <th class="py-2.5 px-3">Topic</th>
+                    <th class="py-2.5 px-3">Partition</th>
+                    <th class="py-2.5 px-3">Offset</th>
+                    <th class="py-2.5 px-3">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody id="bronze-tbody" class="divide-y divide-darkborder/50"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Silver Content -->
+          <div id="med-content-silver" class="hidden space-y-4">
+            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-xs text-slate-400">
+              <span class="bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded font-mono font-semibold">SILVER LAYER</span>
+              <span class="font-mono text-slate-200 ml-2">finguard.silver.transactions</span>
+              <p class="mt-1 text-[11px]">Schema enforced, types cast, declarative expectations applied (@expect_or_drop), null identifiers filtered.</p>
+            </div>
+            
+            <div class="bg-darkbg p-3.5 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400">
+              <div class="text-slate-500 text-[11px] mb-1"># Declarative Data Quality Rules applied via Lakeflow Spark Declarative Pipelines:</div>
+              <div>@dp.expect_or_drop("valid_transaction_id", "transaction_id IS NOT NULL")</div>
+              <div>@dp.expect_or_drop("valid_customer_id", "customer_id IS NOT NULL")</div>
+              <div>@dp.expect_or_drop("valid_card_number", "card_number IS NOT NULL")</div>
+              <div>@dp.expect_or_drop("valid_merchant_id", "merchant_id IS NOT NULL")</div>
+              <div>@dp.expect("valid_amount", "amount > 0")  # Track metrics without dropping</div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300 font-mono">
+                <thead class="text-[11px] uppercase bg-slate-900/80 text-slate-400">
+                  <tr>
+                    <th class="py-2.5 px-3">Txn ID</th>
+                    <th class="py-2.5 px-3">Customer ID</th>
+                    <th class="py-2.5 px-3">Amount (Rs.)</th>
+                    <th class="py-2.5 px-3">Merchant</th>
+                    <th class="py-2.5 px-3">Category</th>
+                    <th class="py-2.5 px-3">Channel</th>
+                    <th class="py-2.5 px-3">City</th>
+                  </tr>
+                </thead>
+                <tbody id="silver-tbody" class="divide-y divide-darkborder/50"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Gold Content -->
+          <div id="med-content-gold" class="hidden space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="bg-slate-900/40 border border-darkborder rounded-lg p-4">
+                <h4 class="text-xs font-semibold text-rose-400 font-mono uppercase mb-2">finguard.gold.high_value_transactions_alert</h4>
+                <p class="text-[11px] text-slate-400 mb-3">Stream-Static join: transactions joined against PostgreSQL customer credit limits.</p>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs text-slate-300 font-mono">
+                    <thead class="text-[10px] uppercase bg-slate-900/80 text-slate-400">
+                      <tr>
+                        <th class="py-2 px-2">Alert ID</th>
+                        <th class="py-2 px-2">Customer</th>
+                        <th class="py-2 px-2">Amount</th>
+                        <th class="py-2 px-2">Limit</th>
+                      </tr>
+                    </thead>
+                    <tbody id="gold-high-tbody" class="divide-y divide-darkborder/40 text-[11px]"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="bg-slate-900/40 border border-darkborder rounded-lg p-4">
+                <h4 class="text-xs font-semibold text-amber-400 font-mono uppercase mb-2">finguard.gold.fraud_card_alert</h4>
+                <p class="text-[11px] text-slate-400 mb-3">Stream-Stream join: transactions joined with JSON watchlist via 5-min watermark.</p>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs text-slate-300 font-mono">
+                    <thead class="text-[10px] uppercase bg-slate-900/80 text-slate-400">
+                      <tr>
+                        <th class="py-2 px-2">Alert ID</th>
+                        <th class="py-2 px-2">Customer</th>
+                        <th class="py-2 px-2">Amount</th>
+                        <th class="py-2 px-2">Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody id="gold-watch-tbody" class="divide-y divide-darkborder/40 text-[11px]"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: Operational Analytics & KPIs -->
+      <section id="tab-content-analytics" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Transactions by Merchant Category</h4>
+          <div class="h-64">
+            <canvas id="chart-category"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Payment Channel Distribution</h4>
+          <div class="h-64">
+            <canvas id="chart-channel"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Domestic vs. International</h4>
+          <div class="h-64">
+            <canvas id="chart-intl"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
+          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Top Merchants by Transaction Count</h4>
+          <div class="h-64">
+            <canvas id="chart-merchants"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: Architecture & Interview Q&A -->
+      <section id="tab-content-arch" class="hidden space-y-6">
+        
+        <!-- Architecture Diagram Card -->
+        <div class="bg-darkcard border border-darkborder rounded-xl p-6 shadow">
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-white mb-2">FinGuard Pipeline Architecture</h3>
+          <p class="text-xs text-slate-400 mb-6">End-to-end data flow from source ingestion through Medallion Lakehouse to notification sinks.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+            
+            <div class="bg-darkbg p-4 rounded-lg border border-slate-800 space-y-2">
+              <div class="font-bold text-blue-400 uppercase text-[11px]">1. Ingestion Sources</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Kafka Topic: credit_card_transactions</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Auto Loader: JSON Watchlist Dropped Files</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">PostgreSQL: Customer Master Table (CDC)</div>
+            </div>
+
+            <div class="bg-darkbg p-4 rounded-lg border border-amber-900/40 space-y-2">
+              <div class="font-bold text-amber-400 uppercase text-[11px]">2. Bronze Layer (Raw)</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.transactions</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.fraud_watchlist</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.customers</div>
+              <p class="text-[10px] text-slate-500 mt-2">Append-only, exact payload preserved.</p>
+            </div>
+
+            <div class="bg-darkbg p-4 rounded-lg border border-slate-700 space-y-2">
+              <div class="font-bold text-slate-300 uppercase text-[11px]">3. Silver Layer (Cleaned)</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Schema Casting & Standardization</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">DQ: @expect_or_drop</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Event Timestamps & Offsets Parsed</div>
+              <p class="text-[10px] text-slate-500 mt-2">Ready for downstream joins.</p>
+            </div>
+
+            <div class="bg-darkbg p-4 rounded-lg border border-emerald-900/40 space-y-2">
+              <div class="font-bold text-emerald-400 uppercase text-[11px]">4. Gold Layer & Sinks</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Stream-Static Join (Limit Breach)</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Stream-Stream Join + 5m Watermark</div>
+              <div class="bg-slate-800/80 p-2 rounded text-slate-300">foreach_batch_sink & SMTP Alerts</div>
+              <p class="text-[10px] text-slate-500 mt-2">Immediate email dispatch & metrics.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Candidate Interview Defenses Accordion -->
+        <div class="bg-darkcard border border-darkborder rounded-xl p-6 shadow space-y-4">
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-white mb-2">Technical Interview Questions & Answers</h3>
+          <p class="text-xs text-slate-400 mb-4">Talking points and technical defenses prepared for interview panels.</p>
+
+          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group" open>
+            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
+              <span>Q1: Why Spark Structured Streaming over legacy Spark Streaming (DStreams)?</span>
+              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
+            </summary>
+            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
+              <p>• <strong>Event-Time Processing & Watermarking:</strong> Structured Streaming handles events based on when the transaction was executed at the terminal rather than when it arrived at the cluster.</p>
+              <p>• <strong>Unified API:</strong> Code uses the standard DataFrame/SQL API (<code class="bg-slate-800 px-1 rounded">spark.readStream</code> instead of DStreams RDD transformations), drastically reducing maintenance complexity.</p>
+              <p>• <strong>Native Delta Lake Integration:</strong> Complete ACID compliance, exactly-once processing guarantees, and seamless time-travel auditing.</p>
+            </div>
+          </details>
+
+          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
+            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
+              <span>Q2: Why did you set a 5-minute watermark on stream-stream joins?</span>
+              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
+            </summary>
+            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
+              <p>• In a stream-stream join (transactions joined with fraud watchlist updates), Spark must maintain past state in memory waiting for potential matches.</p>
+              <p>• Without an explicit watermark, the state store grows indefinitely and results in cluster Out-Of-Memory (OOM) failures.</p>
+              <p>• By defining <code class="bg-slate-800 px-1 rounded">withWatermark("transaction_timestamp", "5 minutes")</code>, Spark bounds memory state to roughly 54 MB, automatically clearing events that lag beyond the 5-minute threshold.</p>
+            </div>
+          </details>
+
+          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
+            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
+              <span>Q3: Explain the difference between Stream-Static join and Stream-Stream join.</span>
+              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
+            </summary>
+            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
+              <p>• <strong>Stream-Static Join:</strong> Used in <code class="bg-slate-800 px-1 rounded">high_value_transactions_alert</code>. Silver transactions stream joins against the static customer master database. Spark performs a snapshot lookup against current customer limits without requiring state store memory or watermarks.</p>
+              <p>• <strong>Stream-Stream Join:</strong> Used in <code class="bg-slate-800 px-1 rounded">fraud_card_alert</code>. Both transactions and watchlist files arrive dynamically. Both sides require watermarks and an inner join on card number to avoid infinite state retention.</p>
+            </div>
+          </details>
+
+          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
+            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
+              <span>Q4: How did you handle credential security and pipeline governance?</span>
+              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
+            </summary>
+            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
+              <p>• <strong>Databricks Secret Scopes:</strong> All Kafka credentials, PostgreSQL connection URIs, and Gmail App Passwords reside in <code class="bg-slate-800 px-1 rounded">finguard-scope</code>, retrieved at runtime via <code class="bg-slate-800 px-1 rounded">dbutils.secrets.get()</code> with zero plaintext credentials committed to Git.</p>
+              <p>• <strong>Unity Catalog:</strong> Full 3-level namespace (<code class="bg-slate-800 px-1 rounded">finguard.&lt;layer&gt;.&lt;table&gt;</code>) governance with automated end-to-end data lineage.</p>
+              <p>• <strong>Lakeflow Spark Declarative Pipelines:</strong> Complete orchestration managed declaratively with automated expectations for data quality.</p>
+            </div>
+          </details>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-darkborder py-4 px-6 text-center text-xs text-slate-500 font-mono mt-auto">
+    FinGuard Real-Time Data Engineering Platform | Built with Apache Spark, Delta Lake, Kafka & FastAPI
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-lg shadow-xl text-xs font-mono transition-opacity opacity-0 pointer-events-none"></div>
+
+  <!-- JavaScript Client Logic -->
+  <script>
+    let charts = {};
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.innerText = msg;
+      t.classList.remove('opacity-0');
+      t.classList.add('opacity-100');
+      setTimeout(() => {
+        t.classList.remove('opacity-100');
+        t.classList.add('opacity-0');
+      }, 3500);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-400'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-slate-400'));
+      
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      ['stream', 'medallion', 'analytics', 'arch'].forEach(t => {
+        const el = document.getElementById(`tab-content-${t}`);
+        if (t === tabId) {
+          el.classList.remove('hidden');
+          if (t === 'analytics') renderCharts();
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    function switchMedallion(layer) {
+      ['bronze', 'silver', 'gold'].forEach(l => {
+        const btn = document.getElementById(`med-btn-${l}`);
+        const cnt = document.getElementById(`med-content-${l}`);
+        if (l === layer) {
+          cnt.classList.remove('hidden');
+          btn.className = 'px-3 py-1.5 rounded-md bg-blue-600/20 text-blue-400 border border-blue-500/40';
+        } else {
+          cnt.classList.add('hidden');
+          btn.className = 'px-3 py-1.5 rounded-md text-slate-400 hover:text-white';
+        }
+      });
+    }
+
+    async function refreshData() {
+      try {
+        const res = await fetch('/api/state');
+        const data = await res.json();
+        renderState(data);
+      } catch (err) {
+        console.error('Failed to fetch state:', err);
+      }
+    }
+
+    function renderState(data) {
+      // KPIs
+      document.getElementById('kpi-txns').innerText = Number(data.kpis.total_txns).toLocaleString();
+      document.getElementById('kpi-alerts').innerText = Number(data.kpis.total_alerts).toLocaleString();
+      document.getElementById('kpi-avg').innerText = 'Rs. ' + data.kpis.avg_amount;
+      document.getElementById('kpi-total').innerText = 'Rs. ' + data.kpis.total_amount;
+      document.getElementById('kpi-risky').innerText = data.kpis.high_risk_custs;
+      
+      // Nav offset
+      if (data.transactions.length > 0) {
+        document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
+      }
+
+      // Alerts
+      const alertsBox = document.getElementById('alerts-container');
+      document.getElementById('alert-count-badge').innerText = data.alerts.length + ' Alerts';
+      if (data.alerts.length === 0) {
+        alertsBox.innerHTML = '<div class="text-center py-16 text-slate-500 text-xs">No fraud alerts in current buffer.<br>Click "High-Value Fraud" or "Watchlist Fraud" to trigger.</div>';
+      } else {
+        alertsBox.innerHTML = data.alerts.map(a => {
+          const isHigh = a.alert_type === 'HIGH_VALUE_TRANSACTION';
+          const borderCls = isHigh ? 'border-rose-500/50 bg-rose-950/20' : 'border-amber-500/50 bg-amber-950/20';
+          const badgeCls = isHigh ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300';
+          const badgeText = isHigh ? 'LIMIT BREACH' : 'WATCHLIST HIT';
+          return `
+            <div class="border-l-4 ${borderCls} bg-darkbg/90 p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow">
+              <div class="flex justify-between items-center">
+                <span class="${badgeCls} px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">${badgeText}</span>
+                <span class="text-slate-500 text-[10px]">${a.alert_timestamp}</span>
+              </div>
+              <div class="text-slate-200 font-semibold">${a.alert_id}</div>
+              <div class="text-slate-400 text-[11px]">
+                <strong>Customer:</strong> ${a.customer_name} (${a.customer_id})<br>
+                <strong>Amount:</strong> Rs. ${Number(a.amount).toLocaleString('en-IN', {minimumFractionDigits:2})} | <strong>Threshold:</strong> Rs. ${Number(a.limit).toLocaleString('en-IN', {minimumFractionDigits:2})}<br>
+                <strong>Merchant:</strong> ${a.merchant_name} (${a.location})
+              </div>
+              <div class="text-rose-400 text-[11px] pt-1">
+                <strong>Reason:</strong> ${a.reason}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Live Txns table
+      const txnsTbody = document.getElementById('txns-tbody');
+      txnsTbody.innerHTML = data.transactions.map(t => `
+        <tr class="hover:bg-slate-800/40 transition-colors">
+          <td class="py-2 px-3 text-blue-400 font-semibold">${t.transaction_id}</td>
+          <td class="py-2 px-3 font-semibold text-slate-100">Rs. ${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+          <td class="py-2 px-3 text-slate-300">${t.merchant_name}</td>
+          <td class="py-2 px-3 text-slate-400">${t.merchant_category}</td>
+          <td class="py-2 px-3 text-slate-400">${t.payment_channel}</td>
+          <td class="py-2 px-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded text-[10px]">${t.status}</span></td>
+        </tr>
+      `).join('');
+
+      // Bronze table
+      document.getElementById('bronze-tbody').innerHTML = data.bronze.map(b => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3 text-blue-400">${b.key}</td>
+          <td class="py-2 px-3">${b.topic}</td>
+          <td class="py-2 px-3">${b.partition}</td>
+          <td class="py-2 px-3">${b.offset}</td>
+          <td class="py-2 px-3 text-slate-400">${b.timestamp}</td>
+        </tr>
+      `).join('');
+
+      // Silver table
+      document.getElementById('silver-tbody').innerHTML = data.silver.map(s => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-2 px-3 text-blue-400">${s.transaction_id}</td>
+          <td class="py-2 px-3 text-slate-400">${s.customer_id}</td>
+          <td class="py-2 px-3 font-semibold text-slate-100">Rs. ${s.amount}</td>
+          <td class="py-2 px-3">${s.merchant_name}</td>
+          <td class="py-2 px-3">${s.merchant_category}</td>
+          <td class="py-2 px-3">${s.payment_channel}</td>
+          <td class="py-2 px-3 text-slate-400">${s.city}</td>
+        </tr>
+      `).join('');
+
+      // Gold High-Value table
+      document.getElementById('gold-high-tbody').innerHTML = data.gold_high.map(g => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-1.5 px-2 text-rose-400">${g.alert_id}</td>
+          <td class="py-1.5 px-2">${g.customer_name}</td>
+          <td class="py-1.5 px-2 font-bold text-slate-200">Rs. ${g.amount}</td>
+          <td class="py-1.5 px-2 text-slate-400">Rs. ${g.limit}</td>
+        </tr>
+      `).join('');
+
+      // Gold Watchlist table
+      document.getElementById('gold-watch-tbody').innerHTML = data.gold_watchlist.map(g => `
+        <tr class="hover:bg-slate-800/40">
+          <td class="py-1.5 px-2 text-amber-400">${g.alert_id}</td>
+          <td class="py-1.5 px-2">${g.customer_name}</td>
+          <td class="py-1.5 px-2 text-slate-200">Rs. ${g.amount}</td>
+          <td class="py-1.5 px-2 text-slate-400">${g.reason}</td>
+        </tr>
+      `).join('');
+
+      // Save analytics for Chart rendering
+      window.lastAnalytics = data.analytics;
+      if (!document.getElementById('tab-content-analytics').classList.contains('hidden')) {
+        renderCharts();
+      }
+    }
+
+    function renderCharts() {
+      if (!window.lastAnalytics) return;
+      const a = window.lastAnalytics;
+
+      // Category Bar
+      if (charts.cat) charts.cat.destroy();
+      const ctxCat = document.getElementById('chart-category').getContext('2d');
+      charts.cat = new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(a.categories),
+          datasets: [{
+            label: 'Transactions',
+            data: Object.values(a.categories),
+            backgroundColor: '#3B82F6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: '#1F2937' }, ticks: { color: '#94A3B8' } },
+            x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+          }
+        }
+      });
+
+      // Channel Doughnut
+      if (charts.chan) charts.chan.destroy();
+      const ctxChan = document.getElementById('chart-channel').getContext('2d');
+      charts.chan = new Chart(ctxChan, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(a.channels),
+          datasets: [{
+            data: Object.values(a.channels),
+            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#E2E8F0', font: { size: 11 } } } }
+        }
+      });
+
+      // Intl Pie
+      if (charts.intl) charts.intl.destroy();
+      const ctxIntl = document.getElementById('chart-intl').getContext('2d');
+      charts.intl = new Chart(ctxIntl, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(a.intl),
+          datasets: [{
+            data: Object.values(a.intl),
+            backgroundColor: ['#10B981', '#EF4444'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'right', labels: { color: '#E2E8F0', font: { size: 11 } } } }
+        }
+      });
+
+      // Top Merchants Horizontal Bar
+      if (charts.merc) charts.merc.destroy();
+      const ctxMerc = document.getElementById('chart-merchants').getContext('2d');
+      charts.merc = new Chart(ctxMerc, {
+        type: 'bar',
+        data: {
+          labels: a.merchants.labels,
+          datasets: [{
+            label: 'Volume',
+            data: a.merchants.values,
+            backgroundColor: '#6366F1',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#1F2937' }, ticks: { color: '#94A3B8' } },
+            y: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+          }
+        }
+      });
+    }
+
+    async function injectFraud(type) {
+      const endpoint = type === 'high-value' ? '/api/simulate/high-value' : '/api/simulate/watchlist';
+      const label = type === 'high-value' ? 'High-Value Fraud' : 'Watchlist Fraud';
+      showToast(`Injecting ${label}...`);
+      try {
+        const res = await fetch(endpoint, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          renderState(data.state);
+          showToast(`Injected ${label}: ${data.event.transaction_id}`);
+        }
+      } catch (err) {
+        showToast('Error injecting simulation event');
+      }
+    }
+
+    async function injectNormal() {
+      showToast('Injecting 5 normal transactions...');
+      try {
+        const res = await fetch('/api/simulate/normal', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          renderState(data.state);
+          showToast('Injected 5 normal transactions into stream');
+        }
+      } catch (err) {
+        showToast('Error injecting transactions');
+      }
+    }
+
+    async function testEmail() {
+      const user = document.getElementById('gmail-user').value;
+      const pass = document.getElementById('gmail-pass').value;
+      const out = document.getElementById('email-result');
+      out.innerText = 'Dispatching test alert...';
+      try {
+        const res = await fetch('/api/test-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ gmail_user: user, gmail_pass: pass })
+        });
+        const data = await res.json();
+        out.innerText = data.message;
+        out.className = data.success ? 'text-[11px] text-emerald-400 mt-1' : 'text-[11px] text-rose-400 mt-1';
+      } catch (err) {
+        out.innerText = 'Email test failed';
+        out.className = 'text-[11px] text-rose-400 mt-1';
+      }
+    }
+
+    // Auto-load on page start
+    window.addEventListener('DOMContentLoaded', refreshData);
+  </script>
+</body>
+</html>

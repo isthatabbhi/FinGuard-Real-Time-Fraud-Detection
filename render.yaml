@@ -3,7 +3,7 @@
     name: finguard-dashboard
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: streamlit run dashboard/app.py --server.port $PORT --server.address 0.0.0.0 --server.headless true
+    startCommand: gunicorn dashboard.app:app
     plan: free
     region: oregon
     envVars:
