@@ -1,10 +1,14 @@
 # FinGuard: Real-Time Credit Card Fraud Detection System
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-https%3A%2F%2Ffinguard.isthatabbhi.tech-10B981?style=for-the-badge&logo=streamlit&logoColor=white)](https://finguard.isthatabbhi.tech)
+
 [![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Kafka](https://img.shields.io/badge/Apache_Kafka-Confluent_Cloud-231F20?style=flat&logo=apachekafka&logoColor=white)](https://confluent.io/)
 [![Databricks](https://img.shields.io/badge/Databricks-PySpark_%26_Delta_Lake-FF3621?style=flat&logo=databricks&logoColor=white)](https://databricks.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Architecture](https://img.shields.io/badge/Architecture-Medallion_(Bronze--Silver--Gold)-00A86B?style=flat)](#architecture)
+
+**Live Showcase Platform:** [https://finguard.isthatabbhi.tech](https://finguard.isthatabbhi.tech)
 
 An enterprise-grade, end-to-end Real-Time Credit Card Fraud Detection and Streaming Analytics System. This system simulates live high-frequency financial transactions, streams them through Apache Kafka (Confluent Cloud), ingests and processes them via Databricks Structured Streaming & Delta Lake (Medallion Architecture), enforces real-time fraud rules and watchlist matching, triggers automated email notifications for suspicious activity, and visualizes insights on an interactive Lakeview Dashboard.
 
