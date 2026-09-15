@@ -63,10 +63,10 @@ flowchart TD
 
 ```text
 .
-+-- dashboard/                           # Interactive UI & Lakeview definitions
-|   +-- app.py                           # Live Streamlit demo dashboard for interview panels
-|   +-- deploy_streamlit.md              # Free-tier deployment guide for Streamlit Community Cloud
-|   +-- requirements.txt                 # Dashboard Python dependencies
++-- dashboard/                           # Real-time operational demo platform & Lakeview definitions
+|   +-- app.py                           # High-performance Flask dashboard & streaming API
+|   +-- templates/index.html             # Databricks DLT + Lakeview UI, responsive dark theme
+|   +-- requirements.txt                 # Dashboard Python dependencies (Flask, etc.)
 |   \-- FinGuard Fraud Detection Monitoring.lvdash.json # Databricks Lakeview dashboard export
 |
 +-- kafka_producer/                      # Real-time transaction producer & generator
@@ -89,7 +89,7 @@ flowchart TD
 |       +-- 04_Autoloader_test.py        # Auto Loader streaming ingestion test
 |       +-- finguard_streaming/          # Structured Streaming Medallion Pipelines
 |       |   +-- bronze/                  # Raw streaming ingestion notebooks
-|       |   +-- silver/                  # Cleansing & deduplication notebooks
+|       |   +-- silver/                  # Cleansing & deduplication notebooks (@dlt.expect)
 |       |   +-- gold/                    # Analytical & alert aggregation notebooks
 |       |   \-- alert/                   # Real-time email notification sinks
 |       +-- finguard_customers_silver_ingestion/ # Customer master sync
@@ -112,9 +112,10 @@ flowchart TD
 - **Streaming Broker**: Apache Kafka (Confluent Cloud SASL/PLAIN)
 - **Processing Engine**: PySpark, Databricks Delta Live Tables / Structured Streaming
 - **Storage Layer**: Databricks Delta Lake, Unity Catalog Volumes
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (Neon Serverless)
 - **Language**: Python 3.9+, SQL
-- **Notification**: Python smtplib / MIME HTML Engine
+- **Notification**: Python smtplib / MIME HTML Alert Engine
+- **Edge Deployment**: Cloudflare Edge Worker (Instant global delivery at `https://finguard.isthatabbhi.tech`)
 
 ---
 
@@ -149,17 +150,17 @@ flowchart TD
 
 ### 2. Live Interactive Demo Dashboard (Interview Presentation)
 
-Run the real-time operational dashboard locally or deploy it to Streamlit Community Cloud (free forever, public URL, no credit card required):
+Run the real-time operational dashboard locally or access the live edge-hosted deployment at [https://finguard.isthatabbhi.tech](https://finguard.isthatabbhi.tech):
 
 ```bash
 # Install dashboard requirements
 pip install -r dashboard/requirements.txt
 
 # Run the live dashboard locally
-streamlit run dashboard/app.py
+python dashboard/app.py
 ```
-- **One-Click Fraud Injection**: Click `🚨 High-Value Fraud` or `🛑 Watchlist Fraud` in the sidebar to simulate streaming fraud events and watch the Medallion pipeline detect them in real-time.
-- **Streamlit Cloud Deployment**: See [dashboard/deploy_streamlit.md](dashboard/deploy_streamlit.md) for 3-minute deployment instructions.
+- **One-Click Fraud & Chaos Simulation**: Click `Simulate` in the top navbar to inject High-Value limit breaches, Watchlist card hits, Velocity bursts, or simulate Kafka consumer lag.
+- **Global Edge Deployment**: Continuously deployed to Cloudflare Edge Worker for zero-latency presentation during interviews.
 
 ### 3. Neon PostgreSQL Setup (Customer Master Data)
 
