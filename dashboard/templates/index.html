@@ -1,557 +1,859 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FinGuard | Real-Time Credit Card Fraud Detection Platform</title>
   <link rel="icon" href="https://img.icons8.com/color/96/shield.png">
-  
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              900: '#1e3a8a',
-            },
-            darkbg: '#0B0F17',
-            darkcard: '#111827',
-            darkcard2: '#161F30',
-            darkborder: '#1F2937'
+            dbNav: '#1B1B1B',
+            dbSidebar: '#2C2C2C',
+            dbBg: '#F5F5F5',
+            dbCard: '#FFFFFF',
+            dbBorder: '#E0E0E0',
+            dbBlue: '#1B66C9',
+            dbBlueLt: '#E8F0FE',
+            dbGreen: '#00A972',
+            dbGreenLt: '#E6F9F1',
+            dbRed: '#E53935',
+            dbRedLt: '#FDECEA',
+            dbAmber: '#F9A825',
+            dbAmberLt: '#FFF8E1',
+            dbText: '#1F1F1F',
+            dbTextSec: '#616161',
+            dbTextTer: '#9E9E9E',
           }
         }
       }
     }
   </script>
-  
-  <!-- Google Fonts: Inter & JetBrains Mono -->
+
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  
+
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0B0F17;
-      color: #E2E8F0;
-    }
-    .font-mono {
-      font-family: 'JetBrains Mono', monospace;
-    }
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0B0F17;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #2D3748;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #4A5568;
-    }
+    body { font-family: 'Inter', sans-serif; }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F5F5F5; }
+    ::-webkit-scrollbar-thumb { background: #BDBDBD; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9E9E9E; }
     .pulse-dot {
       animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.15); }
+      50% { opacity: 0.4; transform: scale(1.2); }
     }
     .tab-btn.active {
-      border-bottom: 2px solid #3B82F6;
-      color: #60A5FA;
+      border-bottom: 2px solid #1B66C9;
+      color: #1B66C9;
       font-weight: 600;
     }
+    .sidebar-icon {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px; color: #9E9E9E;
+      transition: all 0.15s;
+      cursor: pointer;
+      position: relative;
+    }
+    .sidebar-icon:hover { background: #3A3A3A; color: #FFFFFF; }
+    .sidebar-icon.active {
+      color: #FFFFFF; background: #3A3A3A;
+    }
+    .sidebar-icon.active::before {
+      content: '';
+      position: absolute; left: -8px; top: 6px; bottom: 6px;
+      width: 3px; border-radius: 0 3px 3px 0;
+      background: #FF3621;
+    }
+    .dag-node {
+      background: #FFFFFF;
+      border: 1px solid #E0E0E0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .dag-node:hover { border-color: #1B66C9; box-shadow: 0 2px 8px rgba(27,102,201,0.12); }
+    .dag-node.selected { border-color: #1B66C9; box-shadow: 0 0 0 2px rgba(27,102,201,0.2); }
+    .log-entry:hover { background: #F0F0F0; }
+    .sim-fab {
+      position: fixed; bottom: 24px; right: 24px; z-index: 50;
+    }
+    .sim-panel {
+      position: fixed; bottom: 80px; right: 24px; z-index: 50;
+      width: 320px;
+      transform-origin: bottom right;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .sim-panel.hidden-panel { transform: scale(0.9); opacity: 0; pointer-events: none; }
+    .sim-panel.visible-panel { transform: scale(1); opacity: 1; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-dbBg text-dbText">
 
-  <!-- Top Navbar -->
-  <header class="border-b border-darkborder bg-darkcard/80 backdrop-blur-md sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <img src="https://img.icons8.com/color/96/shield.png" alt="FinGuard" class="w-8 h-8">
-      <div>
-        <div class="flex items-center space-x-2">
-          <span class="font-bold text-lg text-white tracking-wide">FinGuard</span>
-          <span class="text-xs bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded font-mono font-medium">STREAMING ENGINE</span>
-        </div>
-        <p class="text-xs text-slate-400">Real-Time Fraud Detection on Databricks Lakeflow, Apache Spark & Delta Lake</p>
+  <!-- ===== TOP NAVBAR (Databricks-style) ===== -->
+  <header class="bg-dbNav h-12 flex items-center px-4 shrink-0 z-50">
+    <div class="flex items-center gap-3">
+      <img src="https://img.icons8.com/color/96/shield.png" alt="FinGuard" class="w-6 h-6">
+      <span class="text-white font-bold text-sm tracking-wide">FinGuard</span>
+    </div>
+    <div class="flex-1 flex justify-center px-8">
+      <div class="relative w-full max-w-md">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" placeholder="Search" class="w-full bg-[#333] text-gray-200 text-sm rounded-md pl-9 pr-16 py-1.5 border border-[#444] focus:outline-none focus:border-[#666] placeholder-gray-500">
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-500 font-mono bg-[#444] px-1.5 py-0.5 rounded">Ctrl+P</span>
       </div>
     </div>
-    
-    <div class="flex items-center space-x-4">
-      <div class="flex items-center space-x-2 bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-xs">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
-        <span class="text-slate-300 font-mono">Stream Ingestion Active</span>
-      </div>
-      <div class="hidden md:flex items-center space-x-1.5 text-xs text-slate-400 font-mono border-l border-slate-700 pl-4">
-        <span>Offset:</span>
-        <span id="nav-offset" class="text-blue-400 font-bold">#1015</span>
-      </div>
+    <div class="flex items-center gap-3 text-sm text-gray-300">
+      <span class="text-xs text-gray-400 font-mono hidden md:inline">ap-south-1</span>
+      <div class="w-7 h-7 rounded-full bg-dbBlue flex items-center justify-center text-white text-xs font-bold">A</div>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <div class="flex-1 max-w-[1680px] w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+  <!-- ===== BREADCRUMB BAR ===== -->
+  <div class="bg-white border-b border-dbBorder px-4 py-1.5 text-xs flex items-center gap-1.5 ml-12">
+    <a href="#" class="text-dbBlue hover:underline">Workspace</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <a href="#" class="text-dbBlue hover:underline">FinGuard</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <a href="#" class="text-dbBlue hover:underline">Lakeflow Declarative Pipelines</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <span class="text-dbTextSec">Pipeline details</span>
+  </div>
 
-    <!-- Left Sidebar: Controls & Credentials -->
-    <aside class="lg:col-span-3 space-y-5">
-      
-      <!-- Simulation Controls Card -->
-      <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow-lg">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-300">Live Interview Simulation</h2>
-          <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono">1-CLICK TRIGGER</span>
-        </div>
-        <p class="text-xs text-slate-400 mb-4">Inject simulated traffic into the Kafka ingestion topic to demonstrate stream joins & real-time alerting.</p>
-        
-        <div class="space-y-3">
-          <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-rose-600/15 hover:bg-rose-600/25 border border-rose-500/40 text-rose-300 hover:text-rose-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
-            <span class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-              <span>High-Value Fraud</span>
-            </span>
-            <span class="text-[10px] font-mono text-rose-400 opacity-80 group-hover:opacity-100">&gt; Limit Rule</span>
-          </button>
-          
-          <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-amber-600/15 hover:bg-amber-600/25 border border-amber-500/40 text-amber-300 hover:text-amber-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
-            <span class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-              <span>Watchlist Fraud</span>
-            </span>
-            <span class="text-[10px] font-mono text-amber-400 opacity-80 group-hover:opacity-100">Card Match</span>
-          </button>
-          
-          <button onclick="injectNormal()" id="btn-normal" class="w-full bg-blue-600/15 hover:bg-blue-600/25 border border-blue-500/40 text-blue-300 hover:text-blue-200 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-all group">
-            <span class="flex items-center space-x-2">
-              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-              <span>Inject 5 Normal Txns</span>
-            </span>
-            <span class="text-[10px] font-mono text-blue-400 opacity-80 group-hover:opacity-100">+5 Events</span>
-          </button>
-        </div>
+  <!-- ===== MAIN LAYOUT: SIDEBAR + CONTENT ===== -->
+  <div class="flex flex-1 overflow-hidden">
+
+    <!-- Left Icon Sidebar -->
+    <aside class="bg-dbNav w-12 shrink-0 flex flex-col items-center py-3 gap-1.5 overflow-y-auto">
+      <div class="sidebar-icon" title="Home">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2L2 9h3v8h4v-5h2v5h4V9h3L10 2z"/></svg>
       </div>
-
-      <!-- Cloud Credentials Drawer -->
-      <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow-lg">
-        <details class="group">
-          <summary class="flex items-center justify-between cursor-pointer list-none text-sm font-semibold uppercase tracking-wider text-slate-300">
-            <span>Cloud & Auth Credentials</span>
-            <span class="text-xs text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
-          </summary>
-          <div class="mt-4 space-y-3 pt-3 border-t border-darkborder/70 text-xs">
-            <div>
-              <label class="block text-slate-400 mb-1">Neon Postgres URL</label>
-              <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-400 font-mono text-[11px] focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Kafka Bootstrap Broker</label>
-              <input type="text" value="pkc-finguard.ap-south-1.aws.confluent.cloud:9092" readonly class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-400 font-mono text-[11px] focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Gmail SMTP User</label>
-              <input type="text" id="gmail-user" value="databeli14@gmail.com" class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-300 font-mono text-[11px] focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Gmail App Password</label>
-              <input type="password" id="gmail-pass" placeholder="16-character App Password" class="w-full bg-darkbg border border-darkborder rounded px-2.5 py-1.5 text-slate-300 font-mono text-[11px] focus:outline-none">
-            </div>
-            <button onclick="testEmail()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded py-1.5 text-xs font-medium transition-colors">
-              Test Email Dispatch
-            </button>
-            <p id="email-result" class="text-[11px] text-slate-400 mt-1"></p>
-          </div>
-        </details>
+      <div class="sidebar-icon" title="Workspace">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V5z"/></svg>
       </div>
-
-      <!-- Interview Talking Point Tip -->
-      <div class="bg-gradient-to-br from-blue-950/30 to-indigo-950/20 border border-blue-900/40 rounded-xl p-4 text-xs text-slate-300 leading-relaxed">
-        <p class="font-semibold text-blue-400 mb-1 flex items-center space-x-1.5">
-          <span>Tip for Panelists:</span>
-        </p>
-        <p class="text-slate-400">Trigger a simulated fraud event with the buttons above to demonstrate real-time Delta Lake state updates, then switch to the <strong class="text-slate-200">Architecture & Q&A</strong> tab to defend the 5-minute watermarking policy.</p>
+      <div class="sidebar-icon" title="Catalog">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
       </div>
-
+      <div class="sidebar-icon active" title="Workflows">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M3 4a1 1 0 011-1h3a1 1 0 110 2H4a1 1 0 01-1-1zm0 6a1 1 0 011-1h3a1 1 0 110 2H4a1 1 0 01-1-1zm10-6a1 1 0 011-1h3a1 1 0 110 2h-3a1 1 0 01-1-1zm0 6a1 1 0 011-1h3a1 1 0 110 2h-3a1 1 0 01-1-1zm-5 0a1 1 0 011-1h1a1 1 0 110 2H9a1 1 0 01-1-1zM3 16a1 1 0 011-1h3a1 1 0 110 2H4a1 1 0 01-1-1zm10 0a1 1 0 011-1h3a1 1 0 110 2h-3a1 1 0 01-1-1z"/></svg>
+      </div>
+      <div class="sidebar-icon" title="Compute">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v3H2V5zm0 5h16v5a2 2 0 01-2 2H4a2 2 0 01-2-2v-5zm3 2a1 1 0 100 2h1a1 1 0 100-2H5z"/></svg>
+      </div>
+      <div class="sidebar-icon" title="SQL Editor">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a1 1 0 011-1h10a1 1 0 011 1v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4zm3 3a1 1 0 000 2h2a1 1 0 100-2H7zm0 4a1 1 0 000 2h6a1 1 0 100-2H7z"/></svg>
+      </div>
+      <div class="flex-1"></div>
+      <div class="sidebar-icon" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+      </div>
     </aside>
 
-    <!-- Main Workspace (Right 9 columns) -->
-    <main class="lg:col-span-9 space-y-6">
+    <!-- ===== MAIN CONTENT AREA ===== -->
+    <div class="flex-1 flex flex-col overflow-hidden">
 
-      <!-- Top KPI Bar -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
-          <p class="text-xs font-medium text-slate-400">Total Stream Events</p>
-          <p id="kpi-txns" class="text-2xl font-bold text-white mt-1 font-mono">15</p>
-          <span class="inline-block mt-1 text-[11px] text-emerald-400 font-medium font-mono">+ Live Ingestion</span>
+      <!-- Pipeline Header -->
+      <div class="bg-white border-b border-dbBorder px-6 py-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-lg font-bold text-dbText">finguard-streaming-pipeline</h1>
+            <div class="flex items-center gap-2 mt-1 text-xs text-dbTextSec font-mono">
+              <span id="pipeline-timestamp">--</span>
+              <span class="inline-flex items-center gap-1 bg-dbGreenLt text-dbGreen px-2 py-0.5 rounded-full font-semibold text-[11px]">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                Completed
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="inline-flex rounded-md border border-dbBorder text-xs font-medium overflow-hidden">
+              <button class="px-3 py-1.5 bg-dbBlue text-white">Development</button>
+              <button class="px-3 py-1.5 bg-white text-dbTextSec hover:bg-gray-50">Production</button>
+            </div>
+            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-gray-50">Permissions</button>
+            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-gray-50">Settings</button>
+            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-gray-50">Schedule (1)</button>
+            <button onclick="refreshData()" class="text-xs text-white bg-dbGreen hover:bg-emerald-600 rounded-md px-4 py-1.5 font-semibold transition-colors">Start</button>
+          </div>
         </div>
-        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
-          <p class="text-xs font-medium text-slate-400">Total Fraud Alerts</p>
-          <p id="kpi-alerts" class="text-2xl font-bold text-rose-400 mt-1 font-mono">0</p>
-          <span class="inline-block mt-1 text-[11px] text-rose-400 font-medium font-mono">Immediate Flag</span>
-        </div>
-        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
-          <p class="text-xs font-medium text-slate-400">Average Transaction</p>
-          <p id="kpi-avg" class="text-2xl font-bold text-white mt-1 font-mono">Rs. 0.00</p>
-          <span class="inline-block mt-1 text-[11px] text-slate-500 font-mono">Mean Batch</span>
-        </div>
-        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow">
-          <p class="text-xs font-medium text-slate-400">Processed Volume</p>
-          <p id="kpi-total" class="text-2xl font-bold text-white mt-1 font-mono">Rs. 0.00</p>
-          <span class="inline-block mt-1 text-[11px] text-slate-500 font-mono">Gross Total</span>
-        </div>
-        <div class="bg-darkcard border border-darkborder rounded-xl p-4 shadow col-span-2 sm:col-span-1">
-          <p class="text-xs font-medium text-slate-400">High-Risk Customers</p>
-          <p id="kpi-risky" class="text-2xl font-bold text-amber-400 mt-1 font-mono">19</p>
-          <span class="inline-block mt-1 text-[11px] text-amber-500/80 font-mono">Risk Score &gt; 70</span>
+        <div class="flex items-center gap-4 mt-3">
+          <button class="inline-flex items-center gap-1.5 bg-dbBlue text-white text-xs font-medium px-3 py-1.5 rounded-md">
+            Select tables for refresh
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+          </button>
+          <div class="flex items-center gap-2 text-xs text-dbTextSec">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>Stream Active</span>
+            <span class="text-dbTextTer">|</span>
+            <span class="font-mono">Offset: <span id="nav-offset" class="text-dbBlue font-bold">#1015</span></span>
+          </div>
         </div>
       </div>
 
-      <!-- Navigation Tabs Header -->
-      <div class="border-b border-darkborder flex items-center space-x-6 overflow-x-auto text-sm font-medium">
-        <button onclick="switchTab('stream')" id="tab-btn-stream" class="tab-btn active pb-3 px-1 text-slate-300 hover:text-white transition-colors whitespace-nowrap">
-          Real-Time Stream & Alerts
+      <!-- Tab Navigation -->
+      <div class="bg-white border-b border-dbBorder px-6 flex items-center gap-6 text-sm">
+        <button onclick="switchTab('pipeline')" id="tab-btn-pipeline" class="tab-btn active py-3 text-dbTextSec hover:text-dbText transition-colors whitespace-nowrap">
+          Pipeline DAG
         </button>
-        <button onclick="switchTab('medallion')" id="tab-btn-medallion" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
-          Medallion Tables (Bronze / Silver / Gold)
+        <button onclick="switchTab('medallion')" id="tab-btn-medallion" class="tab-btn py-3 text-dbTextSec hover:text-dbText transition-colors whitespace-nowrap">
+          Medallion Tables
         </button>
-        <button onclick="switchTab('analytics')" id="tab-btn-analytics" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
-          Operational Analytics & KPIs
+        <button onclick="switchTab('lakeview')" id="tab-btn-lakeview" class="tab-btn py-3 text-dbTextSec hover:text-dbText transition-colors whitespace-nowrap">
+          Lakeview Dashboard
         </button>
-        <button onclick="switchTab('arch')" id="tab-btn-arch" class="tab-btn pb-3 px-1 text-slate-400 hover:text-white transition-colors whitespace-nowrap">
-          Architecture & Interview Q&A
+        <button onclick="switchTab('arch')" id="tab-btn-arch" class="tab-btn py-3 text-dbTextSec hover:text-dbText transition-colors whitespace-nowrap">
+          Architecture &amp; Q&amp;A
         </button>
       </div>
 
-      <!-- TAB 1: Real-Time Stream & Alerts -->
-      <section id="tab-content-stream" class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-        
-        <!-- Left 5 cols: Live Alert Feed (Gold Sink) -->
-        <div class="xl:col-span-5 bg-darkcard border border-darkborder rounded-xl p-5 shadow flex flex-col h-[600px]">
-          <div class="flex items-center justify-between pb-3 border-b border-darkborder mb-4">
-            <div>
-              <h3 class="font-semibold text-white text-sm">Real-Time Fraud Alert Feed</h3>
-              <p class="text-[11px] text-slate-400 font-mono">Gold Layer Sink (Stream-Stream & Stream-Static)</p>
-            </div>
-            <span id="alert-count-badge" class="bg-rose-500/15 text-rose-400 border border-rose-500/30 text-xs px-2 py-0.5 rounded font-mono">0 Alerts</span>
-          </div>
-          
-          <div id="alerts-container" class="space-y-3 overflow-y-auto flex-1 pr-1">
-            <!-- Dynamic Alert Cards rendered via JS -->
-            <div class="text-center py-16 text-slate-500 text-xs">
-              No fraud alerts in current buffer.<br>Click "High-Value Fraud" or "Watchlist Fraud" to trigger.
-            </div>
-          </div>
-        </div>
+      <!-- Tab Content Area -->
+      <div class="flex-1 overflow-y-auto">
 
-        <!-- Right 7 cols: Live Ingestion Stream (Kafka -> Spark) -->
-        <div class="xl:col-span-7 bg-darkcard border border-darkborder rounded-xl p-5 shadow flex flex-col h-[600px]">
-          <div class="flex items-center justify-between pb-3 border-b border-darkborder mb-4">
-            <div>
-              <h3 class="font-semibold text-white text-sm">Live Ingestion Stream</h3>
-              <p class="text-[11px] text-slate-400 font-mono">Kafka topic: credit_card_transactions (6 partitions)</p>
-            </div>
-            <button onclick="refreshData()" class="text-xs text-blue-400 hover:text-blue-300 font-mono">Refresh</button>
-          </div>
+        <!-- ===== TAB 1: PIPELINE DAG ===== -->
+        <section id="tab-content-pipeline" class="flex flex-col h-full">
+          <div class="flex flex-1 overflow-hidden">
 
-          <div class="overflow-x-auto flex-1">
-            <table class="w-full text-left text-xs text-slate-300 font-mono">
-              <thead class="text-[11px] uppercase bg-slate-900/60 text-slate-400 sticky top-0">
-                <tr>
-                  <th class="py-2.5 px-3">Txn ID</th>
-                  <th class="py-2.5 px-3">Amount</th>
-                  <th class="py-2.5 px-3">Merchant</th>
-                  <th class="py-2.5 px-3">Category</th>
-                  <th class="py-2.5 px-3">Channel</th>
-                  <th class="py-2.5 px-3">Status</th>
-                </tr>
-              </thead>
-              <tbody id="txns-tbody" class="divide-y divide-darkborder/50">
-                <!-- Dynamic Rows -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+            <!-- DAG Canvas -->
+            <div class="flex-1 p-6 overflow-auto relative bg-dbBg">
+              <!-- KPI Row -->
+              <div class="grid grid-cols-5 gap-3 mb-6">
+                <div class="bg-white rounded-lg border border-dbBorder p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Total Stream Events</p>
+                  <p id="kpi-txns" class="text-xl font-bold text-dbText mt-0.5 font-mono">15</p>
+                  <span class="text-[10px] text-dbGreen font-medium font-mono">+ Live Ingestion</span>
+                </div>
+                <div class="bg-white rounded-lg border border-dbBorder p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Total Fraud Alerts</p>
+                  <p id="kpi-alerts" class="text-xl font-bold text-dbRed mt-0.5 font-mono">0</p>
+                  <span class="text-[10px] text-dbRed font-medium font-mono">Immediate Flag</span>
+                </div>
+                <div class="bg-white rounded-lg border border-dbBorder p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Average Transaction</p>
+                  <p id="kpi-avg" class="text-xl font-bold text-dbText mt-0.5 font-mono">Rs. 0.00</p>
+                  <span class="text-[10px] text-dbTextTer font-mono">Mean Batch</span>
+                </div>
+                <div class="bg-white rounded-lg border border-dbBorder p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Processed Volume</p>
+                  <p id="kpi-total" class="text-xl font-bold text-dbText mt-0.5 font-mono">Rs. 0.00</p>
+                  <span class="text-[10px] text-dbTextTer font-mono">Gross Total</span>
+                </div>
+                <div class="bg-white rounded-lg border border-dbBorder p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">High-Risk Customers</p>
+                  <p id="kpi-risky" class="text-xl font-bold text-dbAmber mt-0.5 font-mono">19</p>
+                  <span class="text-[10px] text-dbAmber font-mono">Risk Score &gt; 70</span>
+                </div>
+              </div>
 
-      </section>
+              <!-- DAG Visualization -->
+              <div class="relative bg-white rounded-xl border border-dbBorder shadow-sm p-6" style="min-height: 380px;">
+                <!-- SVG Connection Lines -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index:1;" preserveAspectRatio="none">
+                  <defs>
+                    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                      <polygon points="0 0, 8 3, 0 6" fill="#BDBDBD"/>
+                    </marker>
+                  </defs>
+                  <!-- bronze -> banking_customers -->
+                  <path d="M 255,185 C 330,185 330,80 405,80" stroke="#BDBDBD" fill="none" stroke-width="2" marker-end="url(#arrowhead)"/>
+                  <!-- bronze -> country_coordinates -->
+                  <path d="M 255,185 C 330,185 330,185 405,185" stroke="#BDBDBD" fill="none" stroke-width="2" marker-end="url(#arrowhead)"/>
+                  <!-- bronze -> silver_transactions -->
+                  <path d="M 255,185 C 330,185 330,290 405,290" stroke="#BDBDBD" fill="none" stroke-width="2" marker-end="url(#arrowhead)"/>
+                  <!-- banking_customers -> gold -->
+                  <path d="M 615,80 C 670,80 670,130 720,130" stroke="#BDBDBD" fill="none" stroke-width="2" marker-end="url(#arrowhead)"/>
+                  <!-- country_coordinates -> gold -->
+                  <path d="M 615,185 C 670,185 670,130 720,130" stroke="#BDBDBD" fill="none" stroke-width="2" marker-end="url(#arrowhead)"/>
+                </svg>
 
-      <!-- TAB 2: Medallion Tables -->
-      <section id="tab-content-medallion" class="hidden space-y-5">
-        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
-          <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-darkborder">
-            <div>
-              <h3 class="font-semibold text-white text-sm">Medallion Data Inspection</h3>
-              <p class="text-xs text-slate-400 font-mono">Unity Catalog: finguard.*</p>
-            </div>
-            <div class="inline-flex rounded-lg bg-darkbg p-1 border border-darkborder text-xs font-medium">
-              <button onclick="switchMedallion('bronze')" id="med-btn-bronze" class="px-3 py-1.5 rounded-md bg-amber-700/30 text-amber-300 border border-amber-600/40">Bronze (Raw)</button>
-              <button onclick="switchMedallion('silver')" id="med-btn-silver" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">Silver (Cleaned)</button>
-              <button onclick="switchMedallion('gold')" id="med-btn-gold" class="px-3 py-1.5 rounded-md text-slate-400 hover:text-white">Gold (Alerts)</button>
-            </div>
-          </div>
+                <!-- DAG Nodes -->
+                <div class="relative" style="z-index:2; min-height: 360px;">
 
-          <!-- Bronze Content -->
-          <div id="med-content-bronze" class="space-y-4">
-            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-xs text-slate-400">
-              <span class="bg-amber-600/20 text-amber-400 px-2 py-0.5 rounded font-mono font-semibold">BRONZE LAYER</span>
-              <span class="font-mono text-slate-300 ml-2">finguard.bronze.transactions</span>
-              <p class="mt-1 text-[11px]">Captures raw Kafka message payloads, partition offsets, and cluster arrival timestamps without schema alteration.</p>
+                  <!-- Column Labels -->
+                  <div class="absolute text-[10px] text-dbTextTer font-medium uppercase tracking-wider" style="left:30px; top:8px;">Streaming table</div>
+                  <div class="absolute text-[10px] text-dbTextTer font-medium uppercase tracking-wider" style="left:375px; top:8px;">Streaming table</div>
+                  <div class="absolute text-[10px] text-dbTextTer font-medium uppercase tracking-wider" style="left:690px; top:8px;">Materialized view</div>
+
+                  <!-- Node: bronze_transactions -->
+                  <div onclick="selectNode('bronze')" id="dag-bronze" class="dag-node absolute" style="left:30px; top:140px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbBlue" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">bronze_transactions</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 1m 5s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> <span id="dag-bronze-rows">5.8M</span></span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Node: fraud_reports -->
+                  <div onclick="selectNode('fraud')" id="dag-fraud" class="dag-node absolute" style="left:30px; top:265px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbRed" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">fraud_reports</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 8s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> <span id="dag-fraud-rows">183K</span></span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Node: banking_customers -->
+                  <div onclick="selectNode('customers')" id="dag-customers" class="dag-node absolute" style="left:375px; top:35px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbBlue" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">banking_customers</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 8s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> 99K</span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Node: country_coordinates -->
+                  <div onclick="selectNode('coords')" id="dag-coords" class="dag-node absolute" style="left:375px; top:140px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbBlue" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">country_coordinates</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 7s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> 244</span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Node: silver_transactions -->
+                  <div onclick="selectNode('silver')" id="dag-silver" class="dag-node absolute" style="left:375px; top:245px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbBlue" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">silver_transactions</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 18s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> <span id="dag-silver-rows">5.8M</span></span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                  <!-- Node: gold_transactions (Materialized View) -->
+                  <div onclick="selectNode('gold')" id="dag-gold" class="dag-node absolute" style="left:690px; top:85px; width:210px;">
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-dbBlue" fill="currentColor" viewBox="0 0 20 20"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v1H3V5zm0 3h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                        <span class="font-semibold text-sm text-dbText">gold_transactions</span>
+                      </div>
+                      <svg class="w-4 h-4 text-dbGreen" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <p class="text-[11px] text-dbTextSec mt-1">Completed - 28s</p>
+                    <div class="flex gap-3 mt-2 text-[11px] font-mono">
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span> <span id="dag-gold-rows">5.7M</span></span>
+                      <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span> 0</span>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-300 font-mono">
-                <thead class="text-[11px] uppercase bg-slate-900/80 text-slate-400">
-                  <tr>
-                    <th class="py-2.5 px-3">Key</th>
-                    <th class="py-2.5 px-3">Topic</th>
-                    <th class="py-2.5 px-3">Partition</th>
-                    <th class="py-2.5 px-3">Offset</th>
-                    <th class="py-2.5 px-3">Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody id="bronze-tbody" class="divide-y divide-darkborder/50"></tbody>
+
+            <!-- Right Detail Panel -->
+            <div id="detail-panel" class="w-80 bg-white border-l border-dbBorder p-5 overflow-y-auto shrink-0 hidden">
+              <div class="flex items-center justify-between mb-4">
+                <h3 id="detail-title" class="font-bold text-base text-dbText">bronze_transactions</h3>
+                <button onclick="closeDetail()" class="text-dbTextTer hover:text-dbText text-lg leading-none">&times;</button>
+              </div>
+              <table class="w-full text-xs">
+                <tbody>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Type</td><td id="detail-type" class="py-2.5 text-dbText">Streaming table</td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Source code</td><td id="detail-source" class="py-2.5"><a href="https://github.com/isthatabbhi/FinGuard-Real-Time-Fraud-Detection" target="_blank" class="text-dbBlue hover:underline break-all">/FinGuard/01-Pipeline/bronze</a></td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Target table</td><td id="detail-target" class="py-2.5 text-dbText font-mono text-[11px]">finguard.bronze.transactions</td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Status</td><td id="detail-status" class="py-2.5"><span class="inline-flex items-center gap-1 text-dbGreen"><svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Completed</span></td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Start time</td><td id="detail-start" class="py-2.5 text-dbText font-mono text-[11px]">--</td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4">Duration</td><td id="detail-duration" class="py-2.5 text-dbText">1m 5s</td></tr>
+                  <tr class="border-b border-dbBorder"><td class="py-2.5 text-dbTextSec font-medium pr-4 align-top">Comment</td><td id="detail-comment" class="py-2.5 text-dbTextSec text-[11px]">Raw Kafka ingestion for real-time fraud detection pipeline</td></tr>
+                </tbody>
               </table>
+
+              <h4 class="font-bold text-sm text-dbText mt-5 mb-3">Data quality</h4>
+              <div class="flex items-center gap-4">
+                <div class="w-20 h-20"><canvas id="dq-donut"></canvas></div>
+                <div class="text-xs space-y-1.5">
+                  <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-dbGreen"></span> Written <span id="dq-written" class="font-mono font-bold ml-auto">100% (5,805,862)</span></div>
+                  <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-dbRed"></span> Dropped <span id="dq-dropped" class="font-mono font-bold ml-auto">0% (0)</span></div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Silver Content -->
-          <div id="med-content-silver" class="hidden space-y-4">
-            <div class="bg-slate-900/50 p-3 rounded-lg border border-slate-800 text-xs text-slate-400">
-              <span class="bg-slate-500/20 text-slate-300 px-2 py-0.5 rounded font-mono font-semibold">SILVER LAYER</span>
-              <span class="font-mono text-slate-200 ml-2">finguard.silver.transactions</span>
-              <p class="mt-1 text-[11px]">Schema enforced, types cast, declarative expectations applied (@expect_or_drop), null identifiers filtered.</p>
+          <!-- Event Log Panel -->
+          <div class="bg-white border-t border-dbBorder shrink-0" style="height: 200px;">
+            <div class="flex items-center gap-3 px-4 py-2 border-b border-dbBorder">
+              <div class="inline-flex rounded-full border border-dbBorder text-[11px] font-medium overflow-hidden">
+                <button onclick="filterEventLog('all')" class="px-3 py-1 bg-dbBg text-dbText font-semibold" id="log-filter-all">All</button>
+                <button onclick="filterEventLog('info')" class="px-3 py-1 text-dbTextSec hover:bg-gray-50" id="log-filter-info">Info</button>
+                <button onclick="filterEventLog('warning')" class="px-3 py-1 text-dbTextSec hover:bg-gray-50" id="log-filter-warning">Warning</button>
+                <button onclick="filterEventLog('error')" class="px-3 py-1 text-dbTextSec hover:bg-gray-50" id="log-filter-error">Error</button>
+              </div>
+              <div class="relative flex-1 max-w-xs">
+                <svg class="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-dbTextTer" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" placeholder="Filter..." class="w-full text-xs bg-dbBg border border-dbBorder rounded pl-7 pr-3 py-1 focus:outline-none focus:border-dbBlue placeholder-dbTextTer">
+              </div>
+              <span id="alert-count-badge" class="text-[11px] text-dbTextSec font-mono ml-auto">0 alerts</span>
             </div>
-            
-            <div class="bg-darkbg p-3.5 rounded-lg border border-slate-800 font-mono text-xs text-emerald-400">
-              <div class="text-slate-500 text-[11px] mb-1"># Declarative Data Quality Rules applied via Lakeflow Spark Declarative Pipelines:</div>
-              <div>@dp.expect_or_drop("valid_transaction_id", "transaction_id IS NOT NULL")</div>
-              <div>@dp.expect_or_drop("valid_customer_id", "customer_id IS NOT NULL")</div>
-              <div>@dp.expect_or_drop("valid_card_number", "card_number IS NOT NULL")</div>
-              <div>@dp.expect_or_drop("valid_merchant_id", "merchant_id IS NOT NULL")</div>
-              <div>@dp.expect("valid_amount", "amount > 0")  # Track metrics without dropping</div>
+            <div id="event-log-body" class="overflow-y-auto px-4 text-xs font-mono" style="height: 145px;">
+              <!-- Default event log entries -->
+              <div class="log-entry flex items-start gap-4 py-1.5 px-2 rounded">
+                <span class="text-dbTextTer shrink-0 w-20">Just now</span>
+                <span class="text-dbBlue shrink-0 w-36">planning_information</span>
+                <span class="text-dbTextSec">Flow gold_transactions has been planned for COMPLETE_RECOMPUTE.</span>
+              </div>
+              <div class="log-entry flex items-start gap-4 py-1.5 px-2 rounded">
+                <span class="text-dbTextTer shrink-0 w-20">Just now</span>
+                <span class="text-dbBlue shrink-0 w-36">flow_progress</span>
+                <span class="text-dbTextSec">Flow 'gold_transactions' is STARTING.</span>
+              </div>
+              <div class="log-entry flex items-start gap-4 py-1.5 px-2 rounded">
+                <span class="text-dbTextTer shrink-0 w-20">Just now</span>
+                <span class="text-dbBlue shrink-0 w-36">flow_progress</span>
+                <span class="text-dbTextSec">Flow 'gold_transactions' is RUNNING.</span>
+              </div>
+              <div class="log-entry flex items-start gap-4 py-1.5 px-2 rounded">
+                <span class="text-dbTextTer shrink-0 w-20">Just now</span>
+                <span class="text-dbGreen shrink-0 w-36">flow_progress</span>
+                <span class="text-dbTextSec">Flow 'gold_transactions' has COMPLETED.</span>
+              </div>
+              <div class="log-entry flex items-start gap-4 py-1.5 px-2 rounded">
+                <span class="text-dbTextTer shrink-0 w-20">Just now</span>
+                <span class="text-dbGreen shrink-0 w-36">update_progress</span>
+                <span class="text-dbTextSec">Pipeline update is COMPLETED. All streaming tables refreshed.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== TAB 2: MEDALLION TABLES ===== -->
+        <section id="tab-content-medallion" class="hidden p-6">
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-dbBorder">
+              <div>
+                <h3 class="font-semibold text-dbText text-sm">Medallion Data Inspection</h3>
+                <p class="text-xs text-dbTextSec font-mono">Unity Catalog: finguard.*</p>
+              </div>
+              <div class="inline-flex rounded-md border border-dbBorder text-xs font-medium overflow-hidden">
+                <button onclick="switchMedallion('bronze')" id="med-btn-bronze" class="px-3 py-1.5 bg-amber-50 text-amber-700 border-r border-dbBorder font-semibold">Bronze (Raw)</button>
+                <button onclick="switchMedallion('silver')" id="med-btn-silver" class="px-3 py-1.5 text-dbTextSec hover:bg-gray-50 border-r border-dbBorder">Silver (Cleaned)</button>
+                <button onclick="switchMedallion('gold')" id="med-btn-gold" class="px-3 py-1.5 text-dbTextSec hover:bg-gray-50">Gold (Alerts)</button>
+              </div>
             </div>
 
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-300 font-mono">
-                <thead class="text-[11px] uppercase bg-slate-900/80 text-slate-400">
+            <!-- Bronze Content -->
+            <div id="med-content-bronze" class="space-y-4">
+              <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs text-dbTextSec">
+                <span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-mono font-semibold">BRONZE LAYER</span>
+                <span class="font-mono text-dbText ml-2">finguard.bronze.transactions</span>
+                <p class="mt-1 text-[11px]">Captures raw Kafka message payloads, partition offsets, and cluster arrival timestamps without schema alteration.</p>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-dbText font-mono">
+                  <thead class="text-[11px] uppercase bg-gray-50 text-dbTextSec border-b border-dbBorder">
+                    <tr>
+                      <th class="py-2.5 px-3">Key</th>
+                      <th class="py-2.5 px-3">Topic</th>
+                      <th class="py-2.5 px-3">Partition</th>
+                      <th class="py-2.5 px-3">Offset</th>
+                      <th class="py-2.5 px-3">Timestamp</th>
+                    </tr>
+                  </thead>
+                  <tbody id="bronze-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Silver Content -->
+            <div id="med-content-silver" class="hidden space-y-4">
+              <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 text-xs text-dbTextSec">
+                <span class="bg-gray-200 text-gray-700 px-2 py-0.5 rounded font-mono font-semibold">SILVER LAYER</span>
+                <span class="font-mono text-dbText ml-2">finguard.silver.transactions</span>
+                <p class="mt-1 text-[11px]">Schema enforced, types cast, declarative expectations applied (@expect_or_drop), null identifiers filtered.</p>
+              </div>
+              <div class="bg-gray-900 p-3.5 rounded-lg font-mono text-xs text-emerald-400">
+                <div class="text-gray-500 text-[11px] mb-1"># Declarative Data Quality Rules applied via Lakeflow Spark Declarative Pipelines:</div>
+                <div>@dp.expect_or_drop("valid_transaction_id", "transaction_id IS NOT NULL")</div>
+                <div>@dp.expect_or_drop("valid_customer_id", "customer_id IS NOT NULL")</div>
+                <div>@dp.expect_or_drop("valid_card_number", "card_number IS NOT NULL")</div>
+                <div>@dp.expect_or_drop("valid_merchant_id", "merchant_id IS NOT NULL")</div>
+                <div>@dp.expect("valid_amount", "amount > 0")  # Track metrics without dropping</div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-dbText font-mono">
+                  <thead class="text-[11px] uppercase bg-gray-50 text-dbTextSec border-b border-dbBorder">
+                    <tr>
+                      <th class="py-2.5 px-3">Txn ID</th>
+                      <th class="py-2.5 px-3">Customer ID</th>
+                      <th class="py-2.5 px-3">Amount (Rs.)</th>
+                      <th class="py-2.5 px-3">Merchant</th>
+                      <th class="py-2.5 px-3">Category</th>
+                      <th class="py-2.5 px-3">Channel</th>
+                      <th class="py-2.5 px-3">City</th>
+                    </tr>
+                  </thead>
+                  <tbody id="silver-tbody" class="divide-y divide-gray-100"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Gold Content -->
+            <div id="med-content-gold" class="hidden space-y-5">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <h4 class="text-xs font-semibold text-dbRed font-mono uppercase mb-2">finguard.gold.high_value_transactions_alert</h4>
+                  <p class="text-[11px] text-dbTextSec mb-3">Stream-Static join: transactions joined against PostgreSQL customer credit limits.</p>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-dbText font-mono">
+                      <thead class="text-[10px] uppercase bg-red-100/50 text-dbTextSec">
+                        <tr>
+                          <th class="py-2 px-2">Alert ID</th>
+                          <th class="py-2 px-2">Customer</th>
+                          <th class="py-2 px-2">Amount</th>
+                          <th class="py-2 px-2">Limit</th>
+                        </tr>
+                      </thead>
+                      <tbody id="gold-high-tbody" class="divide-y divide-red-100 text-[11px]"></tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 class="text-xs font-semibold text-amber-700 font-mono uppercase mb-2">finguard.gold.fraud_card_alert</h4>
+                  <p class="text-[11px] text-dbTextSec mb-3">Stream-Stream join: transactions joined with JSON watchlist via 5-min watermark.</p>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-dbText font-mono">
+                      <thead class="text-[10px] uppercase bg-amber-100/50 text-dbTextSec">
+                        <tr>
+                          <th class="py-2 px-2">Alert ID</th>
+                          <th class="py-2 px-2">Customer</th>
+                          <th class="py-2 px-2">Amount</th>
+                          <th class="py-2 px-2">Reason</th>
+                        </tr>
+                      </thead>
+                      <tbody id="gold-watch-tbody" class="divide-y divide-amber-100 text-[11px]"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Stream Table (below medallion) -->
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5 mt-5">
+            <div class="flex items-center justify-between pb-3 border-b border-dbBorder mb-4">
+              <div>
+                <h3 class="font-semibold text-dbText text-sm">Live Ingestion Stream</h3>
+                <p class="text-[11px] text-dbTextSec font-mono">Kafka topic: credit_card_transactions (6 partitions)</p>
+              </div>
+              <button onclick="refreshData()" class="text-xs text-dbBlue hover:text-blue-800 font-medium">Refresh</button>
+            </div>
+            <div class="overflow-x-auto" style="max-height: 350px;">
+              <table class="w-full text-left text-xs text-dbText font-mono">
+                <thead class="text-[11px] uppercase bg-gray-50 text-dbTextSec sticky top-0 border-b border-dbBorder">
                   <tr>
                     <th class="py-2.5 px-3">Txn ID</th>
-                    <th class="py-2.5 px-3">Customer ID</th>
-                    <th class="py-2.5 px-3">Amount (Rs.)</th>
+                    <th class="py-2.5 px-3">Amount</th>
                     <th class="py-2.5 px-3">Merchant</th>
                     <th class="py-2.5 px-3">Category</th>
                     <th class="py-2.5 px-3">Channel</th>
-                    <th class="py-2.5 px-3">City</th>
+                    <th class="py-2.5 px-3">Status</th>
                   </tr>
                 </thead>
-                <tbody id="silver-tbody" class="divide-y divide-darkborder/50"></tbody>
+                <tbody id="txns-tbody" class="divide-y divide-gray-100"></tbody>
               </table>
             </div>
           </div>
 
-          <!-- Gold Content -->
-          <div id="med-content-gold" class="hidden space-y-5">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div class="bg-slate-900/40 border border-darkborder rounded-lg p-4">
-                <h4 class="text-xs font-semibold text-rose-400 font-mono uppercase mb-2">finguard.gold.high_value_transactions_alert</h4>
-                <p class="text-[11px] text-slate-400 mb-3">Stream-Static join: transactions joined against PostgreSQL customer credit limits.</p>
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs text-slate-300 font-mono">
-                    <thead class="text-[10px] uppercase bg-slate-900/80 text-slate-400">
-                      <tr>
-                        <th class="py-2 px-2">Alert ID</th>
-                        <th class="py-2 px-2">Customer</th>
-                        <th class="py-2 px-2">Amount</th>
-                        <th class="py-2 px-2">Limit</th>
-                      </tr>
-                    </thead>
-                    <tbody id="gold-high-tbody" class="divide-y divide-darkborder/40 text-[11px]"></tbody>
-                  </table>
-                </div>
+          <!-- Alerts Feed -->
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5 mt-5">
+            <div class="flex items-center justify-between pb-3 border-b border-dbBorder mb-4">
+              <div>
+                <h3 class="font-semibold text-dbText text-sm">Real-Time Fraud Alert Feed</h3>
+                <p class="text-[11px] text-dbTextSec font-mono">Gold Layer Sink (Stream-Stream &amp; Stream-Static)</p>
               </div>
-
-              <div class="bg-slate-900/40 border border-darkborder rounded-lg p-4">
-                <h4 class="text-xs font-semibold text-amber-400 font-mono uppercase mb-2">finguard.gold.fraud_card_alert</h4>
-                <p class="text-[11px] text-slate-400 mb-3">Stream-Stream join: transactions joined with JSON watchlist via 5-min watermark.</p>
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs text-slate-300 font-mono">
-                    <thead class="text-[10px] uppercase bg-slate-900/80 text-slate-400">
-                      <tr>
-                        <th class="py-2 px-2">Alert ID</th>
-                        <th class="py-2 px-2">Customer</th>
-                        <th class="py-2 px-2">Amount</th>
-                        <th class="py-2 px-2">Reason</th>
-                      </tr>
-                    </thead>
-                    <tbody id="gold-watch-tbody" class="divide-y divide-darkborder/40 text-[11px]"></tbody>
-                  </table>
-                </div>
+            </div>
+            <div id="alerts-container" class="space-y-3 overflow-y-auto" style="max-height: 350px;">
+              <div class="text-center py-10 text-dbTextTer text-xs">
+                No fraud alerts in current buffer.<br>Click the simulation button (bottom-right) to trigger.
               </div>
             </div>
           </div>
+        </section>
 
-        </div>
-      </section>
+        <!-- ===== TAB 3: LAKEVIEW DASHBOARD ===== -->
+        <section id="tab-content-lakeview" class="hidden p-6 space-y-5">
 
-      <!-- TAB 3: Operational Analytics & KPIs -->
-      <section id="tab-content-analytics" class="hidden grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Transactions by Merchant Category</h4>
-          <div class="h-64">
-            <canvas id="chart-category"></canvas>
+          <!-- Dashboard Header -->
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-6">
+            <div class="flex items-center justify-between mb-2">
+              <h2 class="text-xl font-bold text-dbText">Fraud Analysis on the Lakehouse</h2>
+              <button onclick="refreshData()" class="text-xs text-white bg-dbGreen hover:bg-emerald-600 rounded-md px-4 py-1.5 font-semibold transition-colors">Refresh</button>
+            </div>
+            <p class="text-xs text-dbTextSec">Existing Fraud Analysis ingested in our Lakehouse</p>
+            <p class="text-xs text-dbTextTer mt-1">This data is then used by our Data Scientists to build a ML model and evaluate transaction risk to provide real-time Fraud Detection capabilities.</p>
           </div>
-        </div>
 
-        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Payment Channel Distribution</h4>
-          <div class="h-64">
-            <canvas id="chart-channel"></canvas>
+          <!-- Sankey Chart + Observations -->
+          <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
+            <div class="lg:col-span-3 bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-sm font-semibold text-dbText mb-1">Top geographical flow of transactions &gt; Rs. 350,000</h4>
+              <canvas id="sankey-canvas" class="w-full" style="height: 320px;"></canvas>
+              <p class="text-[10px] text-dbTextTer mt-2 font-mono">Last 10 days ago</p>
+            </div>
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-sm font-semibold text-dbText mb-3">Observations</h4>
+              <p class="text-xs text-dbTextSec leading-relaxed">In terms of number of &gt;Rs. 350K transactions:</p>
+              <ul class="text-xs text-dbTextSec mt-2 space-y-1.5 list-disc pl-4">
+                <li>Russia is initiating / receiving more transactions, than any other country</li>
+                <li>Most of these transactions are transfers</li>
+                <li>High concentration of cross-border flows to emerging markets</li>
+              </ul>
+            </div>
           </div>
-        </div>
 
-        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Domestic vs. International</h4>
-          <div class="h-64">
-            <canvas id="chart-intl"></canvas>
+          <!-- Scatter Plot + Large Counter -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-sm font-semibold text-dbText mb-1">Hourly Fraud Amounts in the past 30 days</h4>
+              <p class="text-[11px] text-dbTextTer mb-3">Amount of fraudulent transactions through the past 30 days</p>
+              <div style="height: 280px;">
+                <canvas id="chart-scatter"></canvas>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5 flex flex-col justify-center">
+              <h4 class="text-sm font-semibold text-dbText mb-1">Number of Fraudulent transactions</h4>
+              <p class="text-[11px] text-dbTextTer mb-4">Number of fraudulent transactions in the past 30 days</p>
+              <p id="fraud-counter" class="text-6xl lg:text-7xl font-bold text-dbText font-mono tracking-tight">179,293</p>
+            </div>
           </div>
-        </div>
 
-        <div class="bg-darkcard border border-darkborder rounded-xl p-5 shadow">
-          <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-300 mb-3">Top Merchants by Transaction Count</h4>
-          <div class="h-64">
-            <canvas id="chart-merchants"></canvas>
+          <!-- Category + Channel Charts -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-dbTextSec mb-3">Transactions by Merchant Category</h4>
+              <div class="h-64"><canvas id="chart-category"></canvas></div>
+            </div>
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-dbTextSec mb-3">Payment Channel Distribution</h4>
+              <div class="h-64"><canvas id="chart-channel"></canvas></div>
+            </div>
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-dbTextSec mb-3">Domestic vs. International</h4>
+              <div class="h-64"><canvas id="chart-intl"></canvas></div>
+            </div>
+            <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-5">
+              <h4 class="text-xs font-semibold uppercase tracking-wider text-dbTextSec mb-3">Top Merchants by Transaction Count</h4>
+              <div class="h-64"><canvas id="chart-merchants"></canvas></div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- TAB 4: Architecture & Interview Q&A -->
-      <section id="tab-content-arch" class="hidden space-y-6">
-        
-        <!-- Architecture Diagram Card -->
-        <div class="bg-darkcard border border-darkborder rounded-xl p-6 shadow">
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-white mb-2">FinGuard Pipeline Architecture</h3>
-          <p class="text-xs text-slate-400 mb-6">End-to-end data flow from source ingestion through Medallion Lakehouse to notification sinks.</p>
-          
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-            
-            <div class="bg-darkbg p-4 rounded-lg border border-slate-800 space-y-2">
-              <div class="font-bold text-blue-400 uppercase text-[11px]">1. Ingestion Sources</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Kafka Topic: credit_card_transactions</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Auto Loader: JSON Watchlist Dropped Files</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">PostgreSQL: Customer Master Table (CDC)</div>
+        <!-- ===== TAB 4: ARCHITECTURE & Q&A ===== -->
+        <section id="tab-content-arch" class="hidden p-6 space-y-6">
+
+          <!-- Architecture Diagram -->
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-6">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-dbText mb-2">FinGuard Pipeline Architecture</h3>
+            <p class="text-xs text-dbTextSec mb-6">End-to-end data flow from source ingestion through Medallion Lakehouse to notification sinks.</p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-2">
+                <div class="font-bold text-dbBlue uppercase text-[11px]">1. Ingestion Sources</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">Kafka Topic: credit_card_transactions</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">Auto Loader: JSON Watchlist Dropped Files</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">PostgreSQL: Customer Master Table (CDC)</div>
+              </div>
+              <div class="bg-amber-50 p-4 rounded-lg border border-amber-200 space-y-2">
+                <div class="font-bold text-amber-700 uppercase text-[11px]">2. Bronze Layer (Raw)</div>
+                <div class="bg-white p-2 rounded border border-amber-100 text-dbText">finguard.bronze.transactions</div>
+                <div class="bg-white p-2 rounded border border-amber-100 text-dbText">finguard.bronze.fraud_watchlist</div>
+                <div class="bg-white p-2 rounded border border-amber-100 text-dbText">finguard.bronze.customers</div>
+                <p class="text-[10px] text-dbTextTer mt-2">Append-only, exact payload preserved.</p>
+              </div>
+              <div class="bg-gray-50 p-4 rounded-lg border border-gray-300 space-y-2">
+                <div class="font-bold text-gray-600 uppercase text-[11px]">3. Silver Layer (Cleaned)</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">Schema Casting &amp; Standardization</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">DQ: @expect_or_drop</div>
+                <div class="bg-white p-2 rounded border border-gray-200 text-dbText">Event Timestamps &amp; Offsets Parsed</div>
+                <p class="text-[10px] text-dbTextTer mt-2">Ready for downstream joins.</p>
+              </div>
+              <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-200 space-y-2">
+                <div class="font-bold text-dbGreen uppercase text-[11px]">4. Gold Layer &amp; Sinks</div>
+                <div class="bg-white p-2 rounded border border-emerald-100 text-dbText">Stream-Static Join (Limit Breach)</div>
+                <div class="bg-white p-2 rounded border border-emerald-100 text-dbText">Stream-Stream Join + 5m Watermark</div>
+                <div class="bg-white p-2 rounded border border-emerald-100 text-dbText">foreach_batch_sink &amp; SMTP Alerts</div>
+                <p class="text-[10px] text-dbTextTer mt-2">Immediate email dispatch &amp; metrics.</p>
+              </div>
             </div>
-
-            <div class="bg-darkbg p-4 rounded-lg border border-amber-900/40 space-y-2">
-              <div class="font-bold text-amber-400 uppercase text-[11px]">2. Bronze Layer (Raw)</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.transactions</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.fraud_watchlist</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">finguard.bronze.customers</div>
-              <p class="text-[10px] text-slate-500 mt-2">Append-only, exact payload preserved.</p>
-            </div>
-
-            <div class="bg-darkbg p-4 rounded-lg border border-slate-700 space-y-2">
-              <div class="font-bold text-slate-300 uppercase text-[11px]">3. Silver Layer (Cleaned)</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Schema Casting & Standardization</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">DQ: @expect_or_drop</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Event Timestamps & Offsets Parsed</div>
-              <p class="text-[10px] text-slate-500 mt-2">Ready for downstream joins.</p>
-            </div>
-
-            <div class="bg-darkbg p-4 rounded-lg border border-emerald-900/40 space-y-2">
-              <div class="font-bold text-emerald-400 uppercase text-[11px]">4. Gold Layer & Sinks</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Stream-Static Join (Limit Breach)</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">Stream-Stream Join + 5m Watermark</div>
-              <div class="bg-slate-800/80 p-2 rounded text-slate-300">foreach_batch_sink & SMTP Alerts</div>
-              <p class="text-[10px] text-slate-500 mt-2">Immediate email dispatch & metrics.</p>
-            </div>
-
           </div>
-        </div>
 
-        <!-- Candidate Interview Defenses Accordion -->
-        <div class="bg-darkcard border border-darkborder rounded-xl p-6 shadow space-y-4">
-          <h3 class="text-sm font-semibold uppercase tracking-wider text-white mb-2">Technical Interview Questions & Answers</h3>
-          <p class="text-xs text-slate-400 mb-4">Talking points and technical defenses prepared for interview panels.</p>
+          <!-- Interview Q&A Accordion -->
+          <div class="bg-white rounded-xl border border-dbBorder shadow-sm p-6 space-y-4">
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-dbText mb-2">Technical Interview Questions &amp; Answers</h3>
+            <p class="text-xs text-dbTextSec mb-4">Talking points and technical defenses prepared for interview panels.</p>
 
-          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group" open>
-            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
-              <span>Q1: Why Spark Structured Streaming over legacy Spark Streaming (DStreams)?</span>
-              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
-            </summary>
-            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
-              <p>• <strong>Event-Time Processing & Watermarking:</strong> Structured Streaming handles events based on when the transaction was executed at the terminal rather than when it arrived at the cluster.</p>
-              <p>• <strong>Unified API:</strong> Code uses the standard DataFrame/SQL API (<code class="bg-slate-800 px-1 rounded">spark.readStream</code> instead of DStreams RDD transformations), drastically reducing maintenance complexity.</p>
-              <p>• <strong>Native Delta Lake Integration:</strong> Complete ACID compliance, exactly-once processing guarantees, and seamless time-travel auditing.</p>
-            </div>
-          </details>
+            <details class="bg-gray-50 p-4 rounded-lg border border-gray-200 group" open>
+              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
+                <span>Q1: Why Spark Structured Streaming over legacy Spark Streaming (DStreams)?</span>
+                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+              </summary>
+              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-gray-200 pt-3 space-y-1.5">
+                <p>- <strong class="text-dbText">Event-Time Processing &amp; Watermarking:</strong> Structured Streaming handles events based on when the transaction was executed at the terminal rather than when it arrived at the cluster.</p>
+                <p>- <strong class="text-dbText">Unified API:</strong> Code uses the standard DataFrame/SQL API (<code class="bg-gray-200 px-1 rounded">spark.readStream</code> instead of DStreams RDD transformations), drastically reducing maintenance complexity.</p>
+                <p>- <strong class="text-dbText">Native Delta Lake Integration:</strong> Complete ACID compliance, exactly-once processing guarantees, and seamless time-travel auditing.</p>
+              </div>
+            </details>
 
-          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
-            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
-              <span>Q2: Why did you set a 5-minute watermark on stream-stream joins?</span>
-              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
-            </summary>
-            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
-              <p>• In a stream-stream join (transactions joined with fraud watchlist updates), Spark must maintain past state in memory waiting for potential matches.</p>
-              <p>• Without an explicit watermark, the state store grows indefinitely and results in cluster Out-Of-Memory (OOM) failures.</p>
-              <p>• By defining <code class="bg-slate-800 px-1 rounded">withWatermark("transaction_timestamp", "5 minutes")</code>, Spark bounds memory state to roughly 54 MB, automatically clearing events that lag beyond the 5-minute threshold.</p>
-            </div>
-          </details>
+            <details class="bg-gray-50 p-4 rounded-lg border border-gray-200 group">
+              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
+                <span>Q2: Why did you set a 5-minute watermark on stream-stream joins?</span>
+                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+              </summary>
+              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-gray-200 pt-3 space-y-1.5">
+                <p>- In a stream-stream join (transactions joined with fraud watchlist updates), Spark must maintain past state in memory waiting for potential matches.</p>
+                <p>- Without an explicit watermark, the state store grows indefinitely and results in cluster Out-Of-Memory (OOM) failures.</p>
+                <p>- By defining <code class="bg-gray-200 px-1 rounded">withWatermark("transaction_timestamp", "5 minutes")</code>, Spark bounds memory state to roughly 54 MB, automatically clearing events that lag beyond the 5-minute threshold.</p>
+              </div>
+            </details>
 
-          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
-            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
-              <span>Q3: Explain the difference between Stream-Static join and Stream-Stream join.</span>
-              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
-            </summary>
-            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
-              <p>• <strong>Stream-Static Join:</strong> Used in <code class="bg-slate-800 px-1 rounded">high_value_transactions_alert</code>. Silver transactions stream joins against the static customer master database. Spark performs a snapshot lookup against current customer limits without requiring state store memory or watermarks.</p>
-              <p>• <strong>Stream-Stream Join:</strong> Used in <code class="bg-slate-800 px-1 rounded">fraud_card_alert</code>. Both transactions and watchlist files arrive dynamically. Both sides require watermarks and an inner join on card number to avoid infinite state retention.</p>
-            </div>
-          </details>
+            <details class="bg-gray-50 p-4 rounded-lg border border-gray-200 group">
+              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
+                <span>Q3: Explain the difference between Stream-Static join and Stream-Stream join.</span>
+                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+              </summary>
+              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-gray-200 pt-3 space-y-1.5">
+                <p>- <strong class="text-dbText">Stream-Static Join:</strong> Used in <code class="bg-gray-200 px-1 rounded">high_value_transactions_alert</code>. Silver transactions stream joins against the static customer master database. Spark performs a snapshot lookup against current customer limits without requiring state store memory or watermarks.</p>
+                <p>- <strong class="text-dbText">Stream-Stream Join:</strong> Used in <code class="bg-gray-200 px-1 rounded">fraud_card_alert</code>. Both transactions and watchlist files arrive dynamically. Both sides require watermarks and an inner join on card number to avoid infinite state retention.</p>
+              </div>
+            </details>
 
-          <details class="bg-darkbg p-4 rounded-lg border border-slate-800 group">
-            <summary class="font-semibold text-xs text-blue-400 cursor-pointer list-none flex justify-between items-center">
-              <span>Q4: How did you handle credential security and pipeline governance?</span>
-              <span class="text-slate-500 group-open:rotate-180 transition-transform">&#9660;</span>
-            </summary>
-            <div class="mt-3 text-xs text-slate-300 leading-relaxed border-t border-slate-800/80 pt-3 space-y-1.5">
-              <p>• <strong>Databricks Secret Scopes:</strong> All Kafka credentials, PostgreSQL connection URIs, and Gmail App Passwords reside in <code class="bg-slate-800 px-1 rounded">finguard-scope</code>, retrieved at runtime via <code class="bg-slate-800 px-1 rounded">dbutils.secrets.get()</code> with zero plaintext credentials committed to Git.</p>
-              <p>• <strong>Unity Catalog:</strong> Full 3-level namespace (<code class="bg-slate-800 px-1 rounded">finguard.&lt;layer&gt;.&lt;table&gt;</code>) governance with automated end-to-end data lineage.</p>
-              <p>• <strong>Lakeflow Spark Declarative Pipelines:</strong> Complete orchestration managed declaratively with automated expectations for data quality.</p>
-            </div>
-          </details>
+            <details class="bg-gray-50 p-4 rounded-lg border border-gray-200 group">
+              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
+                <span>Q4: How did you handle credential security and pipeline governance?</span>
+                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+              </summary>
+              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-gray-200 pt-3 space-y-1.5">
+                <p>- <strong class="text-dbText">Databricks Secret Scopes:</strong> All Kafka credentials, PostgreSQL connection URIs, and Gmail App Passwords reside in <code class="bg-gray-200 px-1 rounded">finguard-scope</code>, retrieved at runtime via <code class="bg-gray-200 px-1 rounded">dbutils.secrets.get()</code> with zero plaintext credentials committed to Git.</p>
+                <p>- <strong class="text-dbText">Unity Catalog:</strong> Full 3-level namespace (<code class="bg-gray-200 px-1 rounded">finguard.&lt;layer&gt;.&lt;table&gt;</code>) governance with automated end-to-end data lineage.</p>
+                <p>- <strong class="text-dbText">Lakeflow Spark Declarative Pipelines:</strong> Complete orchestration managed declaratively with automated expectations for data quality.</p>
+              </div>
+            </details>
+          </div>
+        </section>
 
-        </div>
+      </div><!-- /Tab Content Area -->
+    </div><!-- /Main Content -->
+  </div><!-- /Main Layout -->
 
-      </section>
-
-    </main>
-
+  <!-- ===== FLOATING SIMULATION CONTROLS (FAB) ===== -->
+  <div class="sim-fab">
+    <button onclick="toggleSimPanel()" id="sim-fab-btn" class="w-12 h-12 rounded-full bg-dbBlue hover:bg-blue-700 text-white shadow-lg flex items-center justify-center transition-colors" title="Simulation Controls">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    </button>
   </div>
 
-  <!-- Footer -->
-  <footer class="border-t border-darkborder py-4 px-6 text-center text-xs text-slate-500 font-mono mt-auto">
-    FinGuard Real-Time Data Engineering Platform | Built with Apache Spark, Delta Lake, Kafka & FastAPI
-  </footer>
+  <div id="sim-panel" class="sim-panel hidden-panel">
+    <div class="bg-white rounded-xl border border-dbBorder shadow-2xl p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-dbText">Live Interview Simulation</h2>
+        <span class="text-[10px] bg-gray-100 text-dbTextSec px-2 py-0.5 rounded font-mono">1-CLICK TRIGGER</span>
+      </div>
+      <p class="text-xs text-dbTextSec mb-4">Inject simulated traffic into the Kafka ingestion topic to demonstrate stream joins &amp; real-time alerting.</p>
+      <div class="space-y-2.5">
+        <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-dbRed text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbRed"></span>High-Value Fraud</span>
+          <span class="text-[10px] font-mono text-red-400">&gt; Limit Rule</span>
+        </button>
+        <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbAmber"></span>Watchlist Fraud</span>
+          <span class="text-[10px] font-mono text-amber-500">Card Match</span>
+        </button>
+        <button onclick="injectNormal()" id="btn-normal" class="w-full bg-blue-50 hover:bg-blue-100 border border-blue-200 text-dbBlue text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbBlue"></span>Inject 5 Normal Txns</span>
+          <span class="text-[10px] font-mono text-blue-400">+5 Events</span>
+        </button>
+      </div>
 
-  <!-- Toast Container -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 bg-slate-800 border border-slate-700 text-white px-4 py-3 rounded-lg shadow-xl text-xs font-mono transition-opacity opacity-0 pointer-events-none"></div>
+      <!-- Cloud Credentials -->
+      <details class="mt-4 group">
+        <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-semibold text-dbTextSec">
+          <span>Cloud &amp; Auth Credentials</span>
+          <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+        </summary>
+        <div class="mt-3 space-y-2.5 pt-3 border-t border-dbBorder text-xs">
+          <div>
+            <label class="block text-dbTextSec mb-1">Neon Postgres URL</label>
+            <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-gray-50 border border-dbBorder rounded px-2.5 py-1.5 text-dbTextSec font-mono text-[11px] focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-dbTextSec mb-1">Kafka Bootstrap Broker</label>
+            <input type="text" value="pkc-finguard.ap-south-1.aws.confluent.cloud:9092" readonly class="w-full bg-gray-50 border border-dbBorder rounded px-2.5 py-1.5 text-dbTextSec font-mono text-[11px] focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-dbTextSec mb-1">Gmail SMTP User</label>
+            <input type="text" id="gmail-user" value="databeli14@gmail.com" class="w-full bg-gray-50 border border-dbBorder rounded px-2.5 py-1.5 text-dbText font-mono text-[11px] focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-dbTextSec mb-1">Gmail App Password</label>
+            <input type="password" id="gmail-pass" placeholder="16-character App Password" class="w-full bg-gray-50 border border-dbBorder rounded px-2.5 py-1.5 text-dbText font-mono text-[11px] focus:outline-none">
+          </div>
+          <button onclick="testEmail()" class="w-full bg-gray-100 hover:bg-gray-200 text-dbText border border-dbBorder rounded py-1.5 text-xs font-medium transition-colors">
+            Test Email Dispatch
+          </button>
+          <p id="email-result" class="text-[11px] text-dbTextSec mt-1"></p>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] bg-dbNav text-white px-5 py-3 rounded-lg shadow-xl text-xs font-mono transition-opacity opacity-0 pointer-events-none"></div>
 
   <!-- JavaScript Client Logic -->
   <script>
     let charts = {};
+    let selectedNode = null;
+    let dqChart = null;
 
+    // ===== Toast =====
     function showToast(msg) {
       const t = document.getElementById('toast');
       t.innerText = msg;
@@ -563,41 +865,153 @@
       }, 3500);
     }
 
+    // ===== Simulation Panel Toggle =====
+    function toggleSimPanel() {
+      const panel = document.getElementById('sim-panel');
+      if (panel.classList.contains('hidden-panel')) {
+        panel.classList.remove('hidden-panel');
+        panel.classList.add('visible-panel');
+      } else {
+        panel.classList.remove('visible-panel');
+        panel.classList.add('hidden-panel');
+      }
+    }
+
+    // ===== Tab Switching =====
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-400'));
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.add('text-slate-400'));
-      
-      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('text-dbTextSec');
+      });
+      const activeBtn = document.getElementById('tab-btn-' + tabId);
       if (activeBtn) {
         activeBtn.classList.add('active');
-        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.remove('text-dbTextSec');
       }
-
-      ['stream', 'medallion', 'analytics', 'arch'].forEach(t => {
-        const el = document.getElementById(`tab-content-${t}`);
-        if (t === tabId) {
-          el.classList.remove('hidden');
-          if (t === 'analytics') renderCharts();
-        } else {
-          el.classList.add('hidden');
+      ['pipeline', 'medallion', 'lakeview', 'arch'].forEach(t => {
+        const el = document.getElementById('tab-content-' + t);
+        if (el) {
+          if (t === tabId) {
+            el.classList.remove('hidden');
+            if (t === 'lakeview') {
+              renderCharts();
+              setTimeout(drawSankeyChart, 100);
+              renderScatterPlot();
+            }
+          } else {
+            el.classList.add('hidden');
+          }
         }
       });
     }
 
+    // ===== Medallion Sub-tabs =====
     function switchMedallion(layer) {
       ['bronze', 'silver', 'gold'].forEach(l => {
-        const btn = document.getElementById(`med-btn-${l}`);
-        const cnt = document.getElementById(`med-content-${l}`);
+        const btn = document.getElementById('med-btn-' + l);
+        const cnt = document.getElementById('med-content-' + l);
         if (l === layer) {
           cnt.classList.remove('hidden');
-          btn.className = 'px-3 py-1.5 rounded-md bg-blue-600/20 text-blue-400 border border-blue-500/40';
+          btn.className = 'px-3 py-1.5 bg-blue-50 text-dbBlue border-r border-dbBorder font-semibold';
         } else {
           cnt.classList.add('hidden');
-          btn.className = 'px-3 py-1.5 rounded-md text-slate-400 hover:text-white';
+          btn.className = 'px-3 py-1.5 text-dbTextSec hover:bg-gray-50 border-r border-dbBorder';
         }
       });
     }
 
+    // ===== DAG Node Selection =====
+    const nodeInfo = {
+      bronze: { title: 'bronze_transactions', type: 'Streaming table', source: '/FinGuard/01-Pipeline/bronze_transactions', target: 'finguard.bronze.transactions', duration: '1m 5s', comment: 'Raw Kafka ingestion for real-time fraud detection pipeline' },
+      fraud: { title: 'fraud_reports', type: 'Streaming table', source: '/FinGuard/01-Pipeline/fraud_reports', target: 'finguard.gold.fraud_reports', duration: '8s', comment: 'Consolidated fraud report output table' },
+      customers: { title: 'banking_customers', type: 'Streaming table', source: '/FinGuard/01-Pipeline/banking_customers', target: 'finguard.bronze.customers', duration: '8s', comment: 'PostgreSQL CDC customer master data' },
+      coords: { title: 'country_coordinates', type: 'Streaming table', source: '/FinGuard/01-Pipeline/country_coordinates', target: 'finguard.bronze.country_coordinates', duration: '7s', comment: 'Static geographical coordinate reference data' },
+      silver: { title: 'silver_transactions', type: 'Streaming table', source: '/FinGuard/01-Pipeline/silver_transactions', target: 'finguard.silver.transactions', duration: '18s', comment: 'Schema-enforced, DQ-validated transaction data' },
+      gold: { title: 'gold_transactions', type: 'Materialized view', source: '/FinGuard/01-Pipeline/gold_transactions', target: 'finguard.gold.transactions', duration: '28s', comment: 'Historical banking transaction to be trained on fraud detection' }
+    };
+
+    function selectNode(name) {
+      // Deselect previous
+      document.querySelectorAll('.dag-node').forEach(n => n.classList.remove('selected'));
+      const node = document.getElementById('dag-' + name);
+      if (node) node.classList.add('selected');
+
+      const info = nodeInfo[name];
+      if (!info) return;
+
+      document.getElementById('detail-title').innerText = info.title;
+      document.getElementById('detail-type').innerText = info.type;
+      document.getElementById('detail-source').innerHTML = '<a href="https://github.com/isthatabbhi/FinGuard-Real-Time-Fraud-Detection" target="_blank" class="text-dbBlue hover:underline break-all">' + info.source + '</a>';
+      document.getElementById('detail-target').innerText = info.target;
+      document.getElementById('detail-duration').innerText = info.duration;
+      document.getElementById('detail-comment').innerText = info.comment;
+
+      const now = new Date();
+      document.getElementById('detail-start').innerText = now.toLocaleString();
+
+      document.getElementById('detail-panel').classList.remove('hidden');
+      selectedNode = name;
+
+      // Update DQ donut
+      renderDQChart();
+    }
+
+    function closeDetail() {
+      document.getElementById('detail-panel').classList.add('hidden');
+      document.querySelectorAll('.dag-node').forEach(n => n.classList.remove('selected'));
+      selectedNode = null;
+    }
+
+    function renderDQChart() {
+      if (dqChart) dqChart.destroy();
+      const ctx = document.getElementById('dq-donut').getContext('2d');
+      dqChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Written', 'Dropped'],
+          datasets: [{ data: [100, 0], backgroundColor: ['#00A972', '#E53935'], borderWidth: 0 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: true,
+          cutout: '70%',
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    // ===== Event Log =====
+    function addEventLog(severity, eventType, message) {
+      const body = document.getElementById('event-log-body');
+      const colors = { info: 'text-dbBlue', warning: 'text-dbAmber', error: 'text-dbRed', success: 'text-dbGreen' };
+      const entry = document.createElement('div');
+      entry.className = 'log-entry flex items-start gap-4 py-1.5 px-2 rounded';
+      entry.dataset.severity = severity;
+      entry.innerHTML =
+        '<span class="text-dbTextTer shrink-0 w-20">Just now</span>' +
+        '<span class="' + (colors[severity] || 'text-dbBlue') + ' shrink-0 w-36">' + eventType + '</span>' +
+        '<span class="text-dbTextSec">' + message + '</span>';
+      body.insertBefore(entry, body.firstChild);
+    }
+
+    function filterEventLog(filter) {
+      ['all', 'info', 'warning', 'error'].forEach(f => {
+        const btn = document.getElementById('log-filter-' + f);
+        if (btn) {
+          btn.className = f === filter
+            ? 'px-3 py-1 bg-dbBg text-dbText font-semibold'
+            : 'px-3 py-1 text-dbTextSec hover:bg-gray-50';
+        }
+      });
+      document.querySelectorAll('#event-log-body .log-entry').forEach(el => {
+        if (filter === 'all' || el.dataset.severity === filter) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    // ===== Data Refresh (Flask API) =====
     async function refreshData() {
       try {
         const res = await fetch('/api/state');
@@ -608,6 +1022,7 @@
       }
     }
 
+    // ===== Render State =====
     function renderState(data) {
       // KPIs
       document.getElementById('kpi-txns').innerText = Number(data.kpis.total_txns).toLocaleString();
@@ -615,213 +1030,292 @@
       document.getElementById('kpi-avg').innerText = 'Rs. ' + data.kpis.avg_amount;
       document.getElementById('kpi-total').innerText = 'Rs. ' + data.kpis.total_amount;
       document.getElementById('kpi-risky').innerText = data.kpis.high_risk_custs;
-      
+
       // Nav offset
       if (data.transactions.length > 0) {
         document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
       }
 
+      // Pipeline timestamp
+      document.getElementById('pipeline-timestamp').innerText = new Date().toLocaleString() + ' -';
+
       // Alerts
       const alertsBox = document.getElementById('alerts-container');
-      document.getElementById('alert-count-badge').innerText = data.alerts.length + ' Alerts';
+      document.getElementById('alert-count-badge').innerText = data.alerts.length + ' alerts';
       if (data.alerts.length === 0) {
-        alertsBox.innerHTML = '<div class="text-center py-16 text-slate-500 text-xs">No fraud alerts in current buffer.<br>Click "High-Value Fraud" or "Watchlist Fraud" to trigger.</div>';
+        alertsBox.innerHTML = '<div class="text-center py-10 text-dbTextTer text-xs">No fraud alerts in current buffer.<br>Click the simulation button (bottom-right) to trigger.</div>';
       } else {
         alertsBox.innerHTML = data.alerts.map(a => {
           const isHigh = a.alert_type === 'HIGH_VALUE_TRANSACTION';
-          const borderCls = isHigh ? 'border-rose-500/50 bg-rose-950/20' : 'border-amber-500/50 bg-amber-950/20';
-          const badgeCls = isHigh ? 'bg-rose-500/20 text-rose-300' : 'bg-amber-500/20 text-amber-300';
+          const borderCls = isHigh ? 'border-l-dbRed bg-red-50' : 'border-l-dbAmber bg-amber-50';
+          const badgeCls = isHigh ? 'bg-red-100 text-dbRed' : 'bg-amber-100 text-amber-700';
           const badgeText = isHigh ? 'LIMIT BREACH' : 'WATCHLIST HIT';
-          return `
-            <div class="border-l-4 ${borderCls} bg-darkbg/90 p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow">
-              <div class="flex justify-between items-center">
-                <span class="${badgeCls} px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">${badgeText}</span>
-                <span class="text-slate-500 text-[10px]">${a.alert_timestamp}</span>
-              </div>
-              <div class="text-slate-200 font-semibold">${a.alert_id}</div>
-              <div class="text-slate-400 text-[11px]">
-                <strong>Customer:</strong> ${a.customer_name} (${a.customer_id})<br>
-                <strong>Amount:</strong> Rs. ${Number(a.amount).toLocaleString('en-IN', {minimumFractionDigits:2})} | <strong>Threshold:</strong> Rs. ${Number(a.limit).toLocaleString('en-IN', {minimumFractionDigits:2})}<br>
-                <strong>Merchant:</strong> ${a.merchant_name} (${a.location})
-              </div>
-              <div class="text-rose-400 text-[11px] pt-1">
-                <strong>Reason:</strong> ${a.reason}
-              </div>
-            </div>
-          `;
+          return '<div class="border-l-4 ' + borderCls + ' p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow-sm">' +
+            '<div class="flex justify-between items-center">' +
+              '<span class="' + badgeCls + ' px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">' + badgeText + '</span>' +
+              '<span class="text-dbTextTer text-[10px]">' + a.alert_timestamp + '</span>' +
+            '</div>' +
+            '<div class="text-dbText font-semibold">' + a.alert_id + '</div>' +
+            '<div class="text-dbTextSec text-[11px]">' +
+              '<strong>Customer:</strong> ' + a.customer_name + ' (' + a.customer_id + ')<br>' +
+              '<strong>Amount:</strong> Rs. ' + Number(a.amount).toLocaleString('en-IN', {minimumFractionDigits:2}) + ' | <strong>Threshold:</strong> Rs. ' + Number(a.limit).toLocaleString('en-IN', {minimumFractionDigits:2}) + '<br>' +
+              '<strong>Merchant:</strong> ' + a.merchant_name + ' (' + a.location + ')' +
+            '</div>' +
+            '<div class="text-dbRed text-[11px] pt-1"><strong>Reason:</strong> ' + a.reason + '</div>' +
+          '</div>';
         }).join('');
       }
 
       // Live Txns table
-      const txnsTbody = document.getElementById('txns-tbody');
-      txnsTbody.innerHTML = data.transactions.map(t => `
-        <tr class="hover:bg-slate-800/40 transition-colors">
-          <td class="py-2 px-3 text-blue-400 font-semibold">${t.transaction_id}</td>
-          <td class="py-2 px-3 font-semibold text-slate-100">Rs. ${Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
-          <td class="py-2 px-3 text-slate-300">${t.merchant_name}</td>
-          <td class="py-2 px-3 text-slate-400">${t.merchant_category}</td>
-          <td class="py-2 px-3 text-slate-400">${t.payment_channel}</td>
-          <td class="py-2 px-3"><span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded text-[10px]">${t.status}</span></td>
-        </tr>
-      `).join('');
+      document.getElementById('txns-tbody').innerHTML = data.transactions.map(t =>
+        '<tr class="hover:bg-gray-50 transition-colors">' +
+          '<td class="py-2 px-3 text-dbBlue font-semibold">' + t.transaction_id + '</td>' +
+          '<td class="py-2 px-3 font-semibold text-dbText">Rs. ' + Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits:2}) + '</td>' +
+          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_name + '</td>' +
+          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_category + '</td>' +
+          '<td class="py-2 px-3 text-dbTextSec">' + t.payment_channel + '</td>' +
+          '<td class="py-2 px-3"><span class="bg-emerald-50 text-dbGreen border border-emerald-200 px-1.5 py-0.5 rounded text-[10px] font-medium">' + t.status + '</span></td>' +
+        '</tr>'
+      ).join('');
 
       // Bronze table
-      document.getElementById('bronze-tbody').innerHTML = data.bronze.map(b => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-2 px-3 text-blue-400">${b.key}</td>
-          <td class="py-2 px-3">${b.topic}</td>
-          <td class="py-2 px-3">${b.partition}</td>
-          <td class="py-2 px-3">${b.offset}</td>
-          <td class="py-2 px-3 text-slate-400">${b.timestamp}</td>
-        </tr>
-      `).join('');
+      document.getElementById('bronze-tbody').innerHTML = data.bronze.map(b =>
+        '<tr class="hover:bg-gray-50"><td class="py-2 px-3 text-dbBlue">' + b.key + '</td><td class="py-2 px-3">' + b.topic + '</td><td class="py-2 px-3">' + b.partition + '</td><td class="py-2 px-3">' + b.offset + '</td><td class="py-2 px-3 text-dbTextSec">' + b.timestamp + '</td></tr>'
+      ).join('');
 
       // Silver table
-      document.getElementById('silver-tbody').innerHTML = data.silver.map(s => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-2 px-3 text-blue-400">${s.transaction_id}</td>
-          <td class="py-2 px-3 text-slate-400">${s.customer_id}</td>
-          <td class="py-2 px-3 font-semibold text-slate-100">Rs. ${s.amount}</td>
-          <td class="py-2 px-3">${s.merchant_name}</td>
-          <td class="py-2 px-3">${s.merchant_category}</td>
-          <td class="py-2 px-3">${s.payment_channel}</td>
-          <td class="py-2 px-3 text-slate-400">${s.city}</td>
-        </tr>
-      `).join('');
+      document.getElementById('silver-tbody').innerHTML = data.silver.map(s =>
+        '<tr class="hover:bg-gray-50"><td class="py-2 px-3 text-dbBlue">' + s.transaction_id + '</td><td class="py-2 px-3 text-dbTextSec">' + s.customer_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + s.amount + '</td><td class="py-2 px-3">' + s.merchant_name + '</td><td class="py-2 px-3">' + s.merchant_category + '</td><td class="py-2 px-3">' + s.payment_channel + '</td><td class="py-2 px-3 text-dbTextSec">' + s.city + '</td></tr>'
+      ).join('');
 
       // Gold High-Value table
-      document.getElementById('gold-high-tbody').innerHTML = data.gold_high.map(g => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-1.5 px-2 text-rose-400">${g.alert_id}</td>
-          <td class="py-1.5 px-2">${g.customer_name}</td>
-          <td class="py-1.5 px-2 font-bold text-slate-200">Rs. ${g.amount}</td>
-          <td class="py-1.5 px-2 text-slate-400">Rs. ${g.limit}</td>
-        </tr>
-      `).join('');
+      document.getElementById('gold-high-tbody').innerHTML = data.gold_high.map(g =>
+        '<tr class="hover:bg-red-50"><td class="py-1.5 px-2 text-dbRed">' + g.alert_id + '</td><td class="py-1.5 px-2">' + g.customer_name + '</td><td class="py-1.5 px-2 font-bold text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextSec">Rs. ' + g.limit + '</td></tr>'
+      ).join('');
 
       // Gold Watchlist table
-      document.getElementById('gold-watch-tbody').innerHTML = data.gold_watchlist.map(g => `
-        <tr class="hover:bg-slate-800/40">
-          <td class="py-1.5 px-2 text-amber-400">${g.alert_id}</td>
-          <td class="py-1.5 px-2">${g.customer_name}</td>
-          <td class="py-1.5 px-2 text-slate-200">Rs. ${g.amount}</td>
-          <td class="py-1.5 px-2 text-slate-400">${g.reason}</td>
-        </tr>
-      `).join('');
+      document.getElementById('gold-watch-tbody').innerHTML = data.gold_watchlist.map(g =>
+        '<tr class="hover:bg-amber-50"><td class="py-1.5 px-2 text-amber-700">' + g.alert_id + '</td><td class="py-1.5 px-2">' + g.customer_name + '</td><td class="py-1.5 px-2 text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.reason + '</td></tr>'
+      ).join('');
 
-      // Save analytics for Chart rendering
+      // Analytics
       window.lastAnalytics = data.analytics;
-      if (!document.getElementById('tab-content-analytics').classList.contains('hidden')) {
+      if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) {
         renderCharts();
       }
     }
 
+    // ===== Charts (Lakeview Tab) =====
     function renderCharts() {
       if (!window.lastAnalytics) return;
       const a = window.lastAnalytics;
+      const chartOpts = { responsive: true, maintainAspectRatio: false };
 
       // Category Bar
       if (charts.cat) charts.cat.destroy();
-      const ctxCat = document.getElementById('chart-category').getContext('2d');
-      charts.cat = new Chart(ctxCat, {
+      charts.cat = new Chart(document.getElementById('chart-category').getContext('2d'), {
         type: 'bar',
-        data: {
-          labels: Object.keys(a.categories),
-          datasets: [{
-            label: 'Transactions',
-            data: Object.values(a.categories),
-            backgroundColor: '#3B82F6',
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: '#1F2937' }, ticks: { color: '#94A3B8' } },
-            x: { grid: { display: false }, ticks: { color: '#94A3B8' } }
-          }
-        }
+        data: { labels: Object.keys(a.categories), datasets: [{ label: 'Transactions', data: Object.values(a.categories), backgroundColor: '#1B66C9', borderRadius: 4 }] },
+        options: { ...chartOpts, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#E0E0E0' }, ticks: { color: '#616161' } }, x: { grid: { display: false }, ticks: { color: '#616161' } } } }
       });
 
       // Channel Doughnut
       if (charts.chan) charts.chan.destroy();
-      const ctxChan = document.getElementById('chart-channel').getContext('2d');
-      charts.chan = new Chart(ctxChan, {
+      charts.chan = new Chart(document.getElementById('chart-channel').getContext('2d'), {
         type: 'doughnut',
-        data: {
-          labels: Object.keys(a.channels),
-          datasets: [{
-            data: Object.values(a.channels),
-            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'right', labels: { color: '#E2E8F0', font: { size: 11 } } } }
-        }
+        data: { labels: Object.keys(a.channels), datasets: [{ data: Object.values(a.channels), backgroundColor: ['#1B66C9', '#00A972', '#F9A825', '#7C3AED'], borderWidth: 0 }] },
+        options: { ...chartOpts, plugins: { legend: { position: 'right', labels: { color: '#1F1F1F', font: { size: 11 } } } } }
       });
 
       // Intl Pie
       if (charts.intl) charts.intl.destroy();
-      const ctxIntl = document.getElementById('chart-intl').getContext('2d');
-      charts.intl = new Chart(ctxIntl, {
+      charts.intl = new Chart(document.getElementById('chart-intl').getContext('2d'), {
         type: 'doughnut',
-        data: {
-          labels: Object.keys(a.intl),
-          datasets: [{
-            data: Object.values(a.intl),
-            backgroundColor: ['#10B981', '#EF4444'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'right', labels: { color: '#E2E8F0', font: { size: 11 } } } }
-        }
+        data: { labels: Object.keys(a.intl), datasets: [{ data: Object.values(a.intl), backgroundColor: ['#00A972', '#E53935'], borderWidth: 0 }] },
+        options: { ...chartOpts, plugins: { legend: { position: 'right', labels: { color: '#1F1F1F', font: { size: 11 } } } } }
       });
 
       // Top Merchants Horizontal Bar
       if (charts.merc) charts.merc.destroy();
-      const ctxMerc = document.getElementById('chart-merchants').getContext('2d');
-      charts.merc = new Chart(ctxMerc, {
+      charts.merc = new Chart(document.getElementById('chart-merchants').getContext('2d'), {
         type: 'bar',
-        data: {
-          labels: a.merchants.labels,
-          datasets: [{
-            label: 'Volume',
-            data: a.merchants.values,
-            backgroundColor: '#6366F1',
-            borderRadius: 4
-          }]
-        },
+        data: { labels: a.merchants.labels, datasets: [{ label: 'Volume', data: a.merchants.values, backgroundColor: '#7C3AED', borderRadius: 4 }] },
+        options: { ...chartOpts, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#E0E0E0' }, ticks: { color: '#616161' } }, y: { grid: { display: false }, ticks: { color: '#616161' } } } }
+      });
+    }
+
+    // ===== Scatter Plot =====
+    function renderScatterPlot() {
+      if (charts.scatter) charts.scatter.destroy();
+      // Generate simulated scatter data (hourly fraud amounts over 30 days)
+      const scatterData = [];
+      for (let d = 0; d < 30; d++) {
+        const numPoints = Math.floor(Math.random() * 5) + 1;
+        for (let i = 0; i < numPoints; i++) {
+          scatterData.push({ x: d + Math.random(), y: (Math.random() * 160 + 20) * 1000000 });
+        }
+      }
+      const ctx = document.getElementById('chart-scatter');
+      if (!ctx) return;
+      charts.scatter = new Chart(ctx.getContext('2d'), {
+        type: 'scatter',
+        data: { datasets: [{ label: 'Fraud Amount', data: scatterData, backgroundColor: '#E53935', pointRadius: 3.5, pointHoverRadius: 5 }] },
         options: {
-          indexAxis: 'y',
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { color: '#1F2937' }, ticks: { color: '#94A3B8' } },
-            y: { grid: { display: false }, ticks: { color: '#94A3B8' } }
+            x: { title: { display: true, text: 'Day', color: '#616161', font: { size: 11 } }, grid: { color: '#E0E0E0' }, ticks: { color: '#616161' } },
+            y: { title: { display: true, text: 'Total Amount', color: '#616161', font: { size: 11 } }, grid: { color: '#E0E0E0' }, ticks: { color: '#616161', callback: function(v) { return (v/1000000).toFixed(0) + 'M'; } } }
           }
         }
       });
     }
 
+    // ===== Sankey Chart (Canvas 2D) =====
+    function drawSankeyChart() {
+      const canvas = document.getElementById('sankey-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const w = canvas.offsetWidth;
+      const h = canvas.offsetHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, w, h);
+
+      const nodeW = 18;
+      const padX = 60;
+      const padY = 16;
+      const gap = 3;
+
+      const src = [
+        { name: 'RUS', val: 40, color: '#6366F1' },
+        { name: 'PER', val: 12, color: '#10B981' },
+        { name: 'CAN', val: 10, color: '#EF4444' },
+        { name: 'PAN', val: 8, color: '#F59E0B' },
+        { name: 'NGA', val: 7, color: '#EC4899' },
+        { name: 'KHM', val: 6, color: '#8B5CF6' },
+        { name: 'TUR', val: 5, color: '#14B8A6' },
+        { name: 'ESP', val: 5, color: '#F97316' },
+        { name: 'FRA', val: 4, color: '#06B6D4' },
+        { name: 'DEU', val: 3, color: '#22C55E' },
+        { name: 'PSE', val: 3, color: '#A855F7' },
+        { name: 'BRA', val: 2, color: '#EAB308' }
+      ];
+      const dst = [
+        { name: 'RUS', val: 32, color: '#6366F1' },
+        { name: 'TRANSFER', val: 12, color: '#9CA3AF' },
+        { name: 'GMT', val: 8, color: '#EF4444' },
+        { name: 'BEU', val: 7, color: '#F59E0B' },
+        { name: 'PER', val: 7, color: '#10B981' },
+        { name: 'PSE', val: 6, color: '#EC4899' },
+        { name: 'CAN', val: 5, color: '#8B5CF6' },
+        { name: 'BRA', val: 5, color: '#14B8A6' },
+        { name: 'TUR', val: 5, color: '#F97316' },
+        { name: 'FRA', val: 4, color: '#06B6D4' },
+        { name: 'DEU', val: 3, color: '#22C55E' },
+        { name: 'NGA', val: 2, color: '#EAB308' }
+      ];
+
+      const totalS = src.reduce((s, n) => s + n.val, 0);
+      const totalD = dst.reduce((s, n) => s + n.val, 0);
+      const usableH = h - 2 * padY;
+
+      // Position source nodes
+      let y = padY;
+      src.forEach(n => {
+        n.h = (n.val / totalS) * (usableH - gap * (src.length - 1));
+        n.y = y; n.x = padX;
+        y += n.h + gap;
+      });
+
+      // Position destination nodes
+      y = padY;
+      dst.forEach(n => {
+        n.h = (n.val / totalD) * (usableH - gap * (dst.length - 1));
+        n.y = y; n.x = w - padX - nodeW;
+        y += n.h + gap;
+      });
+
+      // Flows
+      const flows = [
+        { si: 0, di: 0, val: 30 }, { si: 0, di: 1, val: 10 },
+        { si: 1, di: 4, val: 7 }, { si: 1, di: 2, val: 5 },
+        { si: 2, di: 6, val: 5 }, { si: 2, di: 3, val: 5 },
+        { si: 3, di: 7, val: 4 }, { si: 3, di: 3, val: 2 }, { si: 3, di: 4, val: 2 },
+        { si: 4, di: 2, val: 3 }, { si: 4, di: 5, val: 4 },
+        { si: 5, di: 5, val: 2 }, { si: 5, di: 6, val: 4 },
+        { si: 6, di: 8, val: 5 },
+        { si: 7, di: 9, val: 5 },
+        { si: 8, di: 9, val: 4 },
+        { si: 9, di: 10, val: 3 },
+        { si: 10, di: 11, val: 2 }, { si: 10, di: 5, val: 1 },
+        { si: 11, di: 7, val: 1 }, { si: 11, di: 1, val: 1 }
+      ];
+
+      const srcOff = src.map(n => n.y);
+      const dstOff = dst.map(n => n.y);
+
+      // Draw flows
+      flows.forEach(f => {
+        const s = src[f.si];
+        const d = dst[f.di];
+        const fhS = (f.val / s.val) * s.h;
+        const fhD = (f.val / d.val) * d.h;
+        const sy = srcOff[f.si];
+        const dy = dstOff[f.di];
+        srcOff[f.si] += fhS;
+        dstOff[f.di] += fhD;
+
+        const x0 = s.x + nodeW;
+        const x1 = d.x;
+        const mx = (x0 + x1) / 2;
+
+        ctx.beginPath();
+        ctx.moveTo(x0, sy);
+        ctx.bezierCurveTo(mx, sy, mx, dy, x1, dy);
+        ctx.lineTo(x1, dy + fhD);
+        ctx.bezierCurveTo(mx, dy + fhD, mx, sy + fhS, x0, sy + fhS);
+        ctx.closePath();
+        ctx.fillStyle = s.color + '30';
+        ctx.fill();
+      });
+
+      // Draw source nodes
+      ctx.font = '11px Inter, sans-serif';
+      src.forEach(n => {
+        ctx.fillStyle = n.color;
+        ctx.fillRect(n.x, n.y, nodeW, n.h);
+        ctx.fillStyle = '#374151';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(n.name, n.x - 5, n.y + n.h / 2);
+      });
+
+      // Draw destination nodes
+      dst.forEach(n => {
+        ctx.fillStyle = n.color;
+        ctx.fillRect(n.x, n.y, nodeW, n.h);
+        ctx.fillStyle = '#374151';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(n.name, n.x + nodeW + 5, n.y + n.h / 2);
+      });
+    }
+
+    // ===== Simulation Injection =====
     async function injectFraud(type) {
       const endpoint = type === 'high-value' ? '/api/simulate/high-value' : '/api/simulate/watchlist';
       const label = type === 'high-value' ? 'High-Value Fraud' : 'Watchlist Fraud';
-      showToast(`Injecting ${label}...`);
+      showToast('Injecting ' + label + '...');
       try {
         const res = await fetch(endpoint, { method: 'POST' });
         const data = await res.json();
         if (data.success) {
           renderState(data.state);
-          showToast(`Injected ${label}: ${data.event.transaction_id}`);
+          showToast('Injected ' + label + ': ' + data.event.transaction_id);
+          addEventLog('warning', 'fraud_detected', 'ALERT: ' + label + ' event detected for transaction ' + data.event.transaction_id);
         }
       } catch (err) {
         showToast('Error injecting simulation event');
@@ -836,12 +1330,14 @@
         if (data.success) {
           renderState(data.state);
           showToast('Injected 5 normal transactions into stream');
+          addEventLog('info', 'flow_progress', '5 normal transactions ingested into bronze layer.');
         }
       } catch (err) {
         showToast('Error injecting transactions');
       }
     }
 
+    // ===== Email Test =====
     async function testEmail() {
       const user = document.getElementById('gmail-user').value;
       const pass = document.getElementById('gmail-pass').value;
@@ -855,15 +1351,26 @@
         });
         const data = await res.json();
         out.innerText = data.message;
-        out.className = data.success ? 'text-[11px] text-emerald-400 mt-1' : 'text-[11px] text-rose-400 mt-1';
+        out.className = data.success ? 'text-[11px] text-dbGreen mt-1' : 'text-[11px] text-dbRed mt-1';
       } catch (err) {
         out.innerText = 'Email test failed';
-        out.className = 'text-[11px] text-rose-400 mt-1';
+        out.className = 'text-[11px] text-dbRed mt-1';
       }
     }
 
-    // Auto-load on page start
-    window.addEventListener('DOMContentLoaded', refreshData);
+    // ===== Initialize =====
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshData();
+      // Default select bronze node
+      selectNode('bronze');
+    });
+
+    // Redraw Sankey on resize
+    window.addEventListener('resize', () => {
+      if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) {
+        drawSankeyChart();
+      }
+    });
   </script>
 </body>
 </html>
