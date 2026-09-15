@@ -274,15 +274,19 @@
         <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-mono px-1.5 py-0.5 rounded border" style="background: var(--surface-2); border-color: var(--border); color: var(--text-dim);">Ctrl+P</span>
       </div>
     </div>
-    <div class="flex items-center gap-3 text-sm">
+    <div class="flex items-center gap-2.5 text-sm">
+      <!-- Simulate Button fixed in Header -->
+      <button onclick="toggleSimPanel()" id="sim-header-btn" class="h-8 px-3 rounded-md text-white font-semibold text-xs shadow-sm flex items-center gap-1.5 transition-all hover:opacity-90 cursor-pointer" style="background: var(--accent-blue);" title="Toggle Live Simulation">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <span>Simulate</span>
+      </button>
+
       <!-- Theme Toggle Button (Icon-Only) -->
-      <button id="theme-toggle-btn" onclick="toggleTheme()" class="w-8 h-8 rounded-md border flex items-center justify-center transition-all hover:opacity-80" style="background: var(--surface-2); border-color: var(--border); color: var(--text);" title="Toggle Light / Dark Theme">
+      <button id="theme-toggle-btn" onclick="toggleTheme()" class="w-8 h-8 rounded-md border flex items-center justify-center transition-all hover:opacity-80 cursor-pointer" style="background: var(--surface-2); border-color: var(--border); color: var(--text);" title="Toggle Light / Dark Theme">
         <span id="theme-icon">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         </span>
       </button>
-
-
     </div>
   </header>
 
@@ -343,14 +347,22 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <div class="inline-flex rounded-md border border-dbBorder text-xs font-medium overflow-hidden">
-              <button class="px-3 py-1.5 bg-dbBlue text-white">Development</button>
-              <button class="px-3 py-1.5 bg-dbCard text-dbTextSec hover:bg-[var(--surface-2)]">Production</button>
+            <!-- Dev/Prod Toggle -->
+            <div class="inline-flex rounded-md border text-xs font-medium overflow-hidden" style="border-color: var(--border);">
+              <button id="env-btn-dev" onclick="setEnvironment('dev')" class="px-3 py-1.5 transition-colors cursor-pointer" style="background: transparent; color: var(--text-dim);">Development</button>
+              <button id="env-btn-prod" onclick="setEnvironment('prod')" class="px-3 py-1.5 font-semibold text-white transition-colors cursor-pointer" style="background: var(--accent-blue);">Production</button>
             </div>
-            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)]">Permissions</button>
-            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)]">Settings</button>
-            <button class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)]">Schedule (1)</button>
-            <button onclick="refreshData()" class="text-xs text-white bg-dbGreen hover:bg-emerald-600 rounded-md px-4 py-1.5 font-semibold transition-colors">Start</button>
+
+            <!-- Modal Trigger Buttons -->
+            <button onclick="openModal('permissions')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Permissions</button>
+            <button onclick="openModal('settings')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Settings</button>
+            <button onclick="openModal('schedule')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Schedule (1)</button>
+
+            <!-- Start/Stop Streaming Button -->
+            <button id="pipeline-start-btn" onclick="togglePipelineStream()" class="text-xs text-white rounded-md px-4 py-1.5 font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer" style="background: var(--accent-green);" title="Start / Stop Live Pipeline Streaming">
+              <svg id="start-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="start-btn-text">Start</span>
+            </button>
           </div>
         </div>
         <div class="flex items-center gap-4 mt-3">
@@ -1060,41 +1072,32 @@
     </div><!-- /Main Content -->
   </div><!-- /Main Layout -->
 
-  <!-- ===== TOP-RIGHT SIMULATION CONTROLS ===== -->
-  <!-- Top-Right Play Trigger Button -->
-  <div class="fixed top-3 right-14 z-50">
-    <button onclick="toggleSimPanel()" id="sim-fab-btn" class="h-8 px-3 rounded-md text-white font-semibold text-xs shadow-md flex items-center gap-1.5 transition-all hover:opacity-90" style="background: var(--accent-blue);" title="Open Live Interview Simulation">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      <span>Simulate</span>
-    </button>
-  </div>
-
-  <!-- Top-Right Simulation Panel with Small Close Button -->
-  <div id="sim-panel" class="fixed top-14 right-4 z-50 w-80 transform transition-all duration-200 hidden-panel">
-    <div class="theme-card rounded-xl shadow-2xl p-5 border" style="border-color: var(--border);">
-      <div class="flex items-center justify-between mb-3 pb-2 border-b" style="border-color: var(--border);">
+  <!-- ===== SIMULATION PANEL (Controlled from Header) ===== -->
+  <div id="sim-panel" class="fixed top-14 right-4 z-50 w-80 shadow-2xl rounded-xl hidden" style="filter: drop-shadow(0 10px 25px rgba(0,0,0,0.4));">
+    <div class="theme-card rounded-xl p-5 border" style="background: var(--card); border-color: var(--border);">
+      <div class="flex items-center justify-between mb-3 pb-2.5 border-b" style="border-color: var(--border);">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>
           <h2 class="text-sm font-semibold text-dbText">Live Simulation</h2>
         </div>
-        <!-- Small Close Button -->
-        <button onclick="toggleSimPanel()" class="w-6 h-6 rounded-md flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)] transition-colors" title="Close simulation panel">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <!-- Small Close Button (X) -->
+        <button onclick="closeSimPanel()" class="w-7 h-7 rounded-md flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)] border transition-colors cursor-pointer" style="border-color: var(--border);" title="Close panel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
       <p class="text-[11px] text-dbTextSec mb-3">Inject simulated live transactions into Kafka stream to test Delta Lake fraud detection.</p>
       
       <div class="space-y-2">
-        <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-[var(--accent-red-lt)] hover:opacity-90 border border-[var(--accent-red)] text-dbRed text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
+        <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-[var(--accent-red-lt)] hover:opacity-90 border border-[var(--accent-red)] text-dbRed text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbRed"></span>High-Value Fraud</span>
           <span class="text-[10px] font-mono text-red-400">&gt; Limit Rule</span>
         </button>
-        <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-[var(--accent-amber-lt)] hover:opacity-90 border border-[var(--accent-amber)] text-dbAmber text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
+        <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-[var(--accent-amber-lt)] hover:opacity-90 border border-[var(--accent-amber)] text-dbAmber text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbAmber"></span>Watchlist Fraud</span>
           <span class="text-[10px] font-mono text-amber-500">Card Match</span>
         </button>
-        <button onclick="injectNormal()" id="btn-normal" class="w-full bg-[var(--accent-blue-lt)] hover:opacity-90 border border-[var(--accent-blue)] text-dbBlue text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
+        <button onclick="injectNormal()" id="btn-normal" class="w-full bg-[var(--accent-blue-lt)] hover:opacity-90 border border-[var(--accent-blue)] text-dbBlue text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbBlue"></span>Inject 5 Normal Txns</span>
           <span class="text-[10px] font-mono text-blue-400">+5 Events</span>
         </button>
@@ -1116,6 +1119,9 @@
             <input type="text" value="pkc-finguard.aws.confluent.cloud:9092" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2 py-1 text-dbTextSec font-mono text-[10px]">
           </div>
         </div>
+      </details>
+    </div>
+  </div>
       </details>
     </div>
   </div>
@@ -1158,10 +1164,29 @@
     // ===== Simulation Panel Toggle =====
     function toggleSimPanel() {
       const panel = document.getElementById('sim-panel');
-      if (panel.classList.contains('hidden-panel')) {
-        panel.classList.remove('hidden-panel');
-        panel.classList.add('visible-panel');
+      if (!panel) return;
+      if (panel.classList.contains('hidden')) {
+        panel.classList.remove('hidden');
       } else {
+        panel.classList.add('hidden');
+      }
+    }
+
+    function closeSimPanel() {
+      const panel = document.getElementById('sim-panel');
+      if (panel) panel.classList.add('hidden');
+    }
+
+    // Close simulation panel when clicking outside
+    document.addEventListener('click', (e) => {
+      const panel = document.getElementById('sim-panel');
+      const btn = document.getElementById('sim-header-btn');
+      if (panel && !panel.classList.contains('hidden')) {
+        if (!panel.contains(e.target) && btn && !btn.contains(e.target)) {
+          panel.classList.add('hidden');
+        }
+      }
+    }); else {
         panel.classList.remove('visible-panel');
         panel.classList.add('hidden-panel');
       }
@@ -1816,16 +1841,27 @@
     function setEnvironment(env) {
       const devBtn = document.getElementById('env-btn-dev');
       const prodBtn = document.getElementById('env-btn-prod');
+      if (!devBtn || !prodBtn) return;
       if (env === 'dev') {
         devBtn.style.background = 'var(--accent-blue)';
         devBtn.style.color = '#FFFFFF';
-        devBtn.classList.add('font-semibold');
+        devBtn.className = 'px-3 py-1.5 font-semibold text-white transition-colors cursor-pointer';
         prodBtn.style.background = 'transparent';
         prodBtn.style.color = 'var(--text-dim)';
-        prodBtn.classList.remove('font-semibold');
+        prodBtn.className = 'px-3 py-1.5 transition-colors text-dbTextSec hover:bg-[var(--surface-2)] cursor-pointer';
         showToast('Switched to Development environment (Catalog: finguard_dev)');
         addEventLog('info', 'env_switch', 'Switched pipeline environment to Development (finguard_dev).');
       } else {
+        prodBtn.style.background = 'var(--accent-blue)';
+        prodBtn.style.color = '#FFFFFF';
+        prodBtn.className = 'px-3 py-1.5 font-semibold text-white transition-colors cursor-pointer';
+        devBtn.style.background = 'transparent';
+        devBtn.style.color = 'var(--text-dim)';
+        devBtn.className = 'px-3 py-1.5 transition-colors text-dbTextSec hover:bg-[var(--surface-2)] cursor-pointer';
+        showToast('Switched to Production environment (Catalog: finguard_prod)');
+        addEventLog('info', 'env_switch', 'Switched pipeline environment to Production (finguard_prod).');
+      }
+    } else {
         prodBtn.style.background = 'var(--accent-blue)';
         prodBtn.style.color = '#FFFFFF';
         prodBtn.classList.add('font-semibold');
