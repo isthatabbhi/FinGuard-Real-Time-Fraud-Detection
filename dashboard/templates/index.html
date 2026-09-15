@@ -290,25 +290,15 @@
     </div>
   </header>
 
-  <!-- ===== BREADCRUMB & DEMO MODE STRIP ===== -->
-  <div class="border-b px-4 py-1.5 text-xs flex flex-wrap items-center justify-between ml-12 relative z-10 gap-2" style="background: var(--surface); border-color: var(--border); color: var(--text-dim);">
-    <div class="flex items-center gap-1.5">
-      <a href="#" class="text-dbBlue hover:underline">Workspace</a>
-      <span class="text-dbTextTer">&gt;</span>
-      <a href="#" class="text-dbBlue hover:underline">FinGuard</a>
-      <span class="text-dbTextTer">&gt;</span>
-      <a href="#" class="text-dbBlue hover:underline">Lakeflow Declarative Pipelines</a>
-      <span class="text-dbTextTer">&gt;</span>
-      <span class="text-dbTextSec">Pipeline details</span>
-    </div>
-    <!-- Explicit Demo Mode Banner -->
-    <div class="flex items-center gap-2">
-      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--accent-amber-lt)] text-dbAmber border border-[var(--accent-amber)]">
-        <span class="w-1.5 h-1.5 rounded-full bg-dbAmber pulse-dot"></span>
-        DEMO MODE &mdash; Synthetic Ingestion Stream
-      </span>
-      <span class="text-[10px] font-mono hidden lg:inline" style="color: var(--text-faint);">Confluent Cloud &bull; Delta Lake &bull; Unity Catalog</span>
-    </div>
+  <!-- ===== BREADCRUMB BAR ===== -->
+  <div class="border-b px-4 py-1.5 text-xs flex items-center gap-1.5 ml-12 relative z-10" style="background: var(--surface); border-color: var(--border); color: var(--text-dim);">
+    <a href="#" class="text-dbBlue hover:underline">Workspace</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <a href="#" class="text-dbBlue hover:underline">FinGuard</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <a href="#" class="text-dbBlue hover:underline">Lakeflow Declarative Pipelines</a>
+    <span class="text-dbTextTer">&gt;</span>
+    <span class="text-dbTextSec">Pipeline details</span>
   </div>
 
   <!-- ===== MAIN LAYOUT: SIDEBAR + CONTENT ===== -->
@@ -344,42 +334,26 @@
     <div class="flex-1 flex flex-col overflow-hidden">
 
       <!-- Pipeline Header -->
-      <div class="border-b px-6 py-3.5 relative z-10" style="background: var(--surface); border-color: var(--border);">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="border-b px-6 py-3 relative z-10" style="background: var(--surface); border-color: var(--border);">
+        <div class="flex items-center justify-between">
           <div>
-            <div class="flex flex-wrap items-center gap-3">
-              <h1 class="text-lg font-bold text-dbText">finguard-streaming-pipeline</h1>
-              <span id="pipeline-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono font-semibold text-[11px] bg-dbGreenLt text-dbGreen border border-dbGreen">
-                <span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>
-                STREAMING (CONTINUOUS)
+            <h1 class="text-lg font-bold text-dbText">finguard-streaming-pipeline</h1>
+            <div class="flex items-center gap-2 mt-1 text-xs text-dbTextSec font-mono">
+              <span id="pipeline-timestamp">--</span>
+              <span class="inline-flex items-center gap-1 bg-dbGreenLt text-dbGreen px-2 py-0.5 rounded-full font-semibold text-[11px]">
+                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                Completed
               </span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--surface-2)] border text-dbTextSec" style="border-color: var(--border);">
-                Engine: Serverless Photon 14.3 LTS
-              </span>
-            </div>
-            <!-- Telemetry Status Line -->
-            <div class="flex flex-wrap items-center gap-2.5 mt-2 text-xs text-dbTextSec font-mono">
-              <span>Last Micro-Batch: <span id="last-update-time" class="text-dbText font-medium">Commit #482 (Just now)</span></span>
-              <span class="text-dbTextTer">&bull;</span>
-              <span>Kafka Stream: <span id="kafka-status-text" class="text-dbGreen font-semibold">Healthy (6 Partitions)</span></span>
-              <span class="text-dbTextTer">&bull;</span>
-              <span>Offset: <span id="nav-offset" class="text-dbBlue font-bold">#1015</span></span>
-              <span class="text-dbTextTer">&bull;</span>
-              <span>Consumer Lag: <span id="consumer-lag-text" class="text-dbGreen font-semibold">0 ms</span></span>
-              <span class="text-dbTextTer">&bull;</span>
-              <span>Processing Latency: <span id="stream-latency-text" class="text-dbText font-medium">1.2 ms (P95: 1.9 ms)</span></span>
             </div>
           </div>
-
-          <!-- Controls Section -->
           <div class="flex items-center gap-2">
-            <!-- Dev/Prod Environment Toggle -->
+            <!-- Dev/Prod Toggle -->
             <div class="inline-flex rounded-md border text-xs font-medium overflow-hidden" style="border-color: var(--border);">
               <button id="env-btn-dev" onclick="setEnvironment('dev')" class="px-3 py-1.5 transition-colors cursor-pointer" style="background: transparent; color: var(--text-dim);">Development</button>
               <button id="env-btn-prod" onclick="setEnvironment('prod')" class="px-3 py-1.5 font-semibold text-white transition-colors cursor-pointer" style="background: var(--accent-blue);">Production</button>
             </div>
 
-            <!-- Modals Trigger Buttons -->
+            <!-- Modal Trigger Buttons -->
             <button onclick="openModal('permissions')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Permissions</button>
             <button onclick="openModal('settings')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Settings</button>
             <button onclick="openModal('schedule')" class="text-xs text-dbTextSec border border-dbBorder rounded-md px-3 py-1.5 hover:bg-[var(--surface-2)] transition-colors cursor-pointer">Schedule (1)</button>
@@ -387,8 +361,19 @@
             <!-- Start/Stop Streaming Button -->
             <button id="pipeline-start-btn" onclick="togglePipelineStream()" class="text-xs text-white rounded-md px-4 py-1.5 font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer" style="background: var(--accent-green);" title="Start / Stop Live Pipeline Streaming">
               <svg id="start-btn-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span id="start-btn-text">Start Stream</span>
+              <span id="start-btn-text">Start</span>
             </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 mt-3">
+          <button class="inline-flex items-center gap-1.5 bg-dbBlue text-white text-xs font-medium px-3 py-1.5 rounded-md">
+            Select tables for refresh
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd"/></svg>
+          </button>
+          <div class="flex items-center gap-2 text-xs text-dbTextSec">
+            <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>Stream Active</span>
+            <span class="text-dbTextTer">|</span>
+            <span class="font-mono">Offset: <span id="nav-offset" class="text-dbBlue font-bold">#1015</span></span>
           </div>
         </div>
       </div>
@@ -418,102 +403,32 @@
 
             <!-- DAG Canvas -->
             <div class="flex-1 p-6 overflow-auto relative bg-dbBg">
-              <!-- Live Pipeline Lifecycle Step Tracker -->
-              <div class="theme-card rounded-xl p-3.5 mb-5 shadow-sm border" style="border-color: var(--border);">
-                <div class="flex items-center justify-between mb-2">
-                  <div class="flex items-center gap-2 text-xs font-semibold text-dbText">
-                    <svg class="w-4 h-4 text-dbBlue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    <span>Real-Time Stream Processing Lifecycle</span>
-                  </div>
-                  <span id="lifecycle-latest-id" class="text-[10px] font-mono text-dbTextSec">Waiting for active transaction...</span>
+              <!-- KPI Row -->
+              <div class="grid grid-cols-5 gap-3 mb-6">
+                <div class="theme-card rounded-lg p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Total Stream Events</p>
+                  <p id="kpi-txns" class="text-xl font-bold text-dbText mt-0.5 font-mono">15</p>
+                  <span class="text-[10px] text-dbGreen font-medium font-mono">+ Live Ingestion</span>
                 </div>
-                <!-- 6-Stage Timeline -->
-                <div class="grid grid-cols-6 gap-2 text-center text-xs font-mono">
-                  <div id="step-kafka" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">1. Ingest</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Kafka Topic</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">Offset Sync</div>
-                  </div>
-                  <div id="step-bronze" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">2. Land</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Bronze Delta</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">Raw Append</div>
-                  </div>
-                  <div id="step-silver" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">3. Validate</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Silver DLT</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">@dlt.expect</div>
-                  </div>
-                  <div id="step-gold" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">4. Join &amp; State</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Gold Enrich</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">Watermark 5m</div>
-                  </div>
-                  <div id="step-rule" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">5. Detect</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Rule Gateway</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">&lt; 2ms Heuristic</div>
-                  </div>
-                  <div id="step-alert" class="p-2 rounded border bg-[var(--surface-2)] transition-all" style="border-color: var(--border);">
-                    <div class="text-[9px] uppercase text-dbTextTer font-bold">6. Sink</div>
-                    <div class="text-[11px] font-semibold text-dbText truncate">Alert Dispatch</div>
-                    <div class="text-[9px] text-dbTextSec mt-0.5">SMTP &amp; Dash</div>
-                  </div>
+                <div class="theme-card rounded-lg p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Total Fraud Alerts</p>
+                  <p id="kpi-alerts" class="text-xl font-bold text-dbRed mt-0.5 font-mono">0</p>
+                  <span class="text-[10px] text-dbRed font-medium font-mono">Immediate Flag</span>
                 </div>
-              </div>
-
-              <!-- METRICS TIER 1: Live Simulation Session Metrics -->
-              <div class="mb-5">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[11px] font-semibold text-dbText uppercase tracking-wider font-mono flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-dbBlue pulse-dot"></span>
-                    Live Simulation Session Telemetry (Current Browser Session)
-                  </span>
-                  <span class="text-[10px] text-dbTextTer font-mono">Resets on page reload</span>
+                <div class="theme-card rounded-lg p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Average Transaction</p>
+                  <p id="kpi-avg" class="text-xl font-bold text-dbText mt-0.5 font-mono">Rs. 0.00</p>
+                  <span class="text-[10px] text-dbTextTer font-mono">Mean Batch</span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                  <div class="theme-card rounded-lg p-3 shadow-sm border-l-2 border-l-dbBlue">
-                    <p class="text-[10px] text-dbTextSec font-medium">Live Session Events</p>
-                    <p id="kpi-txns" class="text-xl font-bold text-dbText mt-0.5 font-mono">15</p>
-                    <span class="text-[10px] text-dbGreen font-medium font-mono">+ Live Micro-Batches</span>
-                  </div>
-                  <div class="theme-card rounded-lg p-3 shadow-sm border-l-2 border-l-dbRed">
-                    <p class="text-[10px] text-dbTextSec font-medium">Live Fraud Alerts</p>
-                    <p id="kpi-alerts" class="text-xl font-bold text-dbRed mt-0.5 font-mono">0</p>
-                    <span class="text-[10px] text-dbRed font-medium font-mono">Real-Time Gateway Flags</span>
-                  </div>
-                  <div class="theme-card rounded-lg p-3 shadow-sm border-l-2 border-l-dbGreen">
-                    <p class="text-[10px] text-dbTextSec font-medium">Live Processing Volume</p>
-                    <p id="kpi-total" class="text-xl font-bold text-dbText mt-0.5 font-mono">Rs. 0.00</p>
-                    <span class="text-[10px] text-dbTextTer font-mono">Session Gross Value</span>
-                  </div>
-                  <div class="theme-card rounded-lg p-3 shadow-sm border-l-2 border-l-dbAmber">
-                    <p class="text-[10px] text-dbTextSec font-medium">P95 Processing Latency</p>
-                    <p id="kpi-latency" class="text-xl font-bold text-dbAmber mt-0.5 font-mono">1.8 ms</p>
-                    <span class="text-[10px] text-dbGreen font-medium font-mono">SLA: &lt; 50 ms</span>
-                  </div>
-                  <div class="theme-card rounded-lg p-3 shadow-sm border-l-2 border-l-purple-500">
-                    <p class="text-[10px] text-dbTextSec font-medium">Ingestion Rate / Dropped</p>
-                    <p id="kpi-rate" class="text-xl font-bold text-dbText mt-0.5 font-mono">4.2 /s</p>
-                    <span id="kpi-dropped" class="text-[10px] text-dbTextTer font-mono">0 dropped (DQ pass)</span>
-                  </div>
+                <div class="theme-card rounded-lg p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">Processed Volume</p>
+                  <p id="kpi-total" class="text-xl font-bold text-dbText mt-0.5 font-mono">Rs. 0.00</p>
+                  <span class="text-[10px] text-dbTextTer font-mono">Gross Total</span>
                 </div>
-              </div>
-
-              <!-- METRICS TIER 2: Historical Lakehouse Baseline (Gold Storage) -->
-              <div class="mb-6 p-3 rounded-lg border flex flex-wrap items-center justify-between gap-4 text-xs font-mono" style="background: var(--surface-2); border-color: var(--border);">
-                <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 rounded bg-dbCard border text-[10px] font-semibold text-dbText" style="border-color: var(--border);">HISTORICAL LAKEHOUSE BASELINE</span>
-                  <span class="text-dbTextSec text-[11px]">Aggregated Delta Lake Gold storage (30-day production window)</span>
-                </div>
-                <div class="flex flex-wrap items-center gap-4 text-[11px]">
-                  <div><span class="text-dbTextTer">Total Historical Txns:</span> <strong class="text-dbText">5,805,862</strong></div>
-                  <span class="text-dbTextTer">&bull;</span>
-                  <div><span class="text-dbTextTer">Historical Fraud Records:</span> <strong class="text-dbRed">179,293</strong></div>
-                  <span class="text-dbTextTer">&bull;</span>
-                  <div><span class="text-dbTextTer">Customer Profiles (CDC):</span> <strong class="text-dbBlue">99,412</strong></div>
-                  <span class="text-dbTextTer">&bull;</span>
-                  <div><span class="text-dbTextTer">Watchlist Active Cards:</span> <strong class="text-dbAmber">1,420</strong></div>
+                <div class="theme-card rounded-lg p-3 shadow-sm">
+                  <p class="text-[11px] text-dbTextSec font-medium">High-Risk Customers</p>
+                  <p id="kpi-risky" class="text-xl font-bold text-dbAmber mt-0.5 font-mono">19</p>
+                  <span class="text-[10px] text-dbAmber font-mono">Risk Score &gt; 70</span>
                 </div>
               </div>
 
@@ -888,23 +803,12 @@
             <p class="text-xs text-dbTextTer mt-1">This data is then used by our Data Scientists to build a ML model and evaluate transaction risk to provide real-time Fraud Detection capabilities.</p>
           </div>
 
-                    <!-- ML Architecture Role Disclaimer -->
-          <div class="p-4 rounded-xl border flex items-start gap-3 text-xs" style="background: var(--surface-2); border-color: var(--border);">
-            <div class="text-dbBlue text-base shrink-0 mt-0.5">&#9432;</div>
-            <div>
-              <strong class="text-dbText font-semibold">Production Architecture Note (Gateway vs Offline ML):</strong>
-              <p class="text-dbTextSec mt-0.5 leading-relaxed">
-                Real-time transaction gateway evaluates deterministic streaming business rules (<code class="bg-[var(--surface-hover)] px-1 rounded">&lt; 2ms latency</code>, zero model cold-start). Lakehouse Bronze, Silver, and Gold Delta tables serve as the Feature Store for downstream offline ML model training (e.g. XGBoost / Isolation Forest) and offline risk propensity profiling.
-              </p>
-            </div>
-          </div>
-
           <!-- Sankey Chart + Observations -->
           <div class="grid grid-cols-1 lg:grid-cols-4 gap-5">
             <div class="lg:col-span-3 bg-dbCard rounded-xl border border-dbBorder shadow-sm p-5">
               <h4 class="text-sm font-semibold text-dbText mb-1">Top geographical flow of transactions &gt; Rs. 350,000</h4>
               <canvas id="sankey-canvas" class="w-full" style="height: 320px;"></canvas>
-              <p class="text-[10px] text-dbTextTer mt-2 font-mono">Data Window: 30-Day Rolling Window (Delta Lake Gold Table) | Last Synced: Just now</p>
+              <p class="text-[10px] text-dbTextTer mt-2 font-mono">Last 10 days ago</p>
             </div>
             <div class="theme-card rounded-xl shadow-sm p-5">
               <h4 class="text-sm font-semibold text-dbText mb-3">Observations</h4>
@@ -1152,7 +1056,7 @@
                 <span class="w-2 h-2 rounded-full bg-dbAmber"></span>
                 2. Medallion Processing
               </div>
-              <p class="text-xs text-dbTextSec leading-relaxed">Bronze raw tables enriched to Silver with Databricks Declarative Pipeline Expectations (@dlt.expect, @dlt.expect_or_drop), stream-stream joins with 5-minute watermarks to bound memory state.</p>
+              <p class="text-xs text-dbTextSec leading-relaxed">Bronze raw tables enriched to Silver with Great Expectations DQ, stream-stream joins with 5-minute watermarks to bound memory state.</p>
             </div>
             <div class="theme-card rounded-xl p-5 space-y-2">
               <div class="flex items-center gap-2 text-xs font-bold text-dbGreen uppercase font-mono">
@@ -1168,85 +1072,57 @@
     </div><!-- /Main Content -->
   </div><!-- /Main Layout -->
 
-  <!-- ===== SIMULATION & CHAOS PANEL ===== -->
-  <div id="sim-panel" class="fixed top-14 right-4 z-50 w-88 shadow-2xl rounded-xl hidden" style="width: 350px; filter: drop-shadow(0 10px 25px rgba(0,0,0,0.4));">
+  <!-- ===== SIMULATION PANEL (Controlled from Header) ===== -->
+  <div id="sim-panel" class="fixed top-14 right-4 z-50 w-80 shadow-2xl rounded-xl hidden" style="filter: drop-shadow(0 10px 25px rgba(0,0,0,0.4));">
     <div class="theme-card rounded-xl p-5 border" style="background: var(--card); border-color: var(--border);">
       <div class="flex items-center justify-between mb-3 pb-2.5 border-b" style="border-color: var(--border);">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>
-          <h2 class="text-sm font-semibold text-dbText">Live Simulation &amp; Chaos Engine</h2>
+          <h2 class="text-sm font-semibold text-dbText">Live Simulation</h2>
         </div>
-        <!-- Close Button (X) -->
+        <!-- Small Close Button (X) -->
         <button onclick="closeSimPanel()" class="w-7 h-7 rounded-md flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)] border transition-colors cursor-pointer" style="border-color: var(--border);" title="Close panel">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
 
-      <p class="text-[11px] text-dbTextSec mb-3">Inject realistic transactions or test pipeline failure degradation in real time.</p>
+      <p class="text-[11px] text-dbTextSec mb-3">Inject simulated live transactions into Kafka stream to test Delta Lake fraud detection.</p>
       
-      <!-- Primary Simulation Injections -->
       <div class="space-y-2">
         <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-[var(--accent-red-lt)] hover:opacity-90 border border-[var(--accent-red)] text-dbRed text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
-          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbRed"></span>High-Value Breach Fraud</span>
-          <span class="text-[10px] font-mono text-red-400">&gt; Limit Rule (High)</span>
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbRed"></span>High-Value Fraud</span>
+          <span class="text-[10px] font-mono text-red-400">&gt; Limit Rule</span>
         </button>
         <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-[var(--accent-amber-lt)] hover:opacity-90 border border-[var(--accent-amber)] text-dbAmber text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
-          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbAmber"></span>Watchlist Match Fraud</span>
-          <span class="text-[10px] font-mono text-amber-500">Card Match (Critical)</span>
-        </button>
-        <button onclick="injectFraud('velocity')" id="btn-velocity" class="w-full p-2 rounded-lg border text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer" style="background: rgba(124, 58, 237, 0.12); border-color: #7C3AED; color: #7C3AED;">
-          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span>Velocity Anomaly Fraud</span>
-          <span class="text-[10px] font-mono text-purple-400">Burst Spikes (Medium)</span>
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbAmber"></span>Watchlist Fraud</span>
+          <span class="text-[10px] font-mono text-amber-500">Card Match</span>
         </button>
         <button onclick="injectNormal()" id="btn-normal" class="w-full bg-[var(--accent-blue-lt)] hover:opacity-90 border border-[var(--accent-blue)] text-dbBlue text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors cursor-pointer">
-          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbBlue"></span>Inject 5 Normal Transactions</span>
-          <span class="text-[10px] font-mono text-blue-400">+5 Stream Events</span>
+          <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbBlue"></span>Inject 5 Normal Txns</span>
+          <span class="text-[10px] font-mono text-blue-400">+5 Events</span>
         </button>
       </div>
 
-      <!-- Failure & Chaos Simulation Section -->
-      <div class="mt-3.5 pt-3 border-t space-y-2" style="border-color: var(--border);">
-        <div class="text-[11px] font-bold text-dbText uppercase tracking-wider flex items-center justify-between">
-          <span>Failure &amp; Chaos Engineering</span>
-          <span class="text-[9px] font-mono text-dbTextTer">Test Resilience</span>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="simulateChaos('kafka-lag')" class="p-2 rounded border text-left text-[11px] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer" style="border-color: var(--border);">
-            <div class="font-semibold text-dbAmber">Kafka Lag Spike</div>
-            <div class="text-[10px] text-dbTextSec mt-0.5">Simulate consumer delay</div>
-          </button>
-          <button onclick="simulateChaos('dq-failure')" class="p-2 rounded border text-left text-[11px] hover:bg-[var(--surface-hover)] transition-colors cursor-pointer" style="border-color: var(--border);">
-            <div class="font-semibold text-dbRed">DQ Schema Breach</div>
-            <div class="text-[10px] text-dbTextSec mt-0.5">Drop via @dlt.expect</div>
-          </button>
-        </div>
-      </div>
-
-      <!-- Live Infrastructure Health (Replaces raw credentials) -->
-      <div class="mt-3.5 pt-3 border-t space-y-2 text-xs" style="border-color: var(--border);">
-        <div class="text-[11px] font-bold text-dbText uppercase tracking-wider flex items-center justify-between">
-          <span>Infrastructure Health</span>
-          <span class="text-dbGreen text-[10px] font-bold font-mono">4 / 4 ONLINE</span>
-        </div>
-        <div class="space-y-1.5 font-mono text-[11px]">
-          <div class="flex justify-between items-center p-1.5 rounded bg-[var(--surface-2)]">
-            <span class="text-dbTextSec">Confluent Kafka</span>
-            <span id="health-kafka" class="text-dbGreen font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span>CONNECTED</span>
+      <!-- Cloud Credentials Drawer -->
+      <details class="mt-3 group border-t pt-2.5" style="border-color: var(--border);">
+        <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-medium text-dbTextSec">
+          <span>Pipeline Endpoints</span>
+          <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
+        </summary>
+        <div class="mt-2.5 space-y-2 text-[11px]">
+          <div>
+            <label class="block text-dbTextTer text-[10px] mb-0.5">Postgres CDC URL</label>
+            <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2 py-1 text-dbTextSec font-mono text-[10px]">
           </div>
-          <div class="flex justify-between items-center p-1.5 rounded bg-[var(--surface-2)]">
-            <span class="text-dbTextSec">Neon PostgreSQL CDC</span>
-            <span class="text-dbGreen font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span>SYNCED</span>
-          </div>
-          <div class="flex justify-between items-center p-1.5 rounded bg-[var(--surface-2)]">
-            <span class="text-dbTextSec">Azure Databricks DLT</span>
-            <span class="text-dbGreen font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span>PHOTON RUNNING</span>
-          </div>
-          <div class="flex justify-between items-center p-1.5 rounded bg-[var(--surface-2)]">
-            <span class="text-dbTextSec">Alert SMTP Relay</span>
-            <span class="text-dbBlue font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-dbBlue"></span>STANDBY (MOCK)</span>
+          <div>
+            <label class="block text-dbTextTer text-[10px] mb-0.5">Kafka Broker</label>
+            <input type="text" value="pkc-finguard.aws.confluent.cloud:9092" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2 py-1 text-dbTextSec font-mono text-[10px]">
           </div>
         </div>
-      </div>
+      </details>
+    </div>
+  </div>
+      </details>
     </div>
   </div>
 
@@ -1260,73 +1136,6 @@
       <div id="modal-body" class="text-xs text-dbTextSec space-y-3"></div>
       <div class="mt-5 pt-3 border-t flex justify-end" style="border-color: var(--border);">
         <button onclick="closeModal()" class="px-4 py-1.5 rounded-md font-medium text-xs text-white" style="background: var(--accent-blue);">Close</button>
-      </div>
-    </div>
-  </div>
-
-  
-  <!-- ===== LIVE TRANSACTION INSPECTOR DRAWER ===== -->
-  <div id="inspector-drawer" class="fixed inset-y-0 right-0 z-[65] w-96 shadow-2xl border-l transform translate-x-full transition-transform duration-300 flex flex-col" style="background: var(--surface); border-color: var(--border);">
-    <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--border);">
-      <div class="flex items-center gap-2">
-        <span class="w-2.5 h-2.5 rounded-full bg-dbBlue pulse-dot"></span>
-        <h3 class="font-bold text-sm text-dbText">Live Transaction Inspector</h3>
-      </div>
-      <button onclick="closeInspector()" class="w-7 h-7 rounded flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)]">&times;</button>
-    </div>
-
-    <div class="p-5 flex-1 overflow-y-auto space-y-4 font-mono text-xs">
-      <!-- Summary Header Card -->
-      <div class="p-3.5 rounded-lg border space-y-1.5" style="background: var(--surface-2); border-color: var(--border);">
-        <div class="flex justify-between items-center">
-          <span id="insp-id" class="font-bold text-dbBlue text-sm">TXN-0000</span>
-          <span id="insp-status" class="px-2 py-0.5 rounded text-[10px] font-bold bg-dbGreenLt text-dbGreen">COMPLETED</span>
-        </div>
-        <div class="text-xl font-bold text-dbText" id="insp-amount">Rs. 0.00</div>
-        <div class="text-[11px] text-dbTextSec" id="insp-timestamp">--</div>
-      </div>
-
-      <!-- Detection Analysis -->
-      <div class="p-3.5 rounded-lg border space-y-2" style="background: var(--card); border-color: var(--border);">
-        <div class="text-[11px] font-bold text-dbText uppercase tracking-wider">Gateway Rule Evaluation</div>
-        <div class="flex justify-between items-center">
-          <span class="text-dbTextSec">Severity Level:</span>
-          <span id="insp-severity" class="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--surface-2)] text-dbText">NORMAL</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-dbTextSec">Risk Score:</span>
-          <span id="insp-risk" class="font-bold text-dbText">12 / 100</span>
-        </div>
-        <div class="flex justify-between items-center">
-          <span class="text-dbTextSec">Processing Latency:</span>
-          <span id="insp-latency" class="text-dbGreen font-bold">1.2 ms</span>
-        </div>
-        <div class="pt-2 border-t" style="border-color: var(--border);">
-          <span class="text-[11px] text-dbTextSec block mb-1 font-bold">Detection Verdict:</span>
-          <p id="insp-verdict" class="text-[11px] text-dbTextSec leading-relaxed">No fraud indicators detected. Transaction adheres to customer velocity and credit limits.</p>
-        </div>
-      </div>
-
-      <!-- Transaction Attributes -->
-      <div class="p-3.5 rounded-lg border space-y-2" style="background: var(--card); border-color: var(--border);">
-        <div class="text-[11px] font-bold text-dbText uppercase tracking-wider">Transaction Attributes</div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Customer ID:</span><span id="insp-cust-id" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Customer Name:</span><span id="insp-cust-name" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Card Number:</span><span id="insp-card" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Merchant:</span><span id="insp-merchant" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Category:</span><span id="insp-category" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Channel:</span><span id="insp-channel" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">Location:</span><span id="insp-city" class="text-dbText">--</span></div>
-        <div class="flex justify-between"><span class="text-dbTextSec">International:</span><span id="insp-intl" class="text-dbText">No</span></div>
-      </div>
-
-      <!-- Pipeline Lineage -->
-      <div class="p-3.5 rounded-lg border space-y-1.5 text-[11px]" style="background: var(--surface-2); border-color: var(--border);">
-        <div class="font-bold text-dbText uppercase tracking-wider text-[10px]">Data Lineage Path</div>
-        <div>&bull; Ingest: <code class="text-dbBlue">kafka.credit_card_transactions</code></div>
-        <div>&bull; Raw: <code class="text-dbBlue">finguard.bronze.transactions</code></div>
-        <div>&bull; Cleansed: <code class="text-dbBlue">finguard.silver.transactions</code></div>
-        <div>&bull; Gold: <code class="text-dbBlue">finguard.gold.fraud_reports</code></div>
       </div>
     </div>
   </div>
@@ -1517,28 +1326,19 @@
       });
     }
 
-    // ===== CLIENT-SIDE SIMULATION & TELEMETRY ENGINE =====
+    // ===== CLIENT-SIDE SIMULATION ENGINE =====
     const MERCHANTS = ['Amazon India','Flipkart','BigBasket','Swiggy','Zomato','IRCTC','MakeMyTrip','Reliance Digital','Croma','DMart','Myntra','PhonePe Merchant','Paytm Mall','BookMyShow','Apollo Pharmacy'];
     const CATEGORIES = ['E-Commerce','Food & Dining','Travel','Electronics','Grocery','Entertainment','Healthcare','Fuel','Utilities'];
     const CHANNELS = ['POS','Online','Mobile App','ATM'];
-    const CITIES = ['Mumbai, India','Delhi, India','Bangalore, India','Chennai, India','Hyderabad, India','Pune, India','Kolkata, India','Ahmedabad, India'];
+    const CITIES = ['Mumbai','Delhi','Bangalore','Chennai','Hyderabad','Pune','Kolkata','Ahmedabad','Jaipur','Lucknow','Kochi','Chandigarh','Indore','Nagpur','Bhopal'];
     const FIRST_NAMES = ['Aarav','Vivaan','Aditya','Vihaan','Arjun','Sai','Reyansh','Ayaan','Krishna','Ishaan','Ananya','Diya','Myra','Sara','Aadhya','Kiara','Riya','Priya','Neha','Meera'];
     const LAST_NAMES = ['Sharma','Verma','Patel','Gupta','Singh','Kumar','Reddy','Nair','Iyer','Joshi','Desai','Mehta','Shah','Rao','Pillai','Choudhary','Mishra','Bhat','Malhotra','Kapoor'];
     const WATCHLIST_CARDS = ['5008514036965665','4532015112830366','6011514433546201','3782822463100050'];
 
-    // Centralized demo state (Live Session Source of Truth)
     let state = {
-      session_events: 0,
-      session_alerts: 0,
-      session_volume: 0,
-      dropped_events: 0,
-      kafka_lag_ms: 0,
-      transactions: [],
-      alerts: [],
-      bronze: [],
-      silver: [],
-      gold_high: [],
-      gold_watchlist: [],
+      transactions: [], alerts: [], bronze: [], silver: [],
+      gold_high: [], gold_watchlist: [],
+      kpis: { total_txns: 0, total_alerts: 0, avg_amount: '0.00', total_amount: '0.00', high_risk_custs: 19 },
       analytics: {
         categories: { 'E-Commerce': 42, 'Food & Dining': 31, 'Travel': 18, 'Electronics': 25, 'Grocery': 37, 'Entertainment': 12, 'Healthcare': 8, 'Fuel': 15, 'Utilities': 9 },
         channels: { 'POS': 48, 'Online': 62, 'Mobile App': 55, 'ATM': 14 },
@@ -1546,11 +1346,9 @@
         merchants: { labels: ['Amazon India','Flipkart','Swiggy','BigBasket','Zomato','DMart','Myntra','IRCTC','Croma','Reliance Digital'], values: [34, 28, 22, 19, 17, 15, 12, 10, 8, 6] }
       }
     };
-
     let offsetCounter = 1015;
     let txnCounter = 0;
     let alertCounter = 0;
-    let selectedTxn = null;
 
     function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
     function rndAmount(min, max) { return (Math.random() * (max - min) + min).toFixed(2); }
@@ -1560,51 +1358,25 @@
     function nowISO() { return new Date().toISOString().replace('T',' ').split('.')[0]; }
     function fmtINR(v) { return Number(v).toLocaleString('en-IN', {minimumFractionDigits:2}); }
 
-    // Generates a simulated live transaction
     function genTxn(opts = {}) {
       const id = rndId();
       const custId = opts.custId || rndCustId();
-      const custName = opts.custName || (rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES));
+      const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
       const amount = opts.amount || rndAmount(200, 15000);
       const merchant = rnd(MERCHANTS);
       const category = rnd(CATEGORIES);
       const channel = rnd(CHANNELS);
       const city = rnd(CITIES);
       const card = opts.card || rndCard();
-      const isIntl = opts.isIntl !== undefined ? opts.isIntl : Math.random() < 0.12;
-      const latency = (Math.random() * 1.2 + 0.8).toFixed(1);
-      const riskScore = opts.riskScore || Math.floor(Math.random() * 25 + 5);
+      const isIntl = Math.random() < 0.12;
       offsetCounter++;
 
-      const txn = {
-        transaction_id: id,
-        customer_id: custId,
-        customer_name: custName,
-        card_number: card,
-        masked_card: card.slice(0,4) + ' **** **** ' + card.slice(-4),
-        amount: amount,
-        merchant_name: merchant,
-        merchant_category: category,
-        payment_channel: channel,
-        city: city,
-        is_international: isIntl,
-        status: opts.status || 'COMPLETED',
-        stage: opts.stage || 'Gold Evaluated',
-        latency_ms: latency,
-        risk_score: riskScore,
-        severity: opts.severity || 'NORMAL',
-        reason: opts.reason || 'Normal transaction flow; passed all Declarative Expectations.',
-        offset: offsetCounter,
-        partition: Math.floor(Math.random() * 6),
-        timestamp: nowISO()
-      };
+      const txn = { transaction_id: id, customer_id: custId, customer_name: custName, amount: amount, merchant_name: merchant, merchant_category: category, payment_channel: channel, city: city, card_number: card, is_international: isIntl, status: 'COMPLETED', offset: offsetCounter, timestamp: nowISO() };
 
-      state.session_events++;
-      state.session_volume += parseFloat(amount);
       state.transactions.unshift(txn);
       if (state.transactions.length > 50) state.transactions.pop();
 
-      state.bronze.unshift({ key: id, topic: 'credit_card_transactions', partition: txn.partition, offset: offsetCounter, timestamp: txn.timestamp });
+      state.bronze.unshift({ key: id, topic: 'credit_card_transactions', partition: Math.floor(Math.random()*6), offset: offsetCounter, timestamp: nowISO() });
       if (state.bronze.length > 30) state.bronze.pop();
 
       state.silver.unshift({ transaction_id: id, customer_id: custId, amount: amount, merchant_name: merchant, merchant_category: category, payment_channel: channel, city: city });
@@ -1618,297 +1390,86 @@
       if (mi >= 0) { state.analytics.merchants.values[mi]++; }
       else { state.analytics.merchants.labels.push(merchant); state.analytics.merchants.values.push(1); }
 
-      highlightLifecycle(txn);
       return txn;
     }
 
-    // Step-by-Step Pipeline Lifecycle Highlighter
-    function highlightLifecycle(txn) {
-      const steps = ['step-kafka', 'step-bronze', 'step-silver', 'step-gold', 'step-rule', 'step-alert'];
-      const idEl = document.getElementById('lifecycle-latest-id');
-      if (idEl) idEl.innerText = txn.transaction_id + ' | Rs. ' + fmtINR(txn.amount) + ' (' + txn.latency_ms + 'ms)';
-
-      steps.forEach((s, idx) => {
-        const el = document.getElementById(s);
-        if (!el) return;
-        setTimeout(() => {
-          el.style.borderColor = txn.severity === 'CRITICAL' ? 'var(--accent-red)' : 'var(--accent-blue)';
-          el.style.background = txn.severity === 'CRITICAL' ? 'rgba(239,68,68,0.14)' : 'rgba(47,128,237,0.14)';
-          setTimeout(() => {
-            el.style.borderColor = 'var(--border)';
-            el.style.background = 'var(--surface-2)';
-          }, 1500);
-        }, idx * 100);
-      });
+    function recalcKPIs() {
+      const txns = state.transactions;
+      const total = txns.reduce((s,t) => s + parseFloat(t.amount), 0);
+      state.kpis.total_txns = txns.length;
+      state.kpis.total_alerts = state.alerts.length;
+      state.kpis.avg_amount = txns.length > 0 ? (total / txns.length).toFixed(2) : '0.00';
+      state.kpis.total_amount = total.toFixed(2);
     }
 
-    // Initialize with 15 baseline session events
+    // Generate initial data
     for (let i = 0; i < 15; i++) genTxn();
+    recalcKPIs();
 
     function refreshData() {
+      recalcKPIs();
       renderState(state);
     }
 
     // ===== Render State =====
     function renderState(data) {
-      // Tier 1 Live Session Metrics
-      document.getElementById('kpi-txns').innerText = data.session_events.toLocaleString();
-      document.getElementById('kpi-alerts').innerText = data.session_alerts.toLocaleString();
-      document.getElementById('kpi-total').innerText = 'Rs. ' + fmtINR(data.session_volume);
-      document.getElementById('kpi-latency').innerText = '1.8 ms';
-      document.getElementById('kpi-rate').innerText = (Math.random() * 1.5 + 3.8).toFixed(1) + ' /s';
-      document.getElementById('kpi-dropped').innerText = data.dropped_events + ' dropped (DQ pass)';
+      document.getElementById('kpi-txns').innerText = Number(data.kpis.total_txns).toLocaleString();
+      document.getElementById('kpi-alerts').innerText = Number(data.kpis.total_alerts).toLocaleString();
+      document.getElementById('kpi-avg').innerText = 'Rs. ' + data.kpis.avg_amount;
+      document.getElementById('kpi-total').innerText = 'Rs. ' + data.kpis.total_amount;
+      document.getElementById('kpi-risky').innerText = data.kpis.high_risk_custs;
 
-      // Header Telemetry
-      document.getElementById('nav-offset').innerText = '#' + offsetCounter;
-      document.getElementById('last-update-time').innerText = 'Commit #' + (offsetCounter - 530) + ' (Just now)';
-      document.getElementById('consumer-lag-text').innerText = data.kafka_lag_ms + ' ms';
-      document.getElementById('stream-latency-text').innerText = '1.2 ms (P95: 1.9 ms)';
+      if (data.transactions.length > 0) document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
+      document.getElementById('pipeline-timestamp').innerText = new Date().toLocaleString() + ' -';
+      document.getElementById('alert-count-badge').innerText = data.alerts.length + ' alerts';
 
-      const alertBadge = document.getElementById('alert-count-badge');
-      if (alertBadge) alertBadge.innerText = data.alerts.length + ' alerts';
+      const dagRows = { bronze: 0, silver: 0, gold: 0, fraud: 0 };
+      dagRows.bronze = data.bronze.length;
+      dagRows.silver = data.silver.length;
+      dagRows.gold = data.gold_high.length + data.gold_watchlist.length;
+      dagRows.fraud = data.alerts.length;
+      const dagEls = { 'dag-bronze-rows': dagRows.bronze, 'dag-silver-rows': dagRows.silver, 'dag-gold-rows': dagRows.gold, 'dag-fraud-rows': dagRows.fraud };
+      Object.entries(dagEls).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.innerText = v.toLocaleString(); });
 
-      // Render Alert Feed with 4 Severity Tiers
+      // Alerts panel
       const alertsBox = document.getElementById('alerts-container');
       if (data.alerts.length === 0) {
-        alertsBox.innerHTML = '<div class="text-center py-10 text-dbTextTer text-xs font-mono">No fraud alerts in current session buffer.<br>Click "Simulate" in top navbar to inject fraud scenarios.</div>';
+        alertsBox.innerHTML = '<div class="text-center py-10 text-dbTextTer text-xs">No fraud alerts in current buffer.<br>Click the simulation button (bottom-right) to trigger.</div>';
       } else {
         alertsBox.innerHTML = data.alerts.map(a => {
-          let badgeClass = 'bg-dbRedLt text-dbRed border-dbRed';
-          let borderClass = 'border-l-dbRed';
-          if (a.severity === 'CRITICAL') {
-            badgeClass = 'bg-red-600 text-white font-bold animate-pulse';
-            borderClass = 'border-l-red-600 bg-[var(--surface-2)]';
-          } else if (a.severity === 'HIGH') {
-            badgeClass = 'bg-red-100 text-dbRed border border-dbRed';
-            borderClass = 'border-l-dbRed bg-[var(--surface-2)]';
-          } else if (a.severity === 'MEDIUM') {
-            badgeClass = 'bg-purple-100 text-purple-700 border border-purple-300';
-            borderClass = 'border-l-purple-500 bg-[var(--surface-2)]';
-          } else {
-            badgeClass = 'bg-amber-100 text-dbAmber border border-amber-300';
-            borderClass = 'border-l-dbAmber bg-[var(--surface-2)]';
-          }
-
-          return '<div onclick="inspectTransaction(\'' + a.transaction_id + '\')" class="border-l-4 ' + borderClass + ' p-3 rounded-r-lg text-xs font-mono space-y-1.5 shadow-sm cursor-pointer hover:bg-[var(--surface-hover)] transition-colors">' +
-            '<div class="flex justify-between items-center">' +
-              '<div class="flex items-center gap-2">' +
-                '<span class="' + badgeClass + ' px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">' + a.severity + '</span>' +
-                '<span class="font-bold text-dbText">' + a.alert_type + '</span>' +
-              '</div>' +
-              '<span class="text-dbTextTer text-[10px]">' + a.timestamp + '</span>' +
-            '</div>' +
-            '<div class="text-dbTextSec text-[11px]">' +
-              '<strong>Txn:</strong> <span class="text-dbBlue">' + a.transaction_id + '</span> | ' +
-              '<strong>Customer:</strong> ' + a.customer_name + ' (' + a.customer_id + ')<br>' +
-              '<strong>Amount:</strong> Rs. ' + fmtINR(a.amount) + ' | ' +
-              '<strong>Risk Score:</strong> <span class="font-bold text-dbRed">' + a.risk_score + '/100</span> | ' +
-              '<strong>Latency:</strong> ' + a.latency_ms + 'ms' +
-            '</div>' +
-            '<div class="text-dbRed text-[11px] pt-1"><strong>Reason:</strong> ' + a.reason + '</div>' +
-          '</div>';
+          const isHigh = a.alert_type === 'HIGH_VALUE_TRANSACTION';
+          const borderCls = isHigh ? 'border-l-dbRed bg-[var(--accent-red-lt)]' : 'border-l-dbAmber bg-[var(--accent-amber-lt)]';
+          const badgeCls = isHigh ? 'bg-[var(--accent-red-lt)] text-dbRed' : 'bg-[var(--accent-amber-lt)] text-dbAmber';
+          const badgeText = isHigh ? 'LIMIT BREACH' : 'WATCHLIST HIT';
+          return '<div class="border-l-4 ' + borderCls + ' p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow-sm"><div class="flex justify-between items-center"><span class="' + badgeCls + ' px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">' + badgeText + '</span><span class="text-dbTextTer text-[10px]">' + a.alert_timestamp + '</span></div><div class="text-dbText font-semibold">' + a.alert_id + '</div><div class="text-dbTextSec text-[11px]"><strong>Customer:</strong> ' + a.customer_name + ' (' + a.customer_id + ')<br><strong>Amount:</strong> Rs. ' + fmtINR(a.amount) + ' | <strong>Threshold:</strong> Rs. ' + fmtINR(a.limit) + '<br><strong>Merchant:</strong> ' + a.merchant_name + ' (' + a.location + ')</div><div class="text-dbRed text-[11px] pt-1"><strong>Reason:</strong> ' + a.reason + '</div></div>';
         }).join('');
       }
 
-      // Live Stream Table with clickable rows
-      document.getElementById('txns-tbody').innerHTML = data.transactions.map(t => {
-        const isAlert = t.severity !== 'NORMAL';
-        const rowBg = isAlert ? 'bg-[var(--accent-red-lt)]' : 'hover:bg-[var(--surface-hover)]';
-        const badgeColor = isAlert ? 'bg-dbRedLt text-dbRed border-dbRed' : 'bg-dbGreenLt text-dbGreen border-dbGreen';
-        return '<tr onclick="inspectTransaction(\'' + t.transaction_id + '\')" class="' + rowBg + ' transition-colors cursor-pointer">' +
-          '<td class="py-2 px-3 text-dbBlue font-semibold flex items-center gap-1.5">' +
-            (isAlert ? '<span class="w-1.5 h-1.5 rounded-full bg-dbRed"></span>' : '<span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span>') +
-            t.transaction_id +
-          '</td>' +
-          '<td class="py-2 px-3 font-semibold text-dbText">Rs. ' + fmtINR(t.amount) + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_name + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_category + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.payment_channel + '</td>' +
-          '<td class="py-2 px-3"><span class="' + badgeColor + ' border px-1.5 py-0.5 rounded text-[10px] font-medium">' + t.status + '</span></td>' +
-        '</tr>';
-      }).join('');
+      // Live Txns table
+      document.getElementById('txns-tbody').innerHTML = data.transactions.map(t =>
+        '<tr class="hover:bg-[var(--surface-hover)] transition-colors"><td class="py-2 px-3 text-dbBlue font-semibold">' + t.transaction_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + fmtINR(t.amount) + '</td><td class="py-2 px-3 text-dbTextSec">' + t.merchant_name + '</td><td class="py-2 px-3 text-dbTextSec">' + t.merchant_category + '</td><td class="py-2 px-3 text-dbTextSec">' + t.payment_channel + '</td><td class="py-2 px-3"><span class="bg-dbGreenLt text-dbGreen border border-dbGreen px-1.5 py-0.5 rounded text-[10px] font-medium">' + t.status + '</span></td></tr>'
+      ).join('');
 
-      // Render Bronze / Silver / Gold tables
+      // Bronze / Silver / Gold tables
       document.getElementById('bronze-tbody').innerHTML = data.bronze.map(b =>
         '<tr class="hover:bg-[var(--surface-hover)]"><td class="py-2 px-3 text-dbBlue">' + b.key + '</td><td class="py-2 px-3 text-dbTextSec">' + b.topic + '</td><td class="py-2 px-3 text-dbTextSec">' + b.partition + '</td><td class="py-2 px-3 text-dbTextSec">' + b.offset + '</td><td class="py-2 px-3 text-dbTextTer">' + b.timestamp + '</td></tr>'
       ).join('');
 
       document.getElementById('silver-tbody').innerHTML = data.silver.map(s =>
-        '<tr class="hover:bg-[var(--surface-hover)]"><td class="py-2 px-3 text-dbBlue">' + s.transaction_id + '</td><td class="py-2 px-3 text-dbTextSec">' + s.customer_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + fmtINR(s.amount) + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_name + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_category + '</td><td class="py-2 px-3 text-dbTextSec">' + s.payment_channel + '</td><td class="py-2 px-3 text-dbTextTer">' + s.city + '</td></tr>'
+        '<tr class="hover:bg-[var(--surface-hover)]"><td class="py-2 px-3 text-dbBlue">' + s.transaction_id + '</td><td class="py-2 px-3 text-dbTextSec">' + s.customer_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + s.amount + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_name + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_category + '</td><td class="py-2 px-3 text-dbTextSec">' + s.payment_channel + '</td><td class="py-2 px-3 text-dbTextTer">' + s.city + '</td></tr>'
       ).join('');
 
       document.getElementById('gold-high-tbody').innerHTML = data.gold_high.map(g =>
-        '<tr class="hover:bg-[var(--accent-red-lt)]"><td class="py-1.5 px-2 text-dbRed">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 font-bold text-dbText">Rs. ' + fmtINR(g.amount) + '</td><td class="py-1.5 px-2 text-dbTextTer">Rs. ' + fmtINR(g.limit) + '</td></tr>'
+        '<tr class="hover:bg-[var(--accent-red-lt)]"><td class="py-1.5 px-2 text-dbRed">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 font-bold text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextTer">Rs. ' + g.limit + '</td></tr>'
       ).join('');
 
       document.getElementById('gold-watch-tbody').innerHTML = data.gold_watchlist.map(g =>
-        '<tr class="hover:bg-[var(--accent-amber-lt)]"><td class="py-1.5 px-2 text-dbAmber">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 text-dbText">Rs. ' + fmtINR(g.amount) + '</td><td class="py-1.5 px-2 text-dbTextTer">' + g.reason + '</td></tr>'
+        '<tr class="hover:bg-[var(--accent-amber-lt)]"><td class="py-1.5 px-2 text-dbAmber">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextTer">' + g.reason + '</td></tr>'
       ).join('');
 
       if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) renderCharts();
     }
 
-    // ===== Open Transaction Inspector =====
-    function inspectTransaction(txnId) {
-      const txn = state.transactions.find(t => t.transaction_id === txnId);
-      if (!txn) return;
-      selectedTxn = txn;
-
-      document.getElementById('insp-id').innerText = txn.transaction_id;
-      document.getElementById('insp-amount').innerText = 'Rs. ' + fmtINR(txn.amount);
-      document.getElementById('insp-timestamp').innerText = txn.timestamp + ' UTC (Offset #' + txn.offset + ', Part ' + txn.partition + ')';
-      document.getElementById('insp-status').innerText = txn.status;
-      document.getElementById('insp-status').className = txn.severity === 'NORMAL' ? 'px-2 py-0.5 rounded text-[10px] font-bold bg-dbGreenLt text-dbGreen' : 'px-2 py-0.5 rounded text-[10px] font-bold bg-dbRedLt text-dbRed';
-      document.getElementById('insp-severity').innerText = txn.severity;
-      document.getElementById('insp-risk').innerText = txn.risk_score + ' / 100';
-      document.getElementById('insp-latency').innerText = txn.latency_ms + ' ms';
-      document.getElementById('insp-verdict').innerText = txn.reason;
-      document.getElementById('insp-cust-id').innerText = txn.customer_id;
-      document.getElementById('insp-cust-name').innerText = txn.customer_name;
-      document.getElementById('insp-card').innerText = txn.masked_card;
-      document.getElementById('insp-merchant').innerText = txn.merchant_name;
-      document.getElementById('insp-category').innerText = txn.merchant_category;
-      document.getElementById('insp-channel').innerText = txn.payment_channel;
-      document.getElementById('insp-city').innerText = txn.city;
-      document.getElementById('insp-intl').innerText = txn.is_international ? 'Yes (Cross-Border)' : 'No (Domestic)';
-
-      document.getElementById('inspector-drawer').classList.remove('translate-x-full');
-    }
-
-    function closeInspector() {
-      document.getElementById('inspector-drawer').classList.add('translate-x-full');
-    }
-
-    // ===== Multi-Tier Fraud Injection =====
-    function injectFraud(type) {
-      let txn;
-      alertCounter++;
-      const alertId = 'ALERT-' + alertCounter.toString().padStart(4, '0');
-
-      if (type === 'high-value') {
-        const custId = rndCustId();
-        const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
-        const limit = 100000;
-        const amt = (Math.random() * 300000 + 150000).toFixed(2);
-        txn = genTxn({
-          custId: custId, custName: custName, amount: amt,
-          severity: 'HIGH',
-          status: 'ALERT FLAGGED',
-          riskScore: Math.floor(Math.random() * 15 + 80),
-          reason: 'High-Value Limit Breach: Transaction of Rs. ' + fmtINR(amt) + ' exceeds credit limit of Rs. ' + fmtINR(limit)
-        });
-        const alertObj = {
-          alert_id: alertId, alert_type: 'HIGH_VALUE_TRANSACTION',
-          transaction_id: txn.transaction_id, customer_id: custId, customer_name: custName,
-          amount: amt, limit: limit, severity: 'HIGH',
-          risk_score: txn.risk_score, latency_ms: txn.latency_ms,
-          merchant_name: txn.merchant_name, location: txn.city,
-          reason: txn.reason, timestamp: txn.timestamp
-        };
-        state.alerts.unshift(alertObj);
-        state.gold_high.unshift({ alert_id: alertId, customer_name: custName, amount: amt, limit: limit });
-        state.session_alerts++;
-        showToast('HIGH Severity: Limit Breach alert on ' + txn.transaction_id);
-        addEventLog('warning', 'rule_match_limit', 'HIGH SEVERITY: Limit breach detected for ' + txn.transaction_id + ' (Rs. ' + fmtINR(amt) + ' > Rs. ' + fmtINR(limit) + ')');
-
-      } else if (type === 'watchlist') {
-        const card = rnd(WATCHLIST_CARDS);
-        const custId = rndCustId();
-        const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
-        const amt = rndAmount(5000, 75000);
-        txn = genTxn({
-          card: card, custId: custId, custName: custName, amount: amt,
-          severity: 'CRITICAL',
-          status: 'BLOCKED & FLAGGED',
-          riskScore: 98,
-          reason: 'Watchlist Match: Card ' + card.slice(0,4) + ' **** **** ' + card.slice(-4) + ' matches active fraud watchlist entry ingested via Autoloader.'
-        });
-        const alertObj = {
-          alert_id: alertId, alert_type: 'WATCHLIST_MATCH',
-          transaction_id: txn.transaction_id, customer_id: custId, customer_name: custName,
-          amount: amt, limit: 0, severity: 'CRITICAL',
-          risk_score: 98, latency_ms: txn.latency_ms,
-          merchant_name: txn.merchant_name, location: txn.city,
-          reason: txn.reason, timestamp: txn.timestamp
-        };
-        state.alerts.unshift(alertObj);
-        state.gold_watchlist.unshift({ alert_id: alertId, customer_name: custName, amount: amt, reason: 'Watchlist Card Hit' });
-        state.session_alerts++;
-        showToast('CRITICAL: Compromised card watchlist match on ' + txn.transaction_id);
-        addEventLog('error', 'watchlist_hit', 'CRITICAL SEVERITY: Watchlist match triggered for card ' + txn.masked_card + ' on transaction ' + txn.transaction_id);
-
-      } else if (type === 'velocity') {
-        const custId = rndCustId();
-        const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
-        const amt = rndAmount(12000, 48000);
-        txn = genTxn({
-          custId: custId, custName: custName, amount: amt,
-          severity: 'MEDIUM',
-          status: 'ALERT FLAGGED',
-          riskScore: 74,
-          reason: 'Velocity Anomaly: 3 distinct transaction requests detected within 45 seconds from different merchants.'
-        });
-        const alertObj = {
-          alert_id: alertId, alert_type: 'VELOCITY_ANOMALY',
-          transaction_id: txn.transaction_id, customer_id: custId, customer_name: custName,
-          amount: amt, limit: 0, severity: 'MEDIUM',
-          risk_score: 74, latency_ms: txn.latency_ms,
-          merchant_name: txn.merchant_name, location: txn.city,
-          reason: txn.reason, timestamp: txn.timestamp
-        };
-        state.alerts.unshift(alertObj);
-        state.session_alerts++;
-        showToast('MEDIUM Severity: Velocity burst anomaly flagged on ' + txn.transaction_id);
-        addEventLog('warning', 'velocity_spike', 'MEDIUM SEVERITY: Velocity rule threshold breached (3 txns / 45s) for ' + custId);
-      }
-
-      renderState(state);
-      inspectTransaction(txn.transaction_id);
-    }
-
-    function injectNormal() {
-      showToast('Ingesting 5 normal transactions into Kafka stream...');
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-          const t = genTxn();
-          renderState(state);
-          addEventLog('info', 'flow_progress', 'Ingested transaction ' + t.transaction_id + ' into bronze layer (Offset #' + t.offset + ')');
-        }, i * 180);
-      }
-    }
-
-    // ===== Chaos & Failure Simulation =====
-    let isKafkaLagging = false;
-    function simulateChaos(type) {
-      if (type === 'kafka-lag') {
-        isKafkaLagging = !isKafkaLagging;
-        const kafkaEl = document.getElementById('health-kafka');
-        const streamStatus = document.getElementById('kafka-status-text');
-        if (isKafkaLagging) {
-          state.kafka_lag_ms = 1850;
-          if (kafkaEl) kafkaEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-dbAmber"></span>DEGRADED (+1,850ms lag)';
-          if (kafkaEl) kafkaEl.className = 'text-dbAmber font-bold flex items-center gap-1';
-          if (streamStatus) { streamStatus.innerText = 'Degraded (Consumer Lag: 1,850 ms)'; streamStatus.className = 'text-dbAmber font-semibold'; }
-          showToast('Chaos: Simulated Kafka consumer lag spike (+1,850ms)');
-          addEventLog('warning', 'kafka_lag_alert', 'WARNING: High Kafka consumer lag detected on partition 4. Lag exceeds 1,800ms threshold.');
-        } else {
-          state.kafka_lag_ms = 0;
-          if (kafkaEl) kafkaEl.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-dbGreen"></span>CONNECTED';
-          if (kafkaEl) kafkaEl.className = 'text-dbGreen font-bold flex items-center gap-1';
-          if (streamStatus) { streamStatus.innerText = 'Healthy (6 Partitions)'; streamStatus.className = 'text-dbGreen font-semibold'; }
-          showToast('Kafka stream restored to nominal state (0ms lag)');
-          addEventLog('info', 'kafka_recovered', 'RECOVERED: Kafka consumer lag cleared to 0 ms.');
-        }
-        renderState(state);
-
-      } else if (type === 'dq-failure') {
-        state.dropped_events++;
-        offsetCounter++;
-        showToast('DQ Breach: Event dropped by @dlt.expect_or_drop constraint');
-        addEventLog('error', 'dlt_expect_dropped', 'DATA QUALITY FAILURE: Dropped record TXN-ERR-' + offsetCounter + ' violating @dlt.expect_or_drop("valid_amount", "amount > 0"). Payload discarded.');
-        renderState(state);
-      }
-    }
 
     // ===== Charts (Lakeview Tab) =====
     function renderCharts() {
@@ -1928,7 +1489,12 @@
           type: 'bar',
           data: {
             labels: Object.keys(a.categories),
-            datasets: [{ label: 'Transactions', data: Object.values(a.categories), backgroundColor: '#1B66C9', borderRadius: 4 }]
+            datasets: [{
+              label: 'Transactions',
+              data: Object.values(a.categories),
+              backgroundColor: '#1B66C9',
+              borderRadius: 4
+            }]
           },
           options: {
             ...chartOpts,
@@ -1949,7 +1515,11 @@
           type: 'doughnut',
           data: {
             labels: Object.keys(a.channels),
-            datasets: [{ data: Object.values(a.channels), backgroundColor: ['#1B66C9', '#00A972', '#F9A825', '#7C3AED'], borderWidth: 0 }]
+            datasets: [{
+              data: Object.values(a.channels),
+              backgroundColor: ['#1B66C9', '#00A972', '#F9A825', '#7C3AED'],
+              borderWidth: 0
+            }]
           },
           options: {
             ...chartOpts,
@@ -1966,7 +1536,11 @@
           type: 'doughnut',
           data: {
             labels: Object.keys(a.intl),
-            datasets: [{ data: Object.values(a.intl), backgroundColor: ['#00A972', '#E53935'], borderWidth: 0 }]
+            datasets: [{
+              data: Object.values(a.intl),
+              backgroundColor: ['#00A972', '#E53935'],
+              borderWidth: 0
+            }]
           },
           options: {
             ...chartOpts,
@@ -1986,7 +1560,12 @@
           type: 'bar',
           data: {
             labels: topM.map(m => m.l),
-            datasets: [{ label: 'Volume', data: topM.map(m => m.v), backgroundColor: '#7C3AED', borderRadius: 4 }]
+            datasets: [{
+              label: 'Volume',
+              data: topM.map(m => m.v),
+              backgroundColor: '#7C3AED',
+              borderRadius: 4
+            }]
           },
           options: {
             ...chartOpts,
@@ -2048,20 +1627,32 @@
       const gap = 3;
 
       const src = [
-        { name: 'RUS', val: 40, color: '#6366F1' }, { name: 'PER', val: 12, color: '#10B981' },
-        { name: 'CAN', val: 10, color: '#EF4444' }, { name: 'PAN', val: 8, color: '#F59E0B' },
-        { name: 'NGA', val: 7, color: '#EC4899' }, { name: 'KHM', val: 6, color: '#8B5CF6' },
-        { name: 'TUR', val: 5, color: '#14B8A6' }, { name: 'ESP', val: 5, color: '#F97316' },
-        { name: 'FRA', val: 4, color: '#06B6D4' }, { name: 'DEU', val: 3, color: '#22C55E' },
-        { name: 'PSE', val: 3, color: '#A855F7' }, { name: 'BRA', val: 2, color: '#EAB308' }
+        { name: 'RUS', val: 40, color: '#6366F1' },
+        { name: 'PER', val: 12, color: '#10B981' },
+        { name: 'CAN', val: 10, color: '#EF4444' },
+        { name: 'PAN', val: 8, color: '#F59E0B' },
+        { name: 'NGA', val: 7, color: '#EC4899' },
+        { name: 'KHM', val: 6, color: '#8B5CF6' },
+        { name: 'TUR', val: 5, color: '#14B8A6' },
+        { name: 'ESP', val: 5, color: '#F97316' },
+        { name: 'FRA', val: 4, color: '#06B6D4' },
+        { name: 'DEU', val: 3, color: '#22C55E' },
+        { name: 'PSE', val: 3, color: '#A855F7' },
+        { name: 'BRA', val: 2, color: '#EAB308' }
       ];
       const dst = [
-        { name: 'RUS', val: 32, color: '#6366F1' }, { name: 'TRANSFER', val: 12, color: '#9CA3AF' },
-        { name: 'GMT', val: 8, color: '#EF4444' }, { name: 'BEU', val: 7, color: '#F59E0B' },
-        { name: 'PER', val: 7, color: '#10B981' }, { name: 'PSE', val: 6, color: '#EC4899' },
-        { name: 'CAN', val: 5, color: '#8B5CF6' }, { name: 'BRA', val: 5, color: '#14B8A6' },
-        { name: 'TUR', val: 5, color: '#F97316' }, { name: 'FRA', val: 4, color: '#06B6D4' },
-        { name: 'DEU', val: 3, color: '#22C55E' }, { name: 'NGA', val: 2, color: '#EAB308' }
+        { name: 'RUS', val: 32, color: '#6366F1' },
+        { name: 'TRANSFER', val: 12, color: '#9CA3AF' },
+        { name: 'GMT', val: 8, color: '#EF4444' },
+        { name: 'BEU', val: 7, color: '#F59E0B' },
+        { name: 'PER', val: 7, color: '#10B981' },
+        { name: 'PSE', val: 6, color: '#EC4899' },
+        { name: 'CAN', val: 5, color: '#8B5CF6' },
+        { name: 'BRA', val: 5, color: '#14B8A6' },
+        { name: 'TUR', val: 5, color: '#F97316' },
+        { name: 'FRA', val: 4, color: '#06B6D4' },
+        { name: 'DEU', val: 3, color: '#22C55E' },
+        { name: 'NGA', val: 2, color: '#EAB308' }
       ];
 
       const totalS = src.reduce((s, n) => s + n.val, 0);
@@ -2143,6 +1734,62 @@
       });
     }
 
+    // ===== Fraud Injection (Client-Side) =====
+    function injectFraud(type) {
+      const isHighVal = type === 'high-value';
+      const label = isHighVal ? 'High-Value Fraud' : 'Watchlist Fraud';
+      showToast('Injecting ' + label + '...');
+
+      const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
+      const custId = rndCustId();
+      const limit = parseFloat(rndAmount(50000, 200000));
+
+      let txn;
+      if (isHighVal) {
+        txn = genTxn({ amount: rndAmount(limit + 10000, limit + 500000), custId: custId });
+      } else {
+        txn = genTxn({ card: rnd(WATCHLIST_CARDS), custId: custId });
+      }
+
+      alertCounter++;
+      const alert = {
+        alert_id: 'ALERT-' + alertCounter.toString().padStart(4, '0'),
+        alert_type: isHighVal ? 'HIGH_VALUE_TRANSACTION' : 'WATCHLIST_MATCH',
+        customer_id: custId, customer_name: custName,
+        amount: txn.amount, limit: limit.toFixed(2),
+        merchant_name: txn.merchant_name, location: txn.city,
+        reason: isHighVal ? 'Transaction Rs. ' + fmtINR(txn.amount) + ' exceeds credit limit Rs. ' + fmtINR(limit) : 'Card ' + txn.card_number + ' matches fraud watchlist entry',
+        alert_timestamp: nowISO()
+      };
+
+      state.alerts.unshift(alert);
+      if (isHighVal) { state.gold_high.unshift({ alert_id: alert.alert_id, customer_name: custName, amount: txn.amount, limit: limit.toFixed(2) }); }
+      else { state.gold_watchlist.unshift({ alert_id: alert.alert_id, customer_name: custName, amount: txn.amount, reason: alert.reason }); }
+
+      recalcKPIs();
+      renderState(state);
+      showToast('Injected ' + label + ': ' + txn.transaction_id);
+      addEventLog('warning', 'fraud_detected', 'ALERT: ' + label + ' event detected for transaction ' + txn.transaction_id);
+    }
+
+    function injectNormal() {
+      showToast('Injecting 5 normal transactions...');
+      for (let i = 0; i < 5; i++) genTxn();
+      recalcKPIs();
+      renderState(state);
+      showToast('Injected 5 normal transactions into stream');
+      addEventLog('info', 'flow_progress', '5 normal transactions ingested into bronze layer.');
+    }
+
+    // ===== Email Test (no-op in edge worker) =====
+    function testEmail() {
+      const out = document.getElementById('email-result');
+      out.innerText = 'Email dispatch is not available in edge-worker mode. Deploy Flask backend for SMTP support.';
+      out.className = 'text-[11px] text-dbAmber mt-1';
+    }
+
+    // ===== Initialize =====
+    
     // ===== PIPELINE STREAM TOGGLE (Start / Stop) =====
     let streamInterval = null;
     let isStreamRunning = false;
@@ -2155,43 +1802,42 @@
       const statusBadge = document.getElementById('pipeline-status-badge');
 
       if (isStreamRunning) {
+        // Start streaming
         btn.style.background = 'var(--accent-red)';
-        txt.innerText = 'Stop Stream';
+        txt.innerText = 'Stop';
         icon.innerHTML = '<rect x="6" y="6" width="12" height="12"/>';
-        if (statusBadge) {
-          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>STREAMING (LIVE INGESTION)';
-          statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono font-semibold text-[11px] bg-dbGreenLt text-dbGreen border border-dbGreen';
-        }
+        if (statusBadge) statusBadge.innerText = 'Stream Active (Running)';
 
         showToast('Pipeline started - Live streaming ingestion active');
         addEventLog('info', 'pipeline_start', 'Streaming pipeline started. Ingesting high-frequency transactions from Kafka topic credit_card_transactions.');
 
+        // Stream tick every 2.5 seconds
         streamInterval = setInterval(() => {
+          // Occasionally trigger fraud (15% chance)
           if (Math.random() < 0.15) {
             injectFraud(Math.random() < 0.5 ? 'high-value' : 'watchlist');
           } else {
             const txn = genTxn();
+            recalcKPIs();
             renderState(state);
             addEventLog('info', 'flow_progress', 'Ingested transaction ' + txn.transaction_id + ' (Rs. ' + fmtINR(txn.amount) + ') from ' + txn.city);
           }
-        }, 2200);
+        }, 2500);
       } else {
+        // Stop streaming
         clearInterval(streamInterval);
         streamInterval = null;
         btn.style.background = 'var(--accent-green)';
-        txt.innerText = 'Start Stream';
+        txt.innerText = 'Start';
         icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
-        if (statusBadge) {
-          statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-dbAmber"></span>PAUSED (IDLE)';
-          statusBadge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full font-mono font-semibold text-[11px] bg-[var(--accent-amber-lt)] text-dbAmber border border-[var(--accent-amber)]';
-        }
+        if (statusBadge) statusBadge.innerText = 'Stream Paused';
 
         showToast('Pipeline paused');
         addEventLog('warning', 'pipeline_pause', 'Streaming ingestion paused by user.');
       }
     }
 
-    // ===== ENVIRONMENT SWITCHER =====
+    // ===== DEV / PROD ENVIRONMENT SWITCHER =====
     function setEnvironment(env) {
       const devBtn = document.getElementById('env-btn-dev');
       const prodBtn = document.getElementById('env-btn-prod');
@@ -2215,9 +1861,19 @@
         showToast('Switched to Production environment (Catalog: finguard_prod)');
         addEventLog('info', 'env_switch', 'Switched pipeline environment to Production (finguard_prod).');
       }
+    } else {
+        prodBtn.style.background = 'var(--accent-blue)';
+        prodBtn.style.color = '#FFFFFF';
+        prodBtn.classList.add('font-semibold');
+        devBtn.style.background = 'transparent';
+        devBtn.style.color = 'var(--text-dim)';
+        devBtn.classList.remove('font-semibold');
+        showToast('Switched to Production environment (Catalog: finguard_prod)');
+        addEventLog('info', 'env_switch', 'Switched pipeline environment to Production (finguard_prod).');
+      }
     }
 
-    // ===== MODALS =====
+    // ===== MODALS (Permissions, Settings, Schedule) =====
     const MODAL_DATA = {
       permissions: {
         title: 'Unity Catalog Permissions',
@@ -2269,7 +1925,7 @@
             </div>
             <div class="flex justify-between py-1">
               <span class="text-dbTextTer">Quality Policy:</span>
-              <span>@dlt.expect_or_drop (Strict Compliance)</span>
+              <span>@expect_or_drop (Strict Compliance)</span>
             </div>
           </div>
         `
@@ -2308,45 +1964,13 @@
       document.getElementById('modal-container').classList.add('hidden');
     }
 
-    // ===== Simulation Panel Toggle & Outside Click =====
-    function toggleSimPanel() {
-      const panel = document.getElementById('sim-panel');
-      if (!panel) return;
-      if (panel.classList.contains('hidden')) {
-        panel.classList.remove('hidden');
-      } else {
-        panel.classList.add('hidden');
-      }
-    }
-
-    function closeSimPanel() {
-      const panel = document.getElementById('sim-panel');
-      if (panel) panel.classList.add('hidden');
-    }
-
-    document.addEventListener('click', (e) => {
-      const panel = document.getElementById('sim-panel');
-      const btn = document.getElementById('sim-header-btn');
-      if (panel && !panel.classList.contains('hidden')) {
-        if (!panel.contains(e.target) && btn && !btn.contains(e.target)) {
-          panel.classList.add('hidden');
-        }
-      }
-      const drawer = document.getElementById('inspector-drawer');
-      if (drawer && !drawer.classList.contains('translate-x-full')) {
-        if (!drawer.contains(e.target) && !e.target.closest('#txns-tbody') && !e.target.closest('#alerts-container')) {
-          drawer.classList.add('translate-x-full');
-        }
-      }
-    });
-
-    // ===== Initialize =====
     window.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('finguard-theme') || 'dark';
       applyTheme(savedTheme);
       refreshData();
       selectNode('bronze');
     });
+
     // Redraw Sankey on resize
     window.addEventListener('resize', () => {
       if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) {
