@@ -284,8 +284,7 @@
         <span id="theme-text" class="text-[11px] font-mono">Dark</span>
       </button>
 
-      <span class="text-xs font-mono hidden md:inline" style="color: var(--text-dim);">ap-south-1</span>
-      <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm" style="background: var(--accent-blue);">A</div>
+
     </div>
   </header>
 
@@ -389,7 +388,7 @@
       <div class="flex-1 overflow-y-auto">
 
         <!-- ===== TAB 1: PIPELINE DAG ===== -->
-        <section id="tab-content-pipeline" class="flex flex-col h-full">
+        <section id="tab-content-pipeline" style="background-image: linear-gradient(to right, var(--paper-line) 1px, transparent 1px), linear-gradient(to bottom, var(--paper-line) 1px, transparent 1px); background-size: 28px 28px;" class="flex flex-col h-full">
           <div class="flex flex-1 overflow-hidden">
 
             <!-- DAG Canvas -->
@@ -887,57 +886,6 @@
             </div>
           </div>
 
-          <!-- Interview Q&A Accordion -->
-          <div class="bg-dbCard rounded-xl border border-dbBorder shadow-sm p-6 space-y-4">
-            <h3 class="text-sm font-semibold uppercase tracking-wider text-dbText mb-2">Technical Interview Questions &amp; Answers</h3>
-            <p class="text-xs text-dbTextSec mb-4">Talking points and technical defenses prepared for interview panels.</p>
-
-            <details class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border)] group" open>
-              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
-                <span>Q1: Why Spark Structured Streaming over legacy Spark Streaming (DStreams)?</span>
-                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
-              </summary>
-              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-[var(--border)] pt-3 space-y-1.5">
-                <p>- <strong class="text-dbText">Event-Time Processing &amp; Watermarking:</strong> Structured Streaming handles events based on when the transaction was executed at the terminal rather than when it arrived at the cluster.</p>
-                <p>- <strong class="text-dbText">Unified API:</strong> Code uses the standard DataFrame/SQL API (<code class="bg-[var(--surface-hover)] px-1 rounded">spark.readStream</code> instead of DStreams RDD transformations), drastically reducing maintenance complexity.</p>
-                <p>- <strong class="text-dbText">Native Delta Lake Integration:</strong> Complete ACID compliance, exactly-once processing guarantees, and seamless time-travel auditing.</p>
-              </div>
-            </details>
-
-            <details class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border)] group">
-              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
-                <span>Q2: Why did you set a 5-minute watermark on stream-stream joins?</span>
-                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
-              </summary>
-              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-[var(--border)] pt-3 space-y-1.5">
-                <p>- In a stream-stream join (transactions joined with fraud watchlist updates), Spark must maintain past state in memory waiting for potential matches.</p>
-                <p>- Without an explicit watermark, the state store grows indefinitely and results in cluster Out-Of-Memory (OOM) failures.</p>
-                <p>- By defining <code class="bg-[var(--surface-hover)] px-1 rounded">withWatermark("transaction_timestamp", "5 minutes")</code>, Spark bounds memory state to roughly 54 MB, automatically clearing events that lag beyond the 5-minute threshold.</p>
-              </div>
-            </details>
-
-            <details class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border)] group">
-              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
-                <span>Q3: Explain the difference between Stream-Static join and Stream-Stream join.</span>
-                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
-              </summary>
-              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-[var(--border)] pt-3 space-y-1.5">
-                <p>- <strong class="text-dbText">Stream-Static Join:</strong> Used in <code class="bg-[var(--surface-hover)] px-1 rounded">high_value_transactions_alert</code>. Silver transactions stream joins against the static customer master database. Spark performs a snapshot lookup against current customer limits without requiring state store memory or watermarks.</p>
-                <p>- <strong class="text-dbText">Stream-Stream Join:</strong> Used in <code class="bg-[var(--surface-hover)] px-1 rounded">fraud_card_alert</code>. Both transactions and watchlist files arrive dynamically. Both sides require watermarks and an inner join on card number to avoid infinite state retention.</p>
-              </div>
-            </details>
-
-            <details class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border)] group">
-              <summary class="font-semibold text-xs text-dbBlue cursor-pointer list-none flex justify-between items-center">
-                <span>Q4: How did you handle credential security and pipeline governance?</span>
-                <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
-              </summary>
-              <div class="mt-3 text-xs text-dbTextSec leading-relaxed border-t border-[var(--border)] pt-3 space-y-1.5">
-                <p>- <strong class="text-dbText">Databricks Secret Scopes:</strong> All Kafka credentials, PostgreSQL connection URIs, and Gmail App Passwords reside in <code class="bg-[var(--surface-hover)] px-1 rounded">finguard-scope</code>, retrieved at runtime via <code class="bg-[var(--surface-hover)] px-1 rounded">dbutils.secrets.get()</code> with zero plaintext credentials committed to Git.</p>
-                <p>- <strong class="text-dbText">Unity Catalog:</strong> Full 3-level namespace (<code class="bg-[var(--surface-hover)] px-1 rounded">finguard.&lt;layer&gt;.&lt;table&gt;</code>) governance with automated end-to-end data lineage.</p>
-                <p>- <strong class="text-dbText">Lakeflow Spark Declarative Pipelines:</strong> Complete orchestration managed declaratively with automated expectations for data quality.</p>
-              </div>
-            </details>
           </div>
         </section>
 
@@ -1173,143 +1121,263 @@
       });
     }
 
-    // ===== Data Refresh (Flask API) =====
-    async function refreshData() {
-      try {
-        const res = await fetch('/api/state');
-        const data = await res.json();
-        renderState(data);
-      } catch (err) {
-        console.error('Failed to fetch state:', err);
+    // ===== CLIENT-SIDE SIMULATION ENGINE =====
+    const MERCHANTS = ['Amazon India','Flipkart','BigBasket','Swiggy','Zomato','IRCTC','MakeMyTrip','Reliance Digital','Croma','DMart','Myntra','PhonePe Merchant','Paytm Mall','BookMyShow','Apollo Pharmacy'];
+    const CATEGORIES = ['E-Commerce','Food & Dining','Travel','Electronics','Grocery','Entertainment','Healthcare','Fuel','Utilities'];
+    const CHANNELS = ['POS','Online','Mobile App','ATM'];
+    const CITIES = ['Mumbai','Delhi','Bangalore','Chennai','Hyderabad','Pune','Kolkata','Ahmedabad','Jaipur','Lucknow','Kochi','Chandigarh','Indore','Nagpur','Bhopal'];
+    const FIRST_NAMES = ['Aarav','Vivaan','Aditya','Vihaan','Arjun','Sai','Reyansh','Ayaan','Krishna','Ishaan','Ananya','Diya','Myra','Sara','Aadhya','Kiara','Riya','Priya','Neha','Meera'];
+    const LAST_NAMES = ['Sharma','Verma','Patel','Gupta','Singh','Kumar','Reddy','Nair','Iyer','Joshi','Desai','Mehta','Shah','Rao','Pillai','Choudhary','Mishra','Bhat','Malhotra','Kapoor'];
+    const WATCHLIST_CARDS = ['5008514036965665','4532015112830366','6011514433546201','3782822463100050'];
+
+    let state = {
+      transactions: [], alerts: [], bronze: [], silver: [],
+      gold_high: [], gold_watchlist: [],
+      kpis: { total_txns: 0, total_alerts: 0, avg_amount: '0.00', total_amount: '0.00', high_risk_custs: 19 },
+      analytics: {
+        categories: { 'E-Commerce': 42, 'Food & Dining': 31, 'Travel': 18, 'Electronics': 25, 'Grocery': 37, 'Entertainment': 12, 'Healthcare': 8, 'Fuel': 15, 'Utilities': 9 },
+        channels: { 'POS': 48, 'Online': 62, 'Mobile App': 55, 'ATM': 14 },
+        intl: { Domestic: 156, International: 23 },
+        merchants: { labels: ['Amazon India','Flipkart','Swiggy','BigBasket','Zomato','DMart','Myntra','IRCTC','Croma','Reliance Digital'], values: [34, 28, 22, 19, 17, 15, 12, 10, 8, 6] }
       }
+    };
+    let offsetCounter = 1015;
+    let txnCounter = 0;
+    let alertCounter = 0;
+
+    function rnd(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function rndAmount(min, max) { return (Math.random() * (max - min) + min).toFixed(2); }
+    function rndId() { return 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + (++txnCounter).toString().padStart(4, '0'); }
+    function rndCard() { return '4' + Array.from({length:15}, () => Math.floor(Math.random()*10)).join(''); }
+    function rndCustId() { return 'CUST-' + Math.floor(Math.random()*9000+1000); }
+    function nowISO() { return new Date().toISOString().replace('T',' ').split('.')[0]; }
+    function fmtINR(v) { return Number(v).toLocaleString('en-IN', {minimumFractionDigits:2}); }
+
+    function genTxn(opts = {}) {
+      const id = rndId();
+      const custId = opts.custId || rndCustId();
+      const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
+      const amount = opts.amount || rndAmount(200, 15000);
+      const merchant = rnd(MERCHANTS);
+      const category = rnd(CATEGORIES);
+      const channel = rnd(CHANNELS);
+      const city = rnd(CITIES);
+      const card = opts.card || rndCard();
+      const isIntl = Math.random() < 0.12;
+      offsetCounter++;
+
+      const txn = { transaction_id: id, customer_id: custId, customer_name: custName, amount: amount, merchant_name: merchant, merchant_category: category, payment_channel: channel, city: city, card_number: card, is_international: isIntl, status: 'COMPLETED', offset: offsetCounter, timestamp: nowISO() };
+
+      state.transactions.unshift(txn);
+      if (state.transactions.length > 50) state.transactions.pop();
+
+      state.bronze.unshift({ key: id, topic: 'credit_card_transactions', partition: Math.floor(Math.random()*6), offset: offsetCounter, timestamp: nowISO() });
+      if (state.bronze.length > 30) state.bronze.pop();
+
+      state.silver.unshift({ transaction_id: id, customer_id: custId, amount: amount, merchant_name: merchant, merchant_category: category, payment_channel: channel, city: city });
+      if (state.silver.length > 30) state.silver.pop();
+
+      state.analytics.categories[category] = (state.analytics.categories[category] || 0) + 1;
+      state.analytics.channels[channel] = (state.analytics.channels[channel] || 0) + 1;
+      if (isIntl) state.analytics.intl.International++; else state.analytics.intl.Domestic++;
+
+      const mi = state.analytics.merchants.labels.indexOf(merchant);
+      if (mi >= 0) { state.analytics.merchants.values[mi]++; }
+      else { state.analytics.merchants.labels.push(merchant); state.analytics.merchants.values.push(1); }
+
+      return txn;
+    }
+
+    function recalcKPIs() {
+      const txns = state.transactions;
+      const total = txns.reduce((s,t) => s + parseFloat(t.amount), 0);
+      state.kpis.total_txns = txns.length;
+      state.kpis.total_alerts = state.alerts.length;
+      state.kpis.avg_amount = txns.length > 0 ? (total / txns.length).toFixed(2) : '0.00';
+      state.kpis.total_amount = total.toFixed(2);
+    }
+
+    // Generate initial data
+    for (let i = 0; i < 15; i++) genTxn();
+    recalcKPIs();
+
+    function refreshData() {
+      recalcKPIs();
+      renderState(state);
     }
 
     // ===== Render State =====
     function renderState(data) {
-      // KPIs
       document.getElementById('kpi-txns').innerText = Number(data.kpis.total_txns).toLocaleString();
       document.getElementById('kpi-alerts').innerText = Number(data.kpis.total_alerts).toLocaleString();
       document.getElementById('kpi-avg').innerText = 'Rs. ' + data.kpis.avg_amount;
       document.getElementById('kpi-total').innerText = 'Rs. ' + data.kpis.total_amount;
       document.getElementById('kpi-risky').innerText = data.kpis.high_risk_custs;
 
-      // Nav offset
-      if (data.transactions.length > 0) {
-        document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
-      }
-
-      // Pipeline timestamp
+      if (data.transactions.length > 0) document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
       document.getElementById('pipeline-timestamp').innerText = new Date().toLocaleString() + ' -';
-
-      // Alerts
-      const alertsBox = document.getElementById('alerts-container');
       document.getElementById('alert-count-badge').innerText = data.alerts.length + ' alerts';
+
+      const dagRows = { bronze: 0, silver: 0, gold: 0, fraud: 0 };
+      dagRows.bronze = data.bronze.length;
+      dagRows.silver = data.silver.length;
+      dagRows.gold = data.gold_high.length + data.gold_watchlist.length;
+      dagRows.fraud = data.alerts.length;
+      const dagEls = { 'dag-bronze-rows': dagRows.bronze, 'dag-silver-rows': dagRows.silver, 'dag-gold-rows': dagRows.gold, 'dag-fraud-rows': dagRows.fraud };
+      Object.entries(dagEls).forEach(([id, v]) => { const el = document.getElementById(id); if (el) el.innerText = v.toLocaleString(); });
+
+      // Alerts panel
+      const alertsBox = document.getElementById('alerts-container');
       if (data.alerts.length === 0) {
         alertsBox.innerHTML = '<div class="text-center py-10 text-dbTextTer text-xs">No fraud alerts in current buffer.<br>Click the simulation button (bottom-right) to trigger.</div>';
       } else {
         alertsBox.innerHTML = data.alerts.map(a => {
           const isHigh = a.alert_type === 'HIGH_VALUE_TRANSACTION';
           const borderCls = isHigh ? 'border-l-dbRed bg-[var(--accent-red-lt)]' : 'border-l-dbAmber bg-[var(--accent-amber-lt)]';
-          const badgeCls = isHigh ? 'bg-red-100 text-dbRed' : 'bg-amber-100 text-dbAmber';
+          const badgeCls = isHigh ? 'bg-[var(--accent-red-lt)] text-dbRed' : 'bg-[var(--accent-amber-lt)] text-dbAmber';
           const badgeText = isHigh ? 'LIMIT BREACH' : 'WATCHLIST HIT';
-          return '<div class="border-l-4 ' + borderCls + ' p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow-sm">' +
-            '<div class="flex justify-between items-center">' +
-              '<span class="' + badgeCls + ' px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">' + badgeText + '</span>' +
-              '<span class="text-dbTextTer text-[10px]">' + a.alert_timestamp + '</span>' +
-            '</div>' +
-            '<div class="text-dbText font-semibold">' + a.alert_id + '</div>' +
-            '<div class="text-dbTextSec text-[11px]">' +
-              '<strong>Customer:</strong> ' + a.customer_name + ' (' + a.customer_id + ')<br>' +
-              '<strong>Amount:</strong> Rs. ' + Number(a.amount).toLocaleString('en-IN', {minimumFractionDigits:2}) + ' | <strong>Threshold:</strong> Rs. ' + Number(a.limit).toLocaleString('en-IN', {minimumFractionDigits:2}) + '<br>' +
-              '<strong>Merchant:</strong> ' + a.merchant_name + ' (' + a.location + ')' +
-            '</div>' +
-            '<div class="text-dbRed text-[11px] pt-1"><strong>Reason:</strong> ' + a.reason + '</div>' +
-          '</div>';
+          return '<div class="border-l-4 ' + borderCls + ' p-3.5 rounded-r-lg text-xs font-mono space-y-1.5 shadow-sm"><div class="flex justify-between items-center"><span class="' + badgeCls + ' px-2 py-0.5 rounded font-bold text-[10px] tracking-wide">' + badgeText + '</span><span class="text-dbTextTer text-[10px]">' + a.alert_timestamp + '</span></div><div class="text-dbText font-semibold">' + a.alert_id + '</div><div class="text-dbTextSec text-[11px]"><strong>Customer:</strong> ' + a.customer_name + ' (' + a.customer_id + ')<br><strong>Amount:</strong> Rs. ' + fmtINR(a.amount) + ' | <strong>Threshold:</strong> Rs. ' + fmtINR(a.limit) + '<br><strong>Merchant:</strong> ' + a.merchant_name + ' (' + a.location + ')</div><div class="text-dbRed text-[11px] pt-1"><strong>Reason:</strong> ' + a.reason + '</div></div>';
         }).join('');
       }
 
       // Live Txns table
       document.getElementById('txns-tbody').innerHTML = data.transactions.map(t =>
-        '<tr class="hover:bg-[var(--surface-2)] transition-colors">' +
-          '<td class="py-2 px-3 text-dbBlue font-semibold">' + t.transaction_id + '</td>' +
-          '<td class="py-2 px-3 font-semibold text-dbText">Rs. ' + Number(t.amount).toLocaleString('en-IN', {minimumFractionDigits:2}) + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_name + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.merchant_category + '</td>' +
-          '<td class="py-2 px-3 text-dbTextSec">' + t.payment_channel + '</td>' +
-          '<td class="py-2 px-3"><span class="bg-[var(--accent-green-lt)] text-dbGreen border border-[var(--accent-green)] px-1.5 py-0.5 rounded text-[10px] font-medium">' + t.status + '</span></td>' +
-        '</tr>'
+        '<tr class="hover:bg-[var(--surface-hover)] transition-colors"><td class="py-2 px-3 text-dbBlue font-semibold">' + t.transaction_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + fmtINR(t.amount) + '</td><td class="py-2 px-3 text-dbTextSec">' + t.merchant_name + '</td><td class="py-2 px-3 text-dbTextSec">' + t.merchant_category + '</td><td class="py-2 px-3 text-dbTextSec">' + t.payment_channel + '</td><td class="py-2 px-3"><span class="bg-dbGreenLt text-dbGreen border border-dbGreen px-1.5 py-0.5 rounded text-[10px] font-medium">' + t.status + '</span></td></tr>'
       ).join('');
 
-      // Bronze table
+      // Bronze / Silver / Gold tables
       document.getElementById('bronze-tbody').innerHTML = data.bronze.map(b =>
-        '<tr class="hover:bg-[var(--surface-2)]"><td class="py-2 px-3 text-dbBlue">' + b.key + '</td><td class="py-2 px-3">' + b.topic + '</td><td class="py-2 px-3">' + b.partition + '</td><td class="py-2 px-3">' + b.offset + '</td><td class="py-2 px-3 text-dbTextSec">' + b.timestamp + '</td></tr>'
+        '<tr class="hover:bg-[var(--surface-hover)]"><td class="py-2 px-3 text-dbBlue">' + b.key + '</td><td class="py-2 px-3 text-dbTextSec">' + b.topic + '</td><td class="py-2 px-3 text-dbTextSec">' + b.partition + '</td><td class="py-2 px-3 text-dbTextSec">' + b.offset + '</td><td class="py-2 px-3 text-dbTextTer">' + b.timestamp + '</td></tr>'
       ).join('');
 
-      // Silver table
       document.getElementById('silver-tbody').innerHTML = data.silver.map(s =>
-        '<tr class="hover:bg-[var(--surface-2)]"><td class="py-2 px-3 text-dbBlue">' + s.transaction_id + '</td><td class="py-2 px-3 text-dbTextSec">' + s.customer_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + s.amount + '</td><td class="py-2 px-3">' + s.merchant_name + '</td><td class="py-2 px-3">' + s.merchant_category + '</td><td class="py-2 px-3">' + s.payment_channel + '</td><td class="py-2 px-3 text-dbTextSec">' + s.city + '</td></tr>'
+        '<tr class="hover:bg-[var(--surface-hover)]"><td class="py-2 px-3 text-dbBlue">' + s.transaction_id + '</td><td class="py-2 px-3 text-dbTextSec">' + s.customer_id + '</td><td class="py-2 px-3 font-semibold text-dbText">Rs. ' + s.amount + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_name + '</td><td class="py-2 px-3 text-dbTextSec">' + s.merchant_category + '</td><td class="py-2 px-3 text-dbTextSec">' + s.payment_channel + '</td><td class="py-2 px-3 text-dbTextTer">' + s.city + '</td></tr>'
       ).join('');
 
-      // Gold High-Value table
       document.getElementById('gold-high-tbody').innerHTML = data.gold_high.map(g =>
-        '<tr class="hover:bg-[var(--accent-red-lt)]"><td class="py-1.5 px-2 text-dbRed">' + g.alert_id + '</td><td class="py-1.5 px-2">' + g.customer_name + '</td><td class="py-1.5 px-2 font-bold text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextSec">Rs. ' + g.limit + '</td></tr>'
+        '<tr class="hover:bg-[var(--accent-red-lt)]"><td class="py-1.5 px-2 text-dbRed">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 font-bold text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextTer">Rs. ' + g.limit + '</td></tr>'
       ).join('');
 
-      // Gold Watchlist table
       document.getElementById('gold-watch-tbody').innerHTML = data.gold_watchlist.map(g =>
-        '<tr class="hover:bg-[var(--accent-amber-lt)]"><td class="py-1.5 px-2 text-dbAmber">' + g.alert_id + '</td><td class="py-1.5 px-2">' + g.customer_name + '</td><td class="py-1.5 px-2 text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.reason + '</td></tr>'
+        '<tr class="hover:bg-[var(--accent-amber-lt)]"><td class="py-1.5 px-2 text-dbAmber">' + g.alert_id + '</td><td class="py-1.5 px-2 text-dbTextSec">' + g.customer_name + '</td><td class="py-1.5 px-2 text-dbText">Rs. ' + g.amount + '</td><td class="py-1.5 px-2 text-dbTextTer">' + g.reason + '</td></tr>'
       ).join('');
 
-      // Analytics
-      window.lastAnalytics = data.analytics;
-      if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) {
-        renderCharts();
-      }
+      if (!document.getElementById('tab-content-lakeview').classList.contains('hidden')) renderCharts();
     }
+
 
     // ===== Charts (Lakeview Tab) =====
     function renderCharts() {
-      if (!window.lastAnalytics) return;
-      const a = window.lastAnalytics;
+      const a = state.analytics;
+      if (!a || !a.categories || Object.keys(a.categories).length === 0) return;
       const chartOpts = { responsive: true, maintainAspectRatio: false };
 
-      // Category Bar
-      if (charts.cat) charts.cat.destroy();
-      charts.cat = new Chart(document.getElementById('chart-category').getContext('2d'), {
-        type: 'bar',
-        data: { labels: Object.keys(a.categories), datasets: [{ label: 'Transactions', data: Object.values(a.categories), backgroundColor: '#1B66C9', borderRadius: 4 }] },
-        options: { ...chartOpts, plugins: { legend: { display: false } }, scales: { y: { grid: { color: (getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724') }, ticks: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a') } }, x: { grid: { display: false }, ticks: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a') } } } }
-      });
+      const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724';
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a';
+      const primaryTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#f0eee8';
 
-      // Channel Doughnut
-      if (charts.chan) charts.chan.destroy();
-      charts.chan = new Chart(document.getElementById('chart-channel').getContext('2d'), {
-        type: 'doughnut',
-        data: { labels: Object.keys(a.channels), datasets: [{ data: Object.values(a.channels), backgroundColor: ['#1B66C9', '#00A972', '#F9A825', '#7C3AED'], borderWidth: 0 }] },
-        options: { ...chartOpts, plugins: { legend: { position: 'right', labels: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#f0eee8'), font: { size: 11 } } } } }
-      });
+      // 1. Transactions by Merchant Category
+      const catCanvas = document.getElementById('chart-category');
+      if (catCanvas) {
+        if (charts.cat) charts.cat.destroy();
+        charts.cat = new Chart(catCanvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: Object.keys(a.categories),
+            datasets: [{
+              label: 'Transactions',
+              data: Object.values(a.categories),
+              backgroundColor: '#1B66C9',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            ...chartOpts,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { grid: { color: gridColor }, ticks: { color: textColor } },
+              x: { grid: { display: false }, ticks: { color: textColor, maxRotation: 45, minRotation: 0 } }
+            }
+          }
+        });
+      }
 
-      // Intl Pie
-      if (charts.intl) charts.intl.destroy();
-      charts.intl = new Chart(document.getElementById('chart-intl').getContext('2d'), {
-        type: 'doughnut',
-        data: { labels: Object.keys(a.intl), datasets: [{ data: Object.values(a.intl), backgroundColor: ['#00A972', '#E53935'], borderWidth: 0 }] },
-        options: { ...chartOpts, plugins: { legend: { position: 'right', labels: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#f0eee8'), font: { size: 11 } } } } }
-      });
+      // 2. Payment Channel Distribution
+      const chanCanvas = document.getElementById('chart-channel');
+      if (chanCanvas) {
+        if (charts.chan) charts.chan.destroy();
+        charts.chan = new Chart(chanCanvas.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(a.channels),
+            datasets: [{
+              data: Object.values(a.channels),
+              backgroundColor: ['#1B66C9', '#00A972', '#F9A825', '#7C3AED'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            ...chartOpts,
+            plugins: { legend: { position: 'right', labels: { color: primaryTextColor, font: { size: 11 } } } }
+          }
+        });
+      }
 
-      // Top Merchants Horizontal Bar
-      if (charts.merc) charts.merc.destroy();
-      charts.merc = new Chart(document.getElementById('chart-merchants').getContext('2d'), {
-        type: 'bar',
-        data: { labels: a.merchants.labels, datasets: [{ label: 'Volume', data: a.merchants.values, backgroundColor: '#7C3AED', borderRadius: 4 }] },
-        options: { ...chartOpts, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { grid: { color: (getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724') }, ticks: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a') } }, y: { grid: { display: false }, ticks: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a') } } } }
-      });
+      // 3. Domestic vs. International
+      const intlCanvas = document.getElementById('chart-intl');
+      if (intlCanvas) {
+        if (charts.intl) charts.intl.destroy();
+        charts.intl = new Chart(intlCanvas.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(a.intl),
+            datasets: [{
+              data: Object.values(a.intl),
+              backgroundColor: ['#00A972', '#E53935'],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            ...chartOpts,
+            plugins: { legend: { position: 'right', labels: { color: primaryTextColor, font: { size: 11 } } } }
+          }
+        });
+      }
+
+      // 4. Top Merchants by Transaction Count
+      const mercCanvas = document.getElementById('chart-merchants');
+      if (mercCanvas) {
+        if (charts.merc) charts.merc.destroy();
+        const topM = a.merchants.labels.map((l, i) => ({ l, v: a.merchants.values[i] }))
+          .sort((x, y) => y.v - x.v)
+          .slice(0, 8);
+        charts.merc = new Chart(mercCanvas.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: topM.map(m => m.l),
+            datasets: [{
+              label: 'Volume',
+              data: topM.map(m => m.v),
+              backgroundColor: '#7C3AED',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            ...chartOpts,
+            indexAxis: 'y',
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { color: textColor } },
+              y: { grid: { display: false }, ticks: { color: textColor } }
+            }
+          }
+        });
+      }
     }
 
     // ===== Scatter Plot =====
     function renderScatterPlot() {
       if (charts.scatter) charts.scatter.destroy();
-      // Generate simulated scatter data (hourly fraud amounts over 30 days)
       const scatterData = [];
       for (let d = 0; d < 30; d++) {
         const numPoints = Math.floor(Math.random() * 5) + 1;
@@ -1319,6 +1387,8 @@
       }
       const ctx = document.getElementById('chart-scatter');
       if (!ctx) return;
+      const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724';
+      const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a';
       charts.scatter = new Chart(ctx.getContext('2d'), {
         type: 'scatter',
         data: { datasets: [{ label: 'Fraud Amount', data: scatterData, backgroundColor: '#E53935', pointRadius: 3.5, pointHoverRadius: 5 }] },
@@ -1326,8 +1396,8 @@
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { title: { display: true, text: 'Day', color: '#616161', font: { size: 11 } }, grid: { color: (getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724') }, ticks: { color: (getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a') } },
-            y: { title: { display: true, text: 'Total Amount', color: '#616161', font: { size: 11 } }, grid: { color: (getComputedStyle(document.documentElement).getPropertyValue('--border').trim() || '#2a2724') }, ticks: { color: '#616161', callback: function(v) { return (v/1000000).toFixed(0) + 'M'; } } }
+            x: { title: { display: true, text: 'Day', color: textColor, font: { size: 11 } }, grid: { color: gridColor }, ticks: { color: textColor } },
+            y: { title: { display: true, text: 'Total Amount', color: textColor, font: { size: 11 } }, grid: { color: gridColor }, ticks: { color: textColor, callback: function(v) { return (v/1000000).toFixed(0) + 'M'; } } }
           }
         }
       });
@@ -1384,7 +1454,6 @@
       const totalD = dst.reduce((s, n) => s + n.val, 0);
       const usableH = h - 2 * padY;
 
-      // Position source nodes
       let y = padY;
       src.forEach(n => {
         n.h = (n.val / totalS) * (usableH - gap * (src.length - 1));
@@ -1392,7 +1461,6 @@
         y += n.h + gap;
       });
 
-      // Position destination nodes
       y = padY;
       dst.forEach(n => {
         n.h = (n.val / totalD) * (usableH - gap * (dst.length - 1));
@@ -1400,7 +1468,6 @@
         y += n.h + gap;
       });
 
-      // Flows
       const flows = [
         { si: 0, di: 0, val: 30 }, { si: 0, di: 1, val: 10 },
         { si: 1, di: 4, val: 7 }, { si: 1, di: 2, val: 5 },
@@ -1408,10 +1475,8 @@
         { si: 3, di: 7, val: 4 }, { si: 3, di: 3, val: 2 }, { si: 3, di: 4, val: 2 },
         { si: 4, di: 2, val: 3 }, { si: 4, di: 5, val: 4 },
         { si: 5, di: 5, val: 2 }, { si: 5, di: 6, val: 4 },
-        { si: 6, di: 8, val: 5 },
-        { si: 7, di: 9, val: 5 },
-        { si: 8, di: 9, val: 4 },
-        { si: 9, di: 10, val: 3 },
+        { si: 6, di: 8, val: 5 }, { si: 7, di: 9, val: 5 },
+        { si: 8, di: 9, val: 4 }, { si: 9, di: 10, val: 3 },
         { si: 10, di: 11, val: 2 }, { si: 10, di: 5, val: 1 },
         { si: 11, di: 7, val: 1 }, { si: 11, di: 1, val: 1 }
       ];
@@ -1419,7 +1484,6 @@
       const srcOff = src.map(n => n.y);
       const dstOff = dst.map(n => n.y);
 
-      // Draw flows
       flows.forEach(f => {
         const s = src[f.si];
         const d = dst[f.di];
@@ -1444,80 +1508,79 @@
         ctx.fill();
       });
 
-      // Draw source nodes
+      const labelColor = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a';
       ctx.font = '11px Inter, sans-serif';
       src.forEach(n => {
         ctx.fillStyle = n.color;
         ctx.fillRect(n.x, n.y, nodeW, n.h);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a';
+        ctx.fillStyle = labelColor;
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillText(n.name, n.x - 5, n.y + n.h / 2);
       });
 
-      // Draw destination nodes
       dst.forEach(n => {
         ctx.fillStyle = n.color;
         ctx.fillRect(n.x, n.y, nodeW, n.h);
-        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-dim').trim() || '#a5a09a';
+        ctx.fillStyle = labelColor;
         ctx.textAlign = 'left';
         ctx.textBaseline = 'middle';
         ctx.fillText(n.name, n.x + nodeW + 5, n.y + n.h / 2);
       });
     }
 
-    // ===== Simulation Injection =====
-    async function injectFraud(type) {
-      const endpoint = type === 'high-value' ? '/api/simulate/high-value' : '/api/simulate/watchlist';
-      const label = type === 'high-value' ? 'High-Value Fraud' : 'Watchlist Fraud';
+    // ===== Fraud Injection (Client-Side) =====
+    function injectFraud(type) {
+      const isHighVal = type === 'high-value';
+      const label = isHighVal ? 'High-Value Fraud' : 'Watchlist Fraud';
       showToast('Injecting ' + label + '...');
-      try {
-        const res = await fetch(endpoint, { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          renderState(data.state);
-          showToast('Injected ' + label + ': ' + data.event.transaction_id);
-          addEventLog('warning', 'fraud_detected', 'ALERT: ' + label + ' event detected for transaction ' + data.event.transaction_id);
-        }
-      } catch (err) {
-        showToast('Error injecting simulation event');
+
+      const custName = rnd(FIRST_NAMES) + ' ' + rnd(LAST_NAMES);
+      const custId = rndCustId();
+      const limit = parseFloat(rndAmount(50000, 200000));
+
+      let txn;
+      if (isHighVal) {
+        txn = genTxn({ amount: rndAmount(limit + 10000, limit + 500000), custId: custId });
+      } else {
+        txn = genTxn({ card: rnd(WATCHLIST_CARDS), custId: custId });
       }
+
+      alertCounter++;
+      const alert = {
+        alert_id: 'ALERT-' + alertCounter.toString().padStart(4, '0'),
+        alert_type: isHighVal ? 'HIGH_VALUE_TRANSACTION' : 'WATCHLIST_MATCH',
+        customer_id: custId, customer_name: custName,
+        amount: txn.amount, limit: limit.toFixed(2),
+        merchant_name: txn.merchant_name, location: txn.city,
+        reason: isHighVal ? 'Transaction Rs. ' + fmtINR(txn.amount) + ' exceeds credit limit Rs. ' + fmtINR(limit) : 'Card ' + txn.card_number + ' matches fraud watchlist entry',
+        alert_timestamp: nowISO()
+      };
+
+      state.alerts.unshift(alert);
+      if (isHighVal) { state.gold_high.unshift({ alert_id: alert.alert_id, customer_name: custName, amount: txn.amount, limit: limit.toFixed(2) }); }
+      else { state.gold_watchlist.unshift({ alert_id: alert.alert_id, customer_name: custName, amount: txn.amount, reason: alert.reason }); }
+
+      recalcKPIs();
+      renderState(state);
+      showToast('Injected ' + label + ': ' + txn.transaction_id);
+      addEventLog('warning', 'fraud_detected', 'ALERT: ' + label + ' event detected for transaction ' + txn.transaction_id);
     }
 
-    async function injectNormal() {
+    function injectNormal() {
       showToast('Injecting 5 normal transactions...');
-      try {
-        const res = await fetch('/api/simulate/normal', { method: 'POST' });
-        const data = await res.json();
-        if (data.success) {
-          renderState(data.state);
-          showToast('Injected 5 normal transactions into stream');
-          addEventLog('info', 'flow_progress', '5 normal transactions ingested into bronze layer.');
-        }
-      } catch (err) {
-        showToast('Error injecting transactions');
-      }
+      for (let i = 0; i < 5; i++) genTxn();
+      recalcKPIs();
+      renderState(state);
+      showToast('Injected 5 normal transactions into stream');
+      addEventLog('info', 'flow_progress', '5 normal transactions ingested into bronze layer.');
     }
 
-    // ===== Email Test =====
-    async function testEmail() {
-      const user = document.getElementById('gmail-user').value;
-      const pass = document.getElementById('gmail-pass').value;
+    // ===== Email Test (no-op in edge worker) =====
+    function testEmail() {
       const out = document.getElementById('email-result');
-      out.innerText = 'Dispatching test alert...';
-      try {
-        const res = await fetch('/api/test-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ gmail_user: user, gmail_pass: pass })
-        });
-        const data = await res.json();
-        out.innerText = data.message;
-        out.className = data.success ? 'text-[11px] text-dbGreen mt-1' : 'text-[11px] text-dbRed mt-1';
-      } catch (err) {
-        out.innerText = 'Email test failed';
-        out.className = 'text-[11px] text-dbRed mt-1';
-      }
+      out.innerText = 'Email dispatch is not available in edge-worker mode. Deploy Flask backend for SMTP support.';
+      out.className = 'text-[11px] text-dbAmber mt-1';
     }
 
     // ===== Initialize =====
@@ -1525,7 +1588,6 @@
       const savedTheme = localStorage.getItem('finguard-theme') || 'dark';
       applyTheme(savedTheme);
       refreshData();
-      // Default select bronze node
       selectNode('bronze');
     });
 
@@ -1536,5 +1598,24 @@
       }
     });
   </script>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="border-t px-4 py-3 flex flex-wrap items-center justify-between text-xs relative z-10" style="background: var(--surface); border-color: var(--border); color: var(--text-dim);">
+    <div class="flex items-center gap-4">
+      <span class="flex items-center gap-1.5">
+        <svg width="18" height="12" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+          <rect width="900" height="200" fill="#FF9933"/>
+          <rect y="200" width="900" height="200" fill="#FFFFFF"/>
+          <rect y="400" width="900" height="200" fill="#138808"/>
+          <circle cx="450" cy="300" r="60" fill="#000080" fill-opacity="0.7" stroke="#000080" stroke-width="2" fill="none"/>
+          <circle cx="450" cy="300" r="60" fill="none" stroke="#000080" stroke-width="3"/>
+          <circle cx="450" cy="300" r="10" fill="#000080"/>
+        </svg>
+        Bengaluru
+      </span>
+      <span>Open to opportunities</span>
+    </div>
+    <span>&copy; 2026 Abhishek Kumar</span>
+  </footer>
 </body>
 </html>
