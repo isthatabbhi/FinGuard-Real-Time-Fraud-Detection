@@ -22,9 +22,9 @@
       const logoEl = document.getElementById('navbar-logo');
       if (logoEl) logoEl.src = isDark ? LOGO_DARK : LOGO_LIGHT;
 
-      const btnText = document.getElementById('theme-text');
+      
       const iconSpan = document.getElementById('theme-icon');
-      if (btnText) btnText.innerText = isDark ? 'Dark' : 'Light';
+      // btnText removed
       if (iconSpan) {
         iconSpan.innerHTML = isDark
           ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>'
@@ -275,13 +275,11 @@
       </div>
     </div>
     <div class="flex items-center gap-3 text-sm">
-      <!-- Theme Toggle Button -->
-      <button id="theme-toggle-btn" onclick="toggleTheme()" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-xs font-medium transition-all" style="background: var(--surface-2); border-color: var(--border); color: var(--text);" title="Toggle Dark / Light Theme">
+      <!-- Theme Toggle Button (Icon-Only) -->
+      <button id="theme-toggle-btn" onclick="toggleTheme()" class="w-8 h-8 rounded-md border flex items-center justify-center transition-all hover:opacity-80" style="background: var(--surface-2); border-color: var(--border); color: var(--text);" title="Toggle Light / Dark Theme">
         <span id="theme-icon">
-          <!-- Sun Icon for switching to light -->
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         </span>
-        <span id="theme-text" class="text-[11px] font-mono">Dark</span>
       </button>
 
 
@@ -380,7 +378,7 @@
           Lakeview Dashboard
         </button>
         <button onclick="switchTab('arch')" id="tab-btn-arch" class="tab-btn py-3 text-dbTextSec hover:text-dbText transition-colors whitespace-nowrap">
-          Architecture &amp; Q&amp;A
+          Architecture
         </button>
       </div>
 
@@ -850,42 +848,211 @@
 
         <!-- ===== TAB 4: ARCHITECTURE & Q&A ===== -->
         <section id="tab-content-arch" class="hidden p-6 space-y-6">
-
-          <!-- Architecture Diagram -->
           <div class="theme-card rounded-xl shadow-sm p-6">
-            <h3 class="text-sm font-semibold uppercase tracking-wider text-dbText mb-2">FinGuard Pipeline Architecture</h3>
-            <p class="text-xs text-dbTextSec mb-6">End-to-end data flow from source ingestion through Medallion Lakehouse to notification sinks.</p>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-              <div class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border)] space-y-2">
-                <div class="font-bold text-dbBlue uppercase text-[11px]">1. Ingestion Sources</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">Kafka Topic: credit_card_transactions</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">Auto Loader: JSON Watchlist Dropped Files</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">PostgreSQL: Customer Master Table (CDC)</div>
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-3">
+              <div>
+                <h2 class="text-xl font-bold text-dbText">End-to-End Pipeline Architecture</h2>
+                <p class="text-xs text-dbTextSec mt-1">Real-time credit card fraud detection data flow across ingestion, Delta Lake medallion processing, and alerting sinks.</p>
               </div>
-              <div class="bg-[var(--accent-amber-lt)] p-4 rounded-lg border border-[var(--accent-amber)] space-y-2">
-                <div class="font-bold text-dbAmber uppercase text-[11px]">2. Bronze Layer (Raw)</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-amber)] text-dbText">finguard.bronze.transactions</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-amber)] text-dbText">finguard.bronze.fraud_watchlist</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-amber)] text-dbText">finguard.bronze.customers</div>
-                <p class="text-[10px] text-dbTextTer mt-2">Append-only, exact payload preserved.</p>
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded border" style="background: var(--surface-2); border-color: var(--border); color: var(--text-dim);">Medallion Architecture</span>
+                <span class="text-[11px] font-mono px-2.5 py-1 rounded bg-dbGreenLt text-dbGreen border border-dbGreen font-semibold">Active Pipeline</span>
               </div>
-              <div class="bg-[var(--surface-2)] p-4 rounded-lg border border-[var(--border-strong)] space-y-2">
-                <div class="font-bold text-gray-600 uppercase text-[11px]">3. Silver Layer (Cleaned)</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">Schema Casting &amp; Standardization</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">DQ: @expect_or_drop</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--border)] text-dbText">Event Timestamps &amp; Offsets Parsed</div>
-                <p class="text-[10px] text-dbTextTer mt-2">Ready for downstream joins.</p>
-              </div>
-              <div class="bg-[var(--accent-green-lt)] p-4 rounded-lg border border-[var(--accent-green)] space-y-2">
-                <div class="font-bold text-dbGreen uppercase text-[11px]">4. Gold Layer &amp; Sinks</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-green)] text-dbText">Stream-Static Join (Limit Breach)</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-green)] text-dbText">Stream-Stream Join + 5m Watermark</div>
-                <div class="bg-dbCard p-2 rounded border border-[var(--accent-green)] text-dbText">foreach_batch_sink &amp; SMTP Alerts</div>
-                <p class="text-[10px] text-dbTextTer mt-2">Immediate email dispatch &amp; metrics.</p>
+            </div>
+
+            <!-- Architecture Diagram Container -->
+            <div class="rounded-xl border p-6 flex flex-col items-center justify-center overflow-x-auto" style="background: var(--surface-2); border-color: var(--border);">
+              <div class="max-w-3xl w-full flex justify-center">
+                <svg width="680" height="880" viewBox="0 0 680 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="fgTitle fgDesc" xmlns:c2pa="http://c2pa.org/manifest"><metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTozYTZjZjQ5MS1kNzc3LTQxNWQtYWZjMC1hZjZhYWM2YzIxNTYAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaGEI18OkqIn0Z78v77f2v6gAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDpjZjFkMWMzYy1iYWRkLTRkOWMtOWYwMS1jOGFjNmE1MTk5MjlscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoxWf8s3gthQ/6muhy945oqAAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFggyYnhYKAsUoGawMYkDsfWZYW4Oahw2vVieak8uSvX51GkZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaMunYNkgQqL0kNv80ww6VVIAAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRNAAAAAAAAAAAAAAAAAGRoYXNoWCCx5UlwUcEkteD8DOxc7tvxp6/htFRRT9ecneSdzKHVymRuYW1lbmp1bWJmIG1hbmlmZXN0amV4Y2x1c2lvbnOBomVzdGFydBjCZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOjNhNmNmNDkxLWQ3NzctNDE1ZC1hZmMwLWFmNmFhYzZjMjE1Ni9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmEzZDkxNWFlLWUxNGMtNGIyZi1iZTdmLWI0ODJkYzBhMGQ3M3JjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCDJieFgoCxSgZrAxiQOx9Zlhbg5qHDa9WJ5qTy5K9fnUaJjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggkZ/xQmy1XGIlDbi+fPGMZNHVG212xn/SRpC6XtbgezyiY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggFKB44wAtMu5lvRrTjPyl+g3F1SPnYZLQEYe+KdksCcV0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQJRgaFbxWIjKEztrmCUlRxZWIiOXMkfcpC4vyT4zY0ypEznMBITjWPhyjsFhFhpGCcJrFqfZUru3BjHloeKnvm8=</c2pa:manifest></metadata>
+  <title id="fgTitle">FinGuard end-to-end fraud detection pipeline</title>
+  <desc id="fgDesc">Three sources feed Bronze, Silver, Gold medallion layers in Databricks, which then output to email alerts and a dashboard.</desc>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <style>
+    .box-fill-source   { fill: #0C447C; stroke: #4788C4; }
+    .box-fill-ingest   { fill: #085041; stroke: #31876F; }
+    .box-fill-medal    { fill: #3C3489; stroke: #7770D1; }
+    .box-fill-medal-hl { fill: #3C3489; stroke: #A49FF0; }
+    .box-fill-out      { fill: #712B13; stroke: #C56A43; }
+    .container-fill    { fill: #444441; stroke: #898781; }
+    .container-dashed  { fill: none; stroke: #898781; stroke-dasharray: 5 5; }
+    .txt-title  { font-family: -apple-system, "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 500; }
+    .txt-sub    { font-family: -apple-system, "Segoe UI", Arial, sans-serif; font-size: 12px; font-weight: 500; }
+    .txt-head   { font-family: -apple-system, "Segoe UI", Arial, sans-serif; font-size: 14px; font-weight: 500; }
+    .txt-src    { fill: #FFFFFF; }
+    .txt-src-sub{ fill: #D6E8FA; }
+    .txt-ing    { fill: #FFFFFF; }
+    .txt-med    { fill: #FFFFFF; }
+    .txt-med-sub{ fill: #E2E0FF; }
+    .txt-out    { fill: #FFFFFF; }
+    .txt-out-sub{ fill: #FFE0D2; }
+    .txt-head-c { fill: #F0EFEC; }
+    .arrow-line { stroke: #C3C2BB; stroke-width: 1.5; fill: none; }
+  </style>
+
+  <!-- ===================== SECTION 1: Data generation and ingestion ===================== -->
+  <g>
+    <rect class="container-fill" x="40" y="30" width="600" height="150" rx="16" stroke-width="0.5"/>
+    <text class="txt-head txt-head-c" x="60" y="55">Data generation and ingestion</text>
+  </g>
+
+  <!-- Row 1: sources -->
+  <g>
+    <rect class="box-fill-source" x="60" y="75" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-src" x="145" y="93" text-anchor="middle" dominant-baseline="central">Kafka producer</text>
+    <text class="txt-sub txt-src-sub" x="145" y="111" text-anchor="middle" dominant-baseline="central">Transaction generator</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-source" x="255" y="75" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-src" x="340" y="93" text-anchor="middle" dominant-baseline="central">Fraud watchlist</text>
+    <text class="txt-sub txt-src-sub" x="340" y="111" text-anchor="middle" dominant-baseline="central">File generator</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-source" x="450" y="75" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-src" x="535" y="93" text-anchor="middle" dominant-baseline="central">PostgreSQL</text>
+    <text class="txt-sub txt-src-sub" x="535" y="111" text-anchor="middle" dominant-baseline="central">Customer master data</text>
+  </g>
+
+  <!-- arrows source -> ingest -->
+  <line class="arrow-line" x1="145" y1="131" x2="145" y2="164" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="145" y="150" text-anchor="middle" fill="#A9AAA5">Publish txns</text>
+
+  <line class="arrow-line" x1="340" y1="131" x2="340" y2="164" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="340" y="150" text-anchor="middle" fill="#A9AAA5">JSON feed</text>
+
+  <line class="arrow-line" x1="535" y1="131" x2="535" y2="164" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="535" y="150" text-anchor="middle" fill="#A9AAA5">Historical data</text>
+
+  <!-- Row 2: ingestion mechanisms -->
+  <g>
+    <rect class="box-fill-ingest" x="60" y="164" width="170" height="44" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-ing" x="145" y="186" text-anchor="middle" dominant-baseline="central">Confluent Kafka topic</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-ingest" x="255" y="164" width="170" height="44" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-ing" x="340" y="186" text-anchor="middle" dominant-baseline="central">Auto Loader</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-ingest" x="450" y="164" width="170" height="44" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-ing" x="535" y="186" text-anchor="middle" dominant-baseline="central">Silver enrichment</text>
+  </g>
+
+  <!-- ===================== SECTION 2: Databricks streaming and medallion processing ===================== -->
+  <rect class="container-dashed" x="40" y="230" width="600" height="340" rx="16" stroke-width="0.5"/>
+  <text class="txt-head txt-head-c" x="60" y="255">Databricks streaming and medallion processing</text>
+
+  <!-- arrows ingest -> bronze -->
+  <line class="arrow-line" x1="145" y1="208" x2="145" y2="265" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="145" y="230" text-anchor="middle" fill="#A9AAA5">Structured streaming</text>
+
+  <line class="arrow-line" x1="340" y1="208" x2="340" y2="265" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="340" y="230" text-anchor="middle" fill="#A9AAA5">Cloud files ingestion</text>
+
+  <!-- Bronze layer -->
+  <g>
+    <rect class="box-fill-medal" x="60" y="265" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-med" x="145" y="283" text-anchor="middle" dominant-baseline="central">Bronze layer</text>
+    <text class="txt-sub txt-med-sub" x="145" y="301" text-anchor="middle" dominant-baseline="central">Raw transactions</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-medal" x="255" y="265" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-med" x="340" y="283" text-anchor="middle" dominant-baseline="central">Bronze layer</text>
+    <text class="txt-sub txt-med-sub" x="340" y="301" text-anchor="middle" dominant-baseline="central">Fraud watchlist</text>
+  </g>
+
+  <!-- arrows bronze -> silver -->
+  <line class="arrow-line" x1="145" y1="321" x2="145" y2="364" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="145" y="345" text-anchor="middle" fill="#A9AAA5">Cleaning and parsing</text>
+
+  <line class="arrow-line" x1="340" y1="321" x2="340" y2="364" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="340" y="345" text-anchor="middle" fill="#A9AAA5">Dedup and schema</text>
+
+  <!-- Silver layer -->
+  <g>
+    <rect class="box-fill-medal" x="60" y="364" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-med" x="145" y="382" text-anchor="middle" dominant-baseline="central">Silver layer</text>
+    <text class="txt-sub txt-med-sub" x="145" y="400" text-anchor="middle" dominant-baseline="central">Cleaned transactions</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-medal" x="255" y="364" width="170" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-med" x="340" y="382" text-anchor="middle" dominant-baseline="central">Silver layer</text>
+    <text class="txt-sub txt-med-sub" x="340" y="400" text-anchor="middle" dominant-baseline="central">Refined watchlist</text>
+  </g>
+
+  <!-- joins into Gold -->
+  <path class="arrow-line" d="M145 420 V450 H340 V478" marker-end="url(#arrow)"/>
+  <path class="arrow-line" d="M340 420 V478" marker-end="url(#arrow)"/>
+
+  <text class="txt-sub" x="245" y="445" text-anchor="middle" fill="#A9AAA5">Real-time join and aggregation</text>
+
+  <!-- Gold layer -->
+  <g>
+    <rect class="box-fill-medal-hl" x="255" y="478" width="170" height="56" rx="8" stroke-width="1"/>
+    <text class="txt-title txt-med" x="340" y="496" text-anchor="middle" dominant-baseline="central">Gold layer</text>
+    <text class="txt-sub txt-med-sub" x="340" y="514" text-anchor="middle" dominant-baseline="central">Fraud card and high value</text>
+  </g>
+
+  <!-- Gold -> outputs -->
+  <line class="arrow-line" x1="290" y1="534" x2="240" y2="620" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="230" y="555" text-anchor="end" fill="#A9AAA5">Trigger email sink</text>
+
+  <line class="arrow-line" x1="390" y1="534" x2="440" y2="620" marker-end="url(#arrow)"/>
+  <text class="txt-sub" x="450" y="555" text-anchor="start" fill="#A9AAA5">Aggregate metrics</text>
+
+  <!-- ===================== SECTION 3: Alerting and analytics ===================== -->
+  <rect class="container-dashed" x="40" y="600" width="600" height="130" rx="16" stroke-width="0.5"/>
+  <text class="txt-head txt-head-c" x="60" y="625">Alerting and analytics</text>
+
+  <g>
+    <rect class="box-fill-out" x="140" y="640" width="180" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-out" x="230" y="658" text-anchor="middle" dominant-baseline="central">Email notifier</text>
+    <text class="txt-sub txt-out-sub" x="230" y="676" text-anchor="middle" dominant-baseline="central">Gmail SMTP alerts</text>
+  </g>
+
+  <g>
+    <rect class="box-fill-out" x="360" y="640" width="180" height="56" rx="8" stroke-width="0.5"/>
+    <text class="txt-title txt-out" x="450" y="658" text-anchor="middle" dominant-baseline="central">Lakeview dashboard</text>
+    <text class="txt-sub txt-out-sub" x="450" y="676" text-anchor="middle" dominant-baseline="central">Refreshes every minute</text>
+  </g>
+</svg>
               </div>
             </div>
           </div>
 
+          <!-- Architecture Key Specs Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div class="theme-card rounded-xl p-5 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-dbBlue uppercase font-mono">
+                <span class="w-2 h-2 rounded-full bg-dbBlue"></span>
+                1. Ingestion Layer
+              </div>
+              <p class="text-xs text-dbTextSec leading-relaxed">High-frequency Kafka stream (Confluent Cloud) + Auto Loader JSON watchlist ingestion with schema inference and evolution.</p>
+            </div>
+            <div class="theme-card rounded-xl p-5 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-dbAmber uppercase font-mono">
+                <span class="w-2 h-2 rounded-full bg-dbAmber"></span>
+                2. Medallion Processing
+              </div>
+              <p class="text-xs text-dbTextSec leading-relaxed">Bronze raw tables enriched to Silver with Great Expectations DQ, stream-stream joins with 5-minute watermarks to bound memory state.</p>
+            </div>
+            <div class="theme-card rounded-xl p-5 space-y-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-dbGreen uppercase font-mono">
+                <span class="w-2 h-2 rounded-full bg-dbGreen"></span>
+                3. Alerting & Sinks
+              </div>
+              <p class="text-xs text-dbTextSec leading-relaxed">Gold materialized views feeding sub-second Lakeview dashboards and automated SMTP email notification triggers for high-risk flags.</p>
+            </div>
           </div>
         </section>
 
@@ -893,64 +1060,77 @@
     </div><!-- /Main Content -->
   </div><!-- /Main Layout -->
 
-  <!-- ===== FLOATING SIMULATION CONTROLS (FAB) ===== -->
-  <div class="sim-fab">
-    <button onclick="toggleSimPanel()" id="sim-fab-btn" class="w-12 h-12 rounded-full bg-dbBlue hover:bg-[var(--accent-blue)] text-white shadow-lg flex items-center justify-center transition-colors" title="Simulation Controls">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  <!-- ===== TOP-RIGHT SIMULATION CONTROLS ===== -->
+  <!-- Top-Right Play Trigger Button -->
+  <div class="fixed top-3 right-14 z-50">
+    <button onclick="toggleSimPanel()" id="sim-fab-btn" class="h-8 px-3 rounded-md text-white font-semibold text-xs shadow-md flex items-center gap-1.5 transition-all hover:opacity-90" style="background: var(--accent-blue);" title="Open Live Interview Simulation">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span>Simulate</span>
     </button>
   </div>
 
-  <div id="sim-panel" class="sim-panel hidden-panel">
-    <div class="theme-card rounded-xl shadow-2xl p-5">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-sm font-semibold text-dbText">Live Interview Simulation</h2>
-        <span class="text-[10px] bg-[var(--surface-2)] text-dbTextSec px-2 py-0.5 rounded font-mono">1-CLICK TRIGGER</span>
+  <!-- Top-Right Simulation Panel with Small Close Button -->
+  <div id="sim-panel" class="fixed top-14 right-4 z-50 w-80 transform transition-all duration-200 hidden-panel">
+    <div class="theme-card rounded-xl shadow-2xl p-5 border" style="border-color: var(--border);">
+      <div class="flex items-center justify-between mb-3 pb-2 border-b" style="border-color: var(--border);">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-dbGreen pulse-dot"></span>
+          <h2 class="text-sm font-semibold text-dbText">Live Simulation</h2>
+        </div>
+        <!-- Small Close Button -->
+        <button onclick="toggleSimPanel()" class="w-6 h-6 rounded-md flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)] transition-colors" title="Close simulation panel">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
-      <p class="text-xs text-dbTextSec mb-4">Inject simulated traffic into the Kafka ingestion topic to demonstrate stream joins &amp; real-time alerting.</p>
-      <div class="space-y-2.5">
-        <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-[var(--accent-red-lt)] hover:bg-[var(--accent-red-lt)] border border-[var(--accent-red)] text-dbRed text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+
+      <p class="text-[11px] text-dbTextSec mb-3">Inject simulated live transactions into Kafka stream to test Delta Lake fraud detection.</p>
+      
+      <div class="space-y-2">
+        <button onclick="injectFraud('high-value')" id="btn-high-val" class="w-full bg-[var(--accent-red-lt)] hover:opacity-90 border border-[var(--accent-red)] text-dbRed text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbRed"></span>High-Value Fraud</span>
           <span class="text-[10px] font-mono text-red-400">&gt; Limit Rule</span>
         </button>
-        <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-[var(--accent-amber-lt)] hover:bg-[var(--accent-amber-lt)] border border-[var(--accent-amber)] text-dbAmber text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+        <button onclick="injectFraud('watchlist')" id="btn-watchlist" class="w-full bg-[var(--accent-amber-lt)] hover:opacity-90 border border-[var(--accent-amber)] text-dbAmber text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbAmber"></span>Watchlist Fraud</span>
           <span class="text-[10px] font-mono text-amber-500">Card Match</span>
         </button>
-        <button onclick="injectNormal()" id="btn-normal" class="w-full bg-[var(--accent-blue-lt)] hover:bg-[var(--accent-blue-lt)] border border-[var(--accent-blue)] text-dbBlue text-xs font-semibold py-2.5 px-4 rounded-lg flex items-center justify-between transition-colors">
+        <button onclick="injectNormal()" id="btn-normal" class="w-full bg-[var(--accent-blue-lt)] hover:opacity-90 border border-[var(--accent-blue)] text-dbBlue text-xs font-semibold py-2 px-3 rounded-lg flex items-center justify-between transition-colors">
           <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-dbBlue"></span>Inject 5 Normal Txns</span>
           <span class="text-[10px] font-mono text-blue-400">+5 Events</span>
         </button>
       </div>
 
-      <!-- Cloud Credentials -->
-      <details class="mt-4 group">
-        <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-semibold text-dbTextSec">
-          <span>Cloud &amp; Auth Credentials</span>
+      <!-- Cloud Credentials Drawer -->
+      <details class="mt-3 group border-t pt-2.5" style="border-color: var(--border);">
+        <summary class="flex items-center justify-between cursor-pointer list-none text-xs font-medium text-dbTextSec">
+          <span>Pipeline Endpoints</span>
           <span class="text-dbTextTer group-open:rotate-180 transition-transform">&#9660;</span>
         </summary>
-        <div class="mt-3 space-y-2.5 pt-3 border-t border-dbBorder text-xs">
+        <div class="mt-2.5 space-y-2 text-[11px]">
           <div>
-            <label class="block text-dbTextSec mb-1">Neon Postgres URL</label>
-            <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2.5 py-1.5 text-dbTextSec font-mono text-[11px] focus:outline-none">
+            <label class="block text-dbTextTer text-[10px] mb-0.5">Postgres CDC URL</label>
+            <input type="password" value="postgresql://neondb_owner:***@ep-finguard.neon.tech/finguard" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2 py-1 text-dbTextSec font-mono text-[10px]">
           </div>
           <div>
-            <label class="block text-dbTextSec mb-1">Kafka Bootstrap Broker</label>
-            <input type="text" value="pkc-finguard.ap-south-1.aws.confluent.cloud:9092" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2.5 py-1.5 text-dbTextSec font-mono text-[11px] focus:outline-none">
+            <label class="block text-dbTextTer text-[10px] mb-0.5">Kafka Broker</label>
+            <input type="text" value="pkc-finguard.aws.confluent.cloud:9092" readonly class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2 py-1 text-dbTextSec font-mono text-[10px]">
           </div>
-          <div>
-            <label class="block text-dbTextSec mb-1">Gmail SMTP User</label>
-            <input type="text" id="gmail-user" value="databeli14@gmail.com" class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2.5 py-1.5 text-dbText font-mono text-[11px] focus:outline-none">
-          </div>
-          <div>
-            <label class="block text-dbTextSec mb-1">Gmail App Password</label>
-            <input type="password" id="gmail-pass" placeholder="16-character App Password" class="w-full bg-[var(--surface-2)] border border-dbBorder rounded px-2.5 py-1.5 text-dbText font-mono text-[11px] focus:outline-none">
-          </div>
-          <button onclick="testEmail()" class="w-full bg-[var(--surface-2)] hover:bg-[var(--surface-hover)] text-dbText border border-dbBorder rounded py-1.5 text-xs font-medium transition-colors">
-            Test Email Dispatch
-          </button>
-          <p id="email-result" class="text-[11px] text-dbTextSec mt-1"></p>
         </div>
       </details>
+    </div>
+  </div>
+
+  <!-- Modal Overlays for Permissions / Settings / Schedule -->
+  <div id="modal-container" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+    <div class="theme-card rounded-xl shadow-2xl p-6 max-w-lg w-full mx-4 border relative" style="border-color: var(--border);">
+      <div class="flex items-center justify-between pb-3 border-b mb-4" style="border-color: var(--border);">
+        <h3 id="modal-title" class="text-base font-bold text-dbText">Modal Title</h3>
+        <button onclick="closeModal()" class="w-6 h-6 rounded flex items-center justify-center text-dbTextSec hover:text-dbText hover:bg-[var(--surface-hover)]">✕</button>
+      </div>
+      <div id="modal-body" class="text-xs text-dbTextSec space-y-3"></div>
+      <div class="mt-5 pt-3 border-t flex justify-end" style="border-color: var(--border);">
+        <button onclick="closeModal()" class="px-4 py-1.5 rounded-md font-medium text-xs text-white" style="background: var(--accent-blue);">Close</button>
+      </div>
     </div>
   </div>
 
@@ -1584,6 +1764,170 @@
     }
 
     // ===== Initialize =====
+    
+    // ===== PIPELINE STREAM TOGGLE (Start / Stop) =====
+    let streamInterval = null;
+    let isStreamRunning = false;
+
+    function togglePipelineStream() {
+      isStreamRunning = !isStreamRunning;
+      const btn = document.getElementById('pipeline-start-btn');
+      const txt = document.getElementById('start-btn-text');
+      const icon = document.getElementById('start-btn-icon');
+      const statusBadge = document.getElementById('pipeline-status-badge');
+
+      if (isStreamRunning) {
+        // Start streaming
+        btn.style.background = 'var(--accent-red)';
+        txt.innerText = 'Stop';
+        icon.innerHTML = '<rect x="6" y="6" width="12" height="12"/>';
+        if (statusBadge) statusBadge.innerText = 'Stream Active (Running)';
+
+        showToast('Pipeline started - Live streaming ingestion active');
+        addEventLog('info', 'pipeline_start', 'Streaming pipeline started. Ingesting high-frequency transactions from Kafka topic credit_card_transactions.');
+
+        // Stream tick every 2.5 seconds
+        streamInterval = setInterval(() => {
+          // Occasionally trigger fraud (15% chance)
+          if (Math.random() < 0.15) {
+            injectFraud(Math.random() < 0.5 ? 'high-value' : 'watchlist');
+          } else {
+            const txn = genTxn();
+            recalcKPIs();
+            renderState(state);
+            addEventLog('info', 'flow_progress', 'Ingested transaction ' + txn.transaction_id + ' (Rs. ' + fmtINR(txn.amount) + ') from ' + txn.city);
+          }
+        }, 2500);
+      } else {
+        // Stop streaming
+        clearInterval(streamInterval);
+        streamInterval = null;
+        btn.style.background = 'var(--accent-green)';
+        txt.innerText = 'Start';
+        icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+        if (statusBadge) statusBadge.innerText = 'Stream Paused';
+
+        showToast('Pipeline paused');
+        addEventLog('warning', 'pipeline_pause', 'Streaming ingestion paused by user.');
+      }
+    }
+
+    // ===== DEV / PROD ENVIRONMENT SWITCHER =====
+    function setEnvironment(env) {
+      const devBtn = document.getElementById('env-btn-dev');
+      const prodBtn = document.getElementById('env-btn-prod');
+      if (env === 'dev') {
+        devBtn.style.background = 'var(--accent-blue)';
+        devBtn.style.color = '#FFFFFF';
+        devBtn.classList.add('font-semibold');
+        prodBtn.style.background = 'transparent';
+        prodBtn.style.color = 'var(--text-dim)';
+        prodBtn.classList.remove('font-semibold');
+        showToast('Switched to Development environment (Catalog: finguard_dev)');
+        addEventLog('info', 'env_switch', 'Switched pipeline environment to Development (finguard_dev).');
+      } else {
+        prodBtn.style.background = 'var(--accent-blue)';
+        prodBtn.style.color = '#FFFFFF';
+        prodBtn.classList.add('font-semibold');
+        devBtn.style.background = 'transparent';
+        devBtn.style.color = 'var(--text-dim)';
+        devBtn.classList.remove('font-semibold');
+        showToast('Switched to Production environment (Catalog: finguard_prod)');
+        addEventLog('info', 'env_switch', 'Switched pipeline environment to Production (finguard_prod).');
+      }
+    }
+
+    // ===== MODALS (Permissions, Settings, Schedule) =====
+    const MODAL_DATA = {
+      permissions: {
+        title: 'Unity Catalog Permissions',
+        body: `
+          <p class="mb-2">Fine-grained access controls governed via Databricks Unity Catalog 3-level namespace:</p>
+          <div class="border rounded overflow-hidden font-mono text-[11px]" style="border-color: var(--border);">
+            <table class="w-full text-left">
+              <thead style="background: var(--surface-2);">
+                <tr class="border-b" style="border-color: var(--border);">
+                  <th class="p-2">Securable</th>
+                  <th class="p-2">Principal</th>
+                  <th class="p-2">Privileges</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y" style="border-color: var(--border);">
+                <tr><td class="p-2 text-dbBlue">finguard.*</td><td class="p-2">abhishek (owner)</td><td class="p-2 text-dbGreen">ALL PRIVILEGES</td></tr>
+                <tr><td class="p-2 text-dbBlue">finguard.gold.*</td><td class="p-2">fraud-analysts</td><td class="p-2">SELECT</td></tr>
+                <tr><td class="p-2 text-dbBlue">finguard.bronze.*</td><td class="p-2">dlt-pipeline-sp</td><td class="p-2">MODIFY, SELECT</td></tr>
+                <tr><td class="p-2 text-dbBlue">volume/watchlist</td><td class="p-2">autoloader-service</td><td class="p-2">READ VOLUME</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-[11px] text-dbTextTer">Audit logging enabled via Azure Monitor & Databricks System Tables.</p>
+        `
+      },
+      settings: {
+        title: 'Pipeline Settings',
+        body: `
+          <div class="space-y-2.5 font-mono text-[11px]">
+            <div class="flex justify-between py-1 border-b" style="border-color: var(--border);">
+              <span class="text-dbTextTer">Pipeline ID:</span>
+              <span class="font-semibold text-dbText">finguard-dlt-stream-prod</span>
+            </div>
+            <div class="flex justify-between py-1 border-b" style="border-color: var(--border);">
+              <span class="text-dbTextTer">Compute Engine:</span>
+              <span class="text-dbGreen font-semibold">Photon Accelerated (Single-Node)</span>
+            </div>
+            <div class="flex justify-between py-1 border-b" style="border-color: var(--border);">
+              <span class="text-dbTextTer">Spark Runtime:</span>
+              <span>14.3 LTS (Scala 2.12)</span>
+            </div>
+            <div class="flex justify-between py-1 border-b" style="border-color: var(--border);">
+              <span class="text-dbTextTer">Catalog / Schema:</span>
+              <span class="text-dbBlue">finguard.gold</span>
+            </div>
+            <div class="flex justify-between py-1 border-b" style="border-color: var(--border);">
+              <span class="text-dbTextTer">Storage Location:</span>
+              <span>dbfs:/pipelines/finguard-storage</span>
+            </div>
+            <div class="flex justify-between py-1">
+              <span class="text-dbTextTer">Quality Policy:</span>
+              <span>@expect_or_drop (Strict Compliance)</span>
+            </div>
+          </div>
+        `
+      },
+      schedule: {
+        title: 'Trigger & Schedule Configuration',
+        body: `
+          <div class="space-y-2.5 text-[11px]">
+            <div class="p-3 rounded border" style="background: var(--surface-2); border-color: var(--border);">
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-bold text-dbGreen">Continuous Mode (Real-Time)</span>
+                <span class="px-2 py-0.5 rounded bg-dbGreenLt text-dbGreen text-[10px] font-mono">ACTIVE</span>
+              </div>
+              <p class="text-dbTextSec">Executes streaming micro-batches continuously with sub-second trigger intervals on Kafka partition offsets.</p>
+            </div>
+            <div class="p-3 rounded border space-y-1 font-mono text-[11px]" style="background: var(--surface-2); border-color: var(--border);">
+              <div><strong>Watermark Delay:</strong> 5 minutes (bounded state memory)</div>
+              <div><strong>SLA Latency:</strong> &lt; 1,200 ms end-to-end</div>
+              <div><strong>Checkpointing:</strong> Enabled (Exactly-Once guarantee)</div>
+              <div><strong>Maintenance Window:</strong> Weekly Sundays 02:00 UTC</div>
+            </div>
+          </div>
+        `
+      }
+    };
+
+    function openModal(type) {
+      const data = MODAL_DATA[type];
+      if (!data) return;
+      document.getElementById('modal-title').innerText = data.title;
+      document.getElementById('modal-body').innerHTML = data.body;
+      document.getElementById('modal-container').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-container').classList.add('hidden');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       const savedTheme = localStorage.getItem('finguard-theme') || 'dark';
       applyTheme(savedTheme);
@@ -1613,7 +1957,7 @@
         </svg>
         Bengaluru
       </span>
-      <span>Open to opportunities</span>
+      
     </div>
     <span>&copy; 2026 Abhishek Kumar</span>
   </footer>
