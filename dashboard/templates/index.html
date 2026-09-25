@@ -1258,7 +1258,7 @@
       document.getElementById('detail-comment').innerText = info.comment;
 
       const now = new Date();
-      document.getElementById('detail-start').innerText = now.toLocaleString();
+      document.getElementById('detail-start').innerText = nowIN(now);
 
       document.getElementById('detail-panel').classList.remove('hidden');
       selectedNode = name;
@@ -1351,7 +1351,7 @@
     function rndId() { return 'TXN-' + Date.now().toString(36).toUpperCase() + '-' + (++txnCounter).toString().padStart(4, '0'); }
     function rndCard() { return '4' + Array.from({length:15}, () => Math.floor(Math.random()*10)).join(''); }
     function rndCustId() { return 'CUST-' + Math.floor(Math.random()*9000+1000); }
-    function nowISO(d) { d = d || new Date(); const p = n => String(n).padStart(2,'0'); return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+    function nowIN(d) { d = d || new Date(); const p = n => String(n).padStart(2,'0'); let h = d.getHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return p(d.getDate()) + '-' + p(d.getMonth()+1) + '-' + d.getFullYear() + ' ' + p(h) + ':' + p(d.getMinutes()) + ' ' + ap; }
     function fmtINR(v) { return Number(v).toLocaleString('en-IN', {minimumFractionDigits:2}); }
 
     function genTxn(opts = {}) {
@@ -1367,7 +1367,7 @@
       const isIntl = Math.random() < 0.12;
       offsetCounter++;
 
-      const ts = opts.ts || nowISO();
+      const ts = opts.ts || nowIN();
       const txn = { transaction_id: id, customer_id: custId, customer_name: custName, amount: amount, merchant_name: merchant, merchant_category: category, payment_channel: channel, city: city, card_number: card, is_international: isIntl, status: 'COMPLETED', offset: offsetCounter, timestamp: ts };
 
       state.transactions.unshift(txn);
@@ -1400,7 +1400,7 @@
     }
 
     // Generate initial data (staggered over the last ~12 minutes for realism)
-    for (let i = 0; i < 15; i++) genTxn({ ts: nowISO(new Date(Date.now() - (15 - i) * 47000 - Math.floor(Math.random() * 20000))) });
+    for (let i = 0; i < 15; i++) genTxn({ ts: nowIN(new Date(Date.now() - (15 - i) * 47000 - Math.floor(Math.random() * 20000))) });
     recalcKPIs();
 
     function refreshData() {
@@ -1424,7 +1424,7 @@
       document.getElementById('kpi-risky').innerText = data.kpis.high_risk_custs;
 
       if (data.transactions.length > 0) document.getElementById('nav-offset').innerText = '#' + data.transactions[0].offset;
-      document.getElementById('pipeline-timestamp').innerText = new Date().toLocaleString();
+      document.getElementById('pipeline-timestamp').innerText = nowIN();
       document.getElementById('alert-count-badge').innerText = data.alerts.length + ' alerts';
 
       const dagRows = { bronze: 0, silver: 0, gold: 0, fraud: 0 };
@@ -1763,7 +1763,7 @@
         amount: txn.amount, limit: limit.toFixed(2),
         merchant_name: txn.merchant_name, location: txn.city,
         reason: isHighVal ? 'Transaction Rs. ' + fmtINR(txn.amount) + ' exceeds credit limit Rs. ' + fmtINR(limit) : 'Card ' + txn.card_number + ' matches fraud watchlist entry',
-        alert_timestamp: nowISO()
+        alert_timestamp: nowIN()
       };
 
       state.alerts.unshift(alert);
@@ -2034,5 +2034,6 @@
   </footer>
 </body>
 </html>
+
 
 
